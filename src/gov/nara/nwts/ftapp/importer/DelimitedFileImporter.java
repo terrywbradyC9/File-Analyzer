@@ -54,7 +54,7 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 		String pline = line;
 		Vector<String> cols = new Vector<String>();
 		while(pline!=null){
-			pline = pline.trim();
+			if (!sep.trim().equals("")) pline = pline.trim();
 			String tpline = getNextString(pline,sep);
 			cols.add(normalize(tpline));
 			if (pline.length() == tpline.length()) break;

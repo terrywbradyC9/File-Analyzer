@@ -41,7 +41,9 @@ class CriteriaPanel extends MyPanel {
 	JComboBox actions;
 	JComboBox limit;
 	JCheckBox ignorePeriods;
+	JCheckBox fcb;
 	JTextArea description;
+	JPanel propFilterPanel;
 	JCheckBox autoSave;
 	DirSelectChooser fsc;
 	JTextField fctf;
@@ -167,7 +169,17 @@ class CriteriaPanel extends MyPanel {
 		description.setFont(description.getFont().deriveFont(Font.ITALIC));
 		p.add(new JScrollPane(description));
 
-		JPanel propFilterPanel = addPanel();
+		p = addPanel();
+		fcb = new JCheckBox("Show Filters and Properties", false);
+		p.add(fcb);
+		fcb.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				propFilterPanel.setVisible(fcb.isSelected());
+			}
+		});
+		
+		propFilterPanel = addPanel();
+		propFilterPanel.setVisible(false);
 		propFilter = new JTabbedPane();
 		propFilterPanel.add(propFilter, BorderLayout.CENTER);
 		filterTabs = new JTabbedPane();
