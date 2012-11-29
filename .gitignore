@@ -1,0 +1,5 @@
+#ignore compiled source
+*.class
+.classpath
+.project
+bin/*
