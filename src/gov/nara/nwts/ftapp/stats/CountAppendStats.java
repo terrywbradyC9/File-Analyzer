@@ -10,7 +10,7 @@ import gov.nara.nwts.ftapp.filetest.FileTest;
  * @author TBrady
  *
  */
-public class CountAppendStats extends CountStats {
+public class CountAppendStats extends Stats {
 	public static enum CountAppendStatsItems implements StatsItemEnum {
 		Type(StatsItem.makeStringStatsItem("Type")),
 		Count(StatsItem.makeLongStatsItem("Count")),

@@ -35,7 +35,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 		return f.getAbsolutePath();
 	}
     public Stats createStats(String key){
-    	Stats stats = new RandomStats(key);
+    	RandomStats stats = new RandomStats(key);
     	return stats;
     }
 	
@@ -68,7 +68,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 		int sampleSize = aql.getSampleSize(batchSize);
 		
 		for(Iterator<String>i=keySet.values().iterator(); i.hasNext(); ){
-			Stats stats = dt.types.get(i.next());
+			RandomStats stats = (RandomStats)dt.types.get(i.next());
 			stats.setVal(RandomStatsItems.Selected, (count< sampleSize) ? YN.Y : YN.N);
 			count++;
 		}
