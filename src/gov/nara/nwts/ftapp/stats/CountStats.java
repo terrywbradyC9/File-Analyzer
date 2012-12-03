@@ -28,8 +28,7 @@ public class CountStats extends Stats {
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
-		Long count = getLongVal(CountStatsItems.Count);
-		setVal(CountStatsItems.Count, count.longValue()+1);
+		sumVal(CountStatsItems.Count, 1);
 		return fileTest.fileTest(f);
 	}
 }

@@ -18,19 +18,27 @@ public class StatsItem {
 	}
 	
 	public static StatsItem makeStatsItem(Class<?> myclass, String header, int width) {
-		return new StatsItem(myclass, header, width, null, false, null);
+		return new StatsItem(myclass, header, width, null, true, null);
 	}
 	
 	public static StatsItem makeStringStatsItem(String header, int width) {
-		return new StatsItem(String.class, header, width, null, false, "");
+		return new StatsItem(String.class, header, width, null, true, "");
 	}
 	
 	public static StatsItem makeStringStatsItem(String header) {
-		return new StatsItem(String.class, header, 100, null, false, "");
+		return new StatsItem(String.class, header, 100, null, true, "");
 	}
 	
 	public static StatsItem makeLongStatsItem(String header) {
-		return new StatsItem(Long.class, header, 100, null, false, (long)0);
+		return new StatsItem(Long.class, header, 100, null, true, (long)0);
+	}
+
+	public static StatsItem makeIntStatsItem(String header) {
+		return new StatsItem(Integer.class, header, 100, null, true, (int)0);
+	}
+
+	public static StatsItem makeFloatStatsItem(String header) {
+		return new StatsItem(Float.class, header, 100, null, true, (float)0);
 	}
 
 	public StatsItem setWidth(int width) {

@@ -23,7 +23,6 @@ public class ActionRegistry extends Vector<FileTest> {
 		add(new NameMD5Checksum(dt));
 		add(new NameSha1Checksum(dt));
 		add(new NameSha256Checksum(dt));
-		add(new ByMD5Checksum(dt));
 		add(new DirMatch(dt));
 		add(new DirTypeNameMatch(dt));
 		add(new RandomFileTest(dt));

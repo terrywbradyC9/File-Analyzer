@@ -1,8 +1,10 @@
 package gov.nara.nwts.ftapp.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
-import gov.nara.nwts.ftapp.stats.DataStats;
+import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,23 +12,84 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Abstract class for rules that report on checksum values; derived versions of this class will provide a specific hashing algorithm from the Java core library.
  * @author TBrady
  *
  */
-abstract class NameChecksum extends DefaultFileTest {
+public abstract class NameChecksum extends DefaultFileTest {
+	
+	public static enum ChecksumStatsItems implements StatsItemEnum {
+		Key(StatsItem.makeStringStatsItem("Key", 400)),
+		Data(StatsItem.makeStatsItem(Object.class, "Data", 300).setInitVal("")),
+		Duplicate(StatsItem.makeEnumStatsItem(YN.class, "Duplicate").setInitVal(YN.N)),
+		MatchCount(StatsItem.makeIntStatsItem("Num of Matches").setInitVal(1));
+		
+		StatsItem si;
+		ChecksumStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+
+	public static Object[][] details = StatsItem.toObjectArray(ChecksumStatsItems.class);
+	public class ChecksumStats extends Stats {
+		
+		public ChecksumStats(String key) {
+			super(key);
+			init(ChecksumStatsItems.class);
+		}
+		
+		public Object compute(File f, FileTest fileTest) {
+			Object o = fileTest.fileTest(f);
+			setVal(ChecksumStatsItems.Data, o);
+			
+			if (fileTest instanceof NameChecksum) {
+				if (o != null) {
+					((NameChecksum)fileTest).setChecksumKey(o.toString(), this);				
+				}
+			}
+			return o;
+		}
+	}
+	
+	HashMap<String, List<ChecksumStats>> keymap;
 
 	public NameChecksum(FTDriver dt) {
 		super(dt);
+		keymap = new HashMap<String, List<ChecksumStats>>();
 	}
 
 	public String toString() {
 		return "Sort By Checksum";
 	}
 	public String getKey(File f) {
-		return f.getName();
+		return getRelPath(f);
+	}
+	
+	@Override public void init() {
+		keymap.clear();
+	}
+	
+	public void setChecksumKey(String s, ChecksumStats stat) {
+		List<ChecksumStats> matches = keymap.get(s);
+		if (matches == null) {
+			matches = new ArrayList<ChecksumStats>();
+			keymap.put(s, matches);
+		} 
+		matches.add(stat);
+	}
+	
+	@Override public void refineResults() {
+		for(List<ChecksumStats> matches: keymap.values()) {
+			if (matches.size() == 1) continue;
+			for(ChecksumStats match: matches) {
+				match.setVal(ChecksumStatsItems.Duplicate, YN.Y);
+				match.setVal(ChecksumStatsItems.MatchCount, matches.size());
+			}
+		}
 	}
 	
     public String getShortName(){return "Checksum";}
@@ -72,10 +135,10 @@ abstract class NameChecksum extends DefaultFileTest {
 		return getChecksum(f);
 	}
     public Stats createStats(String key){ 
-    	return new DataStats(key);
+    	return new ChecksumStats(key);
     }
     public Object[][] getStatsDetails() {
-    	return DataStats.details;
+    	return details;
     }
 	public void initFilters() {
 		initAllFilters();

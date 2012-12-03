@@ -26,8 +26,7 @@ public class NameStats extends Stats {
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
-		Long size = f.length();
-		setVal(NameStatsItems.Size, size.longValue()+getLongVal(NameStatsItems.Size));
+		sumVal(NameStatsItems.Size, f.length());
 		return fileTest.fileTest(f);
 	}
 }

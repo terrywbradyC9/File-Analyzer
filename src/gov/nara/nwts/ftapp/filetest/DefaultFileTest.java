@@ -79,6 +79,9 @@ public abstract class DefaultFileTest implements FileTest {
 		return getKey(f);
 	}
 
+	public String getRelPath(File f) {
+		return f.getAbsolutePath().substring(getRoot().getAbsolutePath().length());
+	}
 	public String getShortNameNormalized() {
 		return getShortName().replaceAll("[\\s&]","");
 	}

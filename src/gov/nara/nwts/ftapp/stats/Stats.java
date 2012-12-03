@@ -37,6 +37,70 @@ public class Stats {
 		}
 	}
 	 
+	public void sumVal(StatsItemEnum eitem, int val) {
+		int index = eitem.ordinal() - 1; 
+		if (vals.size() > index) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof Integer) {
+				int n = (Integer)obj;
+				n += val;
+				vals.set(index, n);
+			} else if (obj instanceof Float) {
+				float n = (Float)obj;
+				n += val;
+				vals.set(index, n);
+			} else if (obj instanceof Long) {
+				long n = (Long)obj;
+				n += val;
+				vals.set(index, n);
+			}
+		}
+	}
+	 
+	public void sumVal(StatsItemEnum eitem, float val) {
+		int index = eitem.ordinal() - 1; 
+		if (vals.size() > index) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof Float) {
+				float n = (Float)obj;
+				n += val;
+				vals.set(index, n);
+			}
+		}
+	}
+	 
+	public void sumVal(StatsItemEnum eitem, long val) {
+		int index = eitem.ordinal() - 1; 
+		if (vals.size() > index) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof Long) {
+				long n = (Long)obj;
+				n += val;
+				vals.set(index, n);
+			}
+		}
+	}
+	 
+	public void appendVal(StatsItemEnum eitem, String val) {
+		int index = eitem.ordinal() - 1; 
+		if (vals.size() > index) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof String) {
+				String s = (String)obj;
+				s += val;
+				vals.set(index, s);
+			}
+		}
+	}
+	 
 	public Vector<Object> getVals() {
 		return vals;
 	}

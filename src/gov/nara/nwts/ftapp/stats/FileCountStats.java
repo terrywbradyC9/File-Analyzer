@@ -29,10 +29,8 @@ public class FileCountStats extends Stats {
 	
 	public Object compute(File f, FileTest fileTest) {
 		Object ret = super.compute(f, fileTest);
-		Long count = getLongVal(FileCountStatsItems.Count);
-		setVal(FileCountStatsItems.Count, count.longValue()+1);
-		Long bytes = getLongVal(FileCountStatsItems.Size);
-		setVal(FileCountStatsItems.Size, bytes.longValue()+f.length());
+		sumVal(FileCountStatsItems.Count, 1);
+		sumVal(FileCountStatsItems.Size, f.length());
 		return ret;
 	}
 

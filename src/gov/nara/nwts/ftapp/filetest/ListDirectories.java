@@ -3,8 +3,9 @@ package gov.nara.nwts.ftapp.filetest;
 import java.io.File;
 
 import gov.nara.nwts.ftapp.FTDriver;
-import gov.nara.nwts.ftapp.stats.DataStats;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 /**
  * List the full path for a dirctory; this can be used as input for the FileAnalzyer batch capability.
@@ -12,11 +13,29 @@ import gov.nara.nwts.ftapp.stats.Stats;
  *
  */
 class ListDirectories extends DefaultFileTest {
-	public static Object[][] details = {
-		{String.class,"Folder",250},
-		{String.class,"Name",100},
-	};
-	
+	public static enum DataStatsItems implements StatsItemEnum {
+		Key(StatsItem.makeStringStatsItem("Folder", 200)),
+		Data(StatsItem.makeStatsItem(Object.class, "Name", 300).setInitVal(""));
+		
+		StatsItem si;
+		DataStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	public static Object[][] details = StatsItem.toObjectArray(DataStatsItems.class);
+	public class DataStats extends Stats {
+		
+		public DataStats(String key) {
+			super(key);
+			init(DataStatsItems.class);
+		}
+		
+		public Object compute(File f, FileTest fileTest) {
+			Object o = fileTest.fileTest(f);
+			setVal(DataStatsItems.Data, o);
+			return o;
+		}
+	}
+
 	public ListDirectories(FTDriver dt) {
 		super(dt);
 	}
@@ -37,7 +56,7 @@ class ListDirectories extends DefaultFileTest {
 	public Stats createStats(String key) {
 		DataStats stats = new DataStats(key) {
 			public Object compute(File f, FileTest fileTest) {
-				setVal(DataStats.DataStatsItems.Data, f.getName());
+				setVal(DataStatsItems.Data, f.getName());
 				return f.getName();
 			}
 		};

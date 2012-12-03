@@ -40,11 +40,9 @@ public class DirStats extends Stats {
 	}
 	
 	public void accumulate(File f, FileTest fileTest, File parentdir) {
-		Long count = getLongVal(DirStatsItems.Count);
 		if (f.getParentFile().equals(parentdir)){
-			setVal(DirStatsItems.Count, count.longValue()+1);
+			sumVal(DirStatsItems.Count, 1);
 		}
-		count = getLongVal(DirStatsItems.CumulativeCount);
-		setVal(DirStatsItems.CumulativeCount, count.longValue()+1);
+		sumVal(DirStatsItems.CumulativeCount, 1);
 	}
 }
