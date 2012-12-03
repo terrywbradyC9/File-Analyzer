@@ -42,15 +42,15 @@ class MergePanel extends MyBorderPanel {
 	JPanel tp;
 	DefaultTableModel tm;
 	JTable jt;
-	Vector<JComboBox> mergeOptions;
-	JComboBox filterOptions;
+	Vector<JComboBox<String>> mergeOptions;
+	JComboBox<FilterOptionTest> filterOptions;
 	Box box;
 	JButton b;
 	TableRowSorter<TableModel> sorter;
 	DirectoryTable parent;
 	MergePanel(DirectoryTable dt) {
 		parent = dt;
-		mergeOptions = new Vector<JComboBox>();
+		mergeOptions = new Vector<JComboBox<String>>();
 		String[] cols = {"Key","Run 1", "Run 2"};
 		tm = new DefaultTableModel(cols,5);
 		jt = new MergeTable(tm);
@@ -59,7 +59,7 @@ class MergePanel extends MyBorderPanel {
 		jt.setPreferredScrollableViewportSize(new Dimension(600,200));
 		sorter = new TableRowSorter<TableModel>(tm);
 		jt.setRowSorter(sorter);
-		filterOptions = new JComboBox();
+		filterOptions = new JComboBox<FilterOptionTest>();
 		tp = addBorderPanel("Merged Counts");
 		tp.add(new JScrollPane(jt), BorderLayout.CENTER);
 		JPanel p = addPanel("", BorderLayout.SOUTH);
@@ -94,14 +94,14 @@ class MergePanel extends MyBorderPanel {
 				int compcount = 1;
 				int col = 0;
 				for(int i=DirectoryTable.TAB_MERGE + 1; i < parent.tabs.getTabCount(); i++){
-					JComboBox opt = MergePanel.this.mergeOptions.get(i-DirectoryTable.TAB_MERGE-1);						
+					JComboBox<String> opt = MergePanel.this.mergeOptions.get(i-DirectoryTable.TAB_MERGE-1);						
 					if (opt.getSelectedItem().equals(STR_IGNORE)) continue;
 					compcount++;
 				}
 				String[] colnames = new String[compcount];
 				colnames[0] = "Key";
 				for(int i=DirectoryTable.TAB_MERGE + 1; i < parent.tabs.getTabCount(); i++){
-					JComboBox opt = MergePanel.this.mergeOptions.get(i-DirectoryTable.TAB_MERGE-1);
+					JComboBox<String> opt = MergePanel.this.mergeOptions.get(i-DirectoryTable.TAB_MERGE-1);
 					if (opt.getSelectedItem().equals(STR_IGNORE)) continue;
 					col++;
 					colnames[col] = parent.tabs.getTitleAt(i);
@@ -211,7 +211,7 @@ class MergePanel extends MyBorderPanel {
 				v.add(sp.st.details[c][1].toString());
 			}
 			v.add(STR_YES);
-			JComboBox cb = new JComboBox(v);
+			JComboBox<String> cb = new JComboBox<String>(v);
 			cb.setSelectedIndex((v.size() > 2) ? 2 : (v.size() == 2) ? 1 : 0);
 			mergeOptions.add(cb);
 			p.add(cb);
@@ -261,7 +261,7 @@ class MergePanel extends MyBorderPanel {
 			this.global = global;
 		}
 		
-		public void addOptions(JComboBox cb, TableModel tm) {
+		public void addOptions(JComboBox<FilterOptionTest> cb, TableModel tm) {
 			if (global) {
 				cb.addItem(new FilterOptionTest(this, -1, tm));
 			}else {

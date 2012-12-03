@@ -33,7 +33,7 @@ class StatsTable {
 	MyStatsTableModel tm;
 	Object[][] details;
 	Pattern patt;
-	Vector<JComboBox> filters;
+	Vector<JComboBox<Object>> filters;
 	TableRowSorter<TableModel> sorter;
 	ArrayList<String>noExport;
 	DirectoryTable dt;
@@ -58,12 +58,12 @@ class StatsTable {
 		this.details = details;
 		this.dt = dt;
 		noExport = new ArrayList<String>();
-		filters = new Vector<JComboBox>();
+		filters = new Vector<JComboBox<Object>>();
 		for (Iterator<String> i = mystats.keySet().iterator(); i.hasNext();) {
 			String s = i.next();
 			Vector<Object> v = new Vector<Object>();
 			v.add(s);
-			for (Iterator<Object> j = mystats.get(s).vals.iterator(); j
+			for (Iterator<Object> j = mystats.get(s).getVals().iterator(); j
 					.hasNext();) {
 				v.add(j.next());
 			}
@@ -86,7 +86,7 @@ class StatsTable {
 						buf.append(";");
 						buf.append(e.toString());
 					}
-					JComboBox cb = new JComboBox(buf.toString().split(";"));
+					JComboBox<Object> cb = new JComboBox<Object>(buf.toString().split(";"));
 					cb.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent arg0) {
 							RowFilter<TableModel, Integer> rf = new RowFilter<TableModel, Integer>() {
@@ -96,7 +96,7 @@ class StatsTable {
 										Object o = arg0.getValue(i);
 										if (o == null)
 											continue;
-										JComboBox cb = filters.get(i);
+										JComboBox<Object> cb = filters.get(i);
 										if (cb == null)
 											continue;
 										if (cb.getSelectedIndex() == 0)
@@ -138,11 +138,9 @@ class StatsTable {
 		jth.setReorderingAllowed(true);
 		TableColumnModel tcm = jt.getColumnModel();
 		TableColumn tc;
-		int width = 0;
 		for (int i = 0; i < details.length; i++) {
 			tc = tcm.getColumn(i);
 			int cw = (Integer) details[i][2];
-			width += cw;
 			tc.setPreferredWidth(cw);
 			tc.setHeaderValue(details[i][1]);
 

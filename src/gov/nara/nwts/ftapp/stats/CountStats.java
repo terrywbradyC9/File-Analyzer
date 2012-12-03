@@ -10,20 +10,26 @@ import gov.nara.nwts.ftapp.filetest.FileTest;
  *
  */
 public class CountStats extends Stats {
-	public static Object[][] details = {
-			{String.class,"Type",100},
-			{Long.class,"Count",100},
-		};
-
 	
+	public static enum CountStatsItems implements StatsItemEnum {
+		Type(StatsItem.makeStringStatsItem("Type")),
+		Count(StatsItem.makeLongStatsItem("Count"));
+		
+		StatsItem si;
+		CountStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	
+	public static Object[][] details = StatsItem.toObjectArray(CountStatsItems.class);
+
 	public CountStats(String key) {
-		super(key);
-		vals.add(new Long(0));
+		super(key);  
+		init(CountStatsItems.class);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
-		Long count = (Long)vals.get(0);
-		vals.set(0, count.longValue()+1);
+		Long count = getLongVal(CountStatsItems.Count);
+		setVal(CountStatsItems.Count, count.longValue()+1);
 		return fileTest.fileTest(f);
 	}
 }

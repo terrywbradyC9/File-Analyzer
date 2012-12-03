@@ -9,6 +9,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.stats.RandomStats;
+import gov.nara.nwts.ftapp.stats.RandomStats.RandomStatsItems;
 import gov.nara.nwts.ftapp.stats.Randomizer;
 import gov.nara.nwts.ftapp.stats.Stats;
 
@@ -20,11 +21,6 @@ import gov.nara.nwts.ftapp.stats.Stats;
 class RandomFileTest extends DefaultFileTest implements Randomizer {
 	TreeMap<Long, String> keySet;
 	public static final String LAQL="AQL";
-	
-	public static Object[][] details = {
-		{String.class,"Path",450},
-		{YN.class,"Selected",60, YN.values(),false},
-	};
 	
 	public RandomFileTest(FTDriver dt) {
 		super(dt);
@@ -40,14 +36,13 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 	}
     public Stats createStats(String key){
     	Stats stats = new RandomStats(key);
-    	stats.vals.add(YN.N);
     	return stats;
     }
 	
     public String getShortName(){return "Random";}
 
     public Object[][] getStatsDetails() {
-    	return details;
+    	return RandomStats.details;
     }
 
 	public void initFilters() {
@@ -74,7 +69,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 		
 		for(Iterator<String>i=keySet.values().iterator(); i.hasNext(); ){
 			Stats stats = dt.types.get(i.next());
-			stats.vals.set(0, (count< sampleSize) ? YN.Y : YN.N);
+			stats.setVal(RandomStatsItems.Selected, (count< sampleSize) ? YN.Y : YN.N);
 			count++;
 		}
 		keySet.clear();

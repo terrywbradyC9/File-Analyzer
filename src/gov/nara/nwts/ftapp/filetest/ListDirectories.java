@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.filetest;
 import java.io.File;
 
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.stats.DataStats;
 import gov.nara.nwts.ftapp.stats.Stats;
 
 /**
@@ -34,13 +35,12 @@ class ListDirectories extends DefaultFileTest {
 	}
 
 	public Stats createStats(String key) {
-		Stats stats = new Stats(key) {
+		DataStats stats = new DataStats(key) {
 			public Object compute(File f, FileTest fileTest) {
-				vals.set(0, f.getName());
+				setVal(DataStats.DataStatsItems.Data, f.getName());
 				return f.getName();
 			}
 		};
-		stats.vals.add("");
 		return stats;
 	}
 

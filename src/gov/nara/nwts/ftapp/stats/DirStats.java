@@ -10,17 +10,21 @@ import gov.nara.nwts.ftapp.filetest.FileTest;
  *
  */
 public class DirStats extends Stats {
-	public static Object[][] details = {
-			{String.class,"Key",300},
-			{Long.class,"Count",100},
-			{Long.class,"Cumulative Count",100},
-		};
+	public static enum DirStatsItems implements StatsItemEnum {
+		Dir(StatsItem.makeStringStatsItem("Dir", 100)),
+		Count(StatsItem.makeLongStatsItem("Count")),
+		CumulativeCount(StatsItem.makeLongStatsItem("Cumulative Count"));
+		
+		StatsItem si;
+		DirStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
 
+	public static Object[][] details = StatsItem.toObjectArray(DirStatsItems.class);
 	
 	public DirStats(String key) {
 		super(key);
-		vals.add(new Long(0));
-		vals.add(new Long(0));
+		init(DirStatsItems.class);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
@@ -36,11 +40,11 @@ public class DirStats extends Stats {
 	}
 	
 	public void accumulate(File f, FileTest fileTest, File parentdir) {
-		Long count = (Long)vals.get(0);
+		Long count = getLongVal(DirStatsItems.Count);
 		if (f.getParentFile().equals(parentdir)){
-			vals.set(0, count.longValue()+1);
+			setVal(DirStatsItems.Count, count.longValue()+1);
 		}
-		count = (Long)vals.get(1);
-		vals.set(1, count.longValue()+1);
+		count = getLongVal(DirStatsItems.CumulativeCount);
+		setVal(DirStatsItems.CumulativeCount, count.longValue()+1);
 	}
 }

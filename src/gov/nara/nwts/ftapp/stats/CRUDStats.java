@@ -14,17 +14,20 @@ import java.io.File;
  */
 public class CRUDStats extends Stats {
 
-	public static Object[][] details = {
-		{String.class,"Path",450},
-		{String.class,"Pass/Fail",50,RenamePassFail.values()},
-		{String.class,"Status",150, CRUD.values()},
-	};
-
+	public static enum CRUDStatsItems implements StatsItemEnum {
+		Path(StatsItem.makeStringStatsItem("Path",450)),
+		PassFail(StatsItem.makeEnumStatsItem(RenamePassFail.class, "Pass/Fail").setWidth(50)),
+		Status(StatsItem.makeEnumStatsItem(CRUD.class, "Status").setWidth(150));
+		
+		StatsItem si;
+		CRUDStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
 	
+	public static Object[][] details = StatsItem.toObjectArray(CRUDStatsItems.class);
+
 	public CRUDStats(String key) {
 		super(key);
-		vals.add("");
-		vals.add("");
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

@@ -45,7 +45,6 @@ import gov.nara.nwts.ftapp.ftprop.FTProp;
  *
  */
 public class DirectoryTable extends FTDriver {
-	private static final long serialVersionUID = 1L;
 	public static final int TAB_CRITERIA = 0;
 	public static final int TAB_IMPORT = 1;
 	public static final int TAB_PROGRESS = 2;

@@ -4,6 +4,8 @@ import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,16 +18,31 @@ import java.util.regex.Pattern;
 
 /**
  * Base class parser to ananlyze and ingest individual rows from a file using a regular expression pattern.
+ * NOT USED -- NEED USE CASE OR DELETE
  * @author TBrady
  *
  */
 public class Parser extends DefaultImporter {
 	public enum status {PASS,FAIL}
-	public static Object[][] details = {
-		{String.class,"Row",60},
-		{status.class,"Pass/Fail",100,status.values()},
-		{String.class,"Data",300},
-	};
+	
+	public static enum ParserStatsItems implements StatsItemEnum {
+		Row(StatsItem.makeStringStatsItem("Row",60)),
+		PassFail(StatsItem.makeEnumStatsItem(status.class, "Pass/Fail").setInitVal(status.PASS)),
+		Data(StatsItem.makeStringStatsItem("Data",300));
+		
+		StatsItem si;
+		ParserStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	
+	class ParserStats extends Stats {
+		ParserStats(String key) {
+			super(key);
+			init(ParserStatsItems.class);
+		}
+	}
+	
+	public static Object[][] details = StatsItem.toObjectArray(ParserStatsItems.class);
 	Pattern p;
 	int cols;
 	Object[][]mydetails;
@@ -62,16 +79,15 @@ public class Parser extends DefaultImporter {
 		return "";
 	}
 
-	public void setVals(Matcher m, Stats stats, String line) {
+	public void setVals(Matcher m, ParserStats stats, String line) {
 		if (m.matches()) {
-			stats.vals.add(status.PASS);
 			for(int i=1;i<=cols;i++) {
-				stats.vals.add(getVal(m,i));
+				stats.addExtraVal(getVal(m,i));
 			}
 		} else {
-			stats.vals.add(status.FAIL);
+			stats.setVal(ParserStatsItems.PassFail, status.FAIL);
 			for(int i=1;i<=cols;i++) {
-				stats.vals.add(getDefVal(m,i,line));
+				stats.addExtraVal(getDefVal(m,i,line));
 			}
 		}
 		
@@ -85,7 +101,7 @@ public class Parser extends DefaultImporter {
 			int i=1000000;
 			for(String line=br.readLine(); line!=null; line=br.readLine()){
 				String key = ""+ (i++);
-				Stats stats = new Stats(key);
+				ParserStats stats = new ParserStats(key);
 				types.put(key, stats);
 				Matcher m = test(line);
 				setVals(m, stats, line);

@@ -10,20 +10,24 @@ import java.io.File;
  *
  */
 public class NameStats extends Stats {
-	public static Object[][] details = {
-			{String.class,"Name",250},
-			{Long.class,"Size",100},
-		};
-
+	public static enum NameStatsItems implements StatsItemEnum {
+		Name(StatsItem.makeStringStatsItem("Name")),
+		Size(StatsItem.makeLongStatsItem("Size"));
+		
+		StatsItem si;
+		NameStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	public static Object[][] details = StatsItem.toObjectArray(NameStatsItems.class);
 	
 	public NameStats(String key) {
 		super(key);
-		vals.add(new Long(0));
+		init(NameStatsItems.class);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
 		Long size = f.length();
-		vals.set(0, size.longValue()+1);
+		setVal(NameStatsItems.Size, size.longValue()+getLongVal(NameStatsItems.Size));
 		return fileTest.fileTest(f);
 	}
 }

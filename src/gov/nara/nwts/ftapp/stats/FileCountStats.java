@@ -9,23 +9,30 @@ import java.io.File;
  * @author TBrady
  *
  */
-public class FileCountStats extends CountStats {
-	public static Object[][] details = {
-			{String.class,"Type",100},
-			{Long.class,"Count",100},
-			{Long.class,"Size",100},
-		};
-
+public class FileCountStats extends Stats {
+	public static enum FileCountStatsItems implements StatsItemEnum {
+		Type(StatsItem.makeStringStatsItem("Type")),
+		Count(StatsItem.makeLongStatsItem("Count")),
+		Size(StatsItem.makeLongStatsItem("Size"));
+		
+		StatsItem si;
+		FileCountStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
 	
+	public static Object[][] details = StatsItem.toObjectArray(FileCountStatsItems.class);
+
 	public FileCountStats(String key) {
 		super(key);
-		vals.add(new Long(0));
+		init(FileCountStatsItems.class);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
 		Object ret = super.compute(f, fileTest);
-		Long bytes = (Long)vals.get(1);
-		vals.set(1, bytes.longValue()+f.length());
+		Long count = getLongVal(FileCountStatsItems.Count);
+		setVal(FileCountStatsItems.Count, count.longValue()+1);
+		Long bytes = getLongVal(FileCountStatsItems.Size);
+		setVal(FileCountStatsItems.Size, bytes.longValue()+f.length());
 		return ret;
 	}
 

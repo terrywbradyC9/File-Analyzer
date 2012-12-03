@@ -216,7 +216,7 @@ public class FTDriver {
 			}
 			for (Iterator<String> i = mystats.keySet().iterator(); i.hasNext();) {
 				String s = i.next();
-				Vector<Object> curvals = mystats.get(s).vals;
+				Vector<Object> curvals = mystats.get(s).getVals();
 				if (myresfilter.evaluate(curvals)){
 					int c = 0;
 					first = true;

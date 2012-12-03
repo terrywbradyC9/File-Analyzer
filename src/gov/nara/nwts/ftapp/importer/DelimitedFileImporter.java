@@ -92,10 +92,10 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 			} 
 			Stats stats = new Stats(key);
 			if (forceKey) {
-				stats.vals.add(cols.get(0));
+				stats.addExtraVal(cols.get(0));
 			}
 			for(int i=1; i<cols.size(); i++){
-				stats.vals.add(cols.get(i));
+				stats.addExtraVal(cols.get(i));
 			}
 			types.put(key, stats);
 		}

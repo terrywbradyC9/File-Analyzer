@@ -14,32 +14,33 @@ import java.io.File;
  *
  */
 public class NameValidationStats extends Stats {
+	public static enum NameValidationStatsItems implements StatsItemEnum {
+		Path(StatsItem.makeStringStatsItem("Path", 450)),
+		PassFail(StatsItem.makeEnumStatsItem(RenamePassFail.class, "Pass/Fail").setWidth(50)),
+		Status(StatsItem.makeEnumStatsItem(RenameStatus.class,"Status").setWidth(150)),
+		Message(StatsItem.makeStringStatsItem("Message", 250)),
+		RecommendedPath(StatsItem.makeStringStatsItem("Path", 450));
+		
+		StatsItem si;
+		NameValidationStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
 
-	public static Object[][] details = {
-		{String.class,"Path",450},
-		{String.class,"Pass/Fail",50,RenamePassFail.values()},
-		{String.class,"Status",150,RenameStatus.values()},
-		{String.class,"Message",250},
-		{Object.class,"Recommended Path",450},
-	};
+	public static Object[][] details = StatsItem.toObjectArray(NameValidationStatsItems.class);
 
-	
 	public NameValidationStats(String key) {
 		super(key);
-		vals.add("");
-		vals.add("");
-		vals.add("");
-		vals.add("");
+		init(NameValidationStatsItems.class);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
 		Object ret = fileTest.fileTest(f);
 		if (ret instanceof RenameDetails) {
 			RenameDetails rdet = (RenameDetails)ret;
-			vals.set(0, rdet.getPassFail());
-			vals.set(1, rdet.getRenameStatus());
-			vals.set(2, rdet.getMessage());
-			vals.set(3, rdet.getDetailNote(fileTest.getRoot()));
+			setVal(NameValidationStatsItems.PassFail, rdet.getPassFail());
+			setVal(NameValidationStatsItems.Status, rdet.getRenameStatus());
+			setVal(NameValidationStatsItems.Message, rdet.getMessage());
+			setVal(NameValidationStatsItems.RecommendedPath, rdet.getDetailNote(fileTest.getRoot()));
 		}
 		return ret;
 	}

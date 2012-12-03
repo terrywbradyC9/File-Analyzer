@@ -35,8 +35,8 @@ class ImportPanel extends MyPanel {
 	JTextField suffix;
 	JFormattedTextField start;
 	JFormattedTextField end;
-	JComboBox pad;
-	JComboBox importers;
+	JComboBox<Object> pad;
+	JComboBox<Importer> importers;
 	JTextArea importerDesc;
 	JCheckBox forceKey;
 	DirectoryTable parent;
@@ -79,7 +79,7 @@ class ImportPanel extends MyPanel {
 		p1.add(jb);
 		p1 = new JPanel();
 		p1.add(new JLabel("File Import Action"));
-		importers = new JComboBox(parent.importerRegistry);
+		importers = new JComboBox<Importer>(parent.importerRegistry);
 		importers.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				updateDesc();
@@ -112,7 +112,7 @@ class ImportPanel extends MyPanel {
 		p.add(end);
 		p.add(new JLabel());
 		Object[] objs = {"No Padding",2,3,4,5,6,7,8};
-		pad = new JComboBox(objs);
+		pad = new JComboBox<Object>(objs);
 		p.add(pad);
 		p.add(new JLabel("Suffix"));
 		suffix = new JTextField(25);
@@ -140,7 +140,7 @@ class ImportPanel extends MyPanel {
 					}
 					String key = prefix.getText() + nf.format(i) + suffix.getText();
 					Stats stats = new Stats(key);
-					stats.vals.add(1);
+					stats.addExtraVal(1);
 					types.put(key, stats);
 				}
 				parent.showSummary("Generated "+(++parent.summaryCount), details, types, true);
