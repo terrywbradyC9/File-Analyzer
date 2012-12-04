@@ -1,12 +1,12 @@
 package gov.nara.nwts.ftapp.stats;
 
 public class StatsItem {
-	Class<?> myclass;
-	String header;
-	int width;
-	Object[] values;
-	boolean export = true;
-	Object initVal;
+	public Class<?> myclass;
+	public String header;
+	public int width;
+	public Object[] values;
+	public boolean export = true;
+	public Object initVal;
 	
 	public StatsItem(Class<?> myclass, String header, int width, Object[] values, boolean export, Object initVal) {
 		this.myclass = myclass;
@@ -94,13 +94,4 @@ public class StatsItem {
 		return obj;
 	}
 
-	public static <T extends Enum<T> & StatsItemEnum> Object[][] toObjectArray(Class<T> eclass) {
-		Object[][] obj = new Object[eclass.getEnumConstants().length][];
-		int count = 0;
-		for(StatsItemEnum curE : eclass.getEnumConstants()) {
-			obj[count] = curE.si().array();
-			count++;
-		}
-		return obj;
-	}
 }

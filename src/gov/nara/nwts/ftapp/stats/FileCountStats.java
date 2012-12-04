@@ -20,7 +20,7 @@ public class FileCountStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
-	public static Object[][] details = StatsItem.toObjectArray(FileCountStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(FileCountStatsItems.class);
 
 	public FileCountStats(String key) {
 		super(key);

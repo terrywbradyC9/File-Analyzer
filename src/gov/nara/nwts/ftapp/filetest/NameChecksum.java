@@ -4,6 +4,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
@@ -34,7 +35,6 @@ public abstract class NameChecksum extends DefaultFileTest {
 		public StatsItem si() {return si;}
 	}
 
-	public static Object[][] details = StatsItem.toObjectArray(ChecksumStatsItems.class);
 	public class ChecksumStats extends Stats {
 		
 		public ChecksumStats(String key) {
@@ -137,8 +137,9 @@ public abstract class NameChecksum extends DefaultFileTest {
     public Stats createStats(String key){ 
     	return new ChecksumStats(key);
     }
-    public Object[][] getStatsDetails() {
-    	return details;
+    public StatsItemConfig getStatsDetails() {
+    	return StatsItemConfig.create(ChecksumStatsItems.class);
+
     }
 	public void initFilters() {
 		initAllFilters();

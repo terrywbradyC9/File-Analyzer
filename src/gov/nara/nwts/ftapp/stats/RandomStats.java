@@ -22,7 +22,7 @@ public class RandomStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
-	public static Object[][] details = StatsItem.toObjectArray(RandomStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(RandomStatsItems.class);
 	long randomVal;
 	Random random;
 	

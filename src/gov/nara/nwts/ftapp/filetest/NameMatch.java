@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.filetest;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.NameStats;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
 /**
@@ -31,7 +32,7 @@ class NameMatch extends DefaultFileTest {
     public Stats createStats(String key){ 
     	return new NameStats(key);
     }
-    public Object[][] getStatsDetails() {
+    public StatsItemConfig getStatsDetails() {
     	return NameStats.details;
     }
 	public void initFilters() {

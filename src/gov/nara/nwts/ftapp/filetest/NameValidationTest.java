@@ -12,6 +12,7 @@ import gov.nara.nwts.ftapp.nameValidation.RenameStatus;
 import gov.nara.nwts.ftapp.nameValidation.ValidPattern;
 import gov.nara.nwts.ftapp.stats.NameValidationStats;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 /**
  * Abstract class defining the core functionality of a filename validation rule.
  * 
@@ -213,7 +214,7 @@ abstract public class NameValidationTest extends DefaultFileTest {
 		return new NameValidationStats(key);
 	}
 
-	public Object[][] getStatsDetails() {
+	public StatsItemConfig getStatsDetails() {
 		return NameValidationStats.details;
 	}
 

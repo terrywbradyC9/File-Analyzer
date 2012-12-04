@@ -33,6 +33,7 @@ import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.MyDirectoryFilter;
 import gov.nara.nwts.ftapp.MyFilenameFilter;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.filetest.FileTest;
 import gov.nara.nwts.ftapp.filter.FileTestFilter;
 import gov.nara.nwts.ftapp.ftprop.FTProp;
@@ -302,13 +303,13 @@ public class DirectoryTable extends FTDriver {
 	public File getSaveDir() {
 		return new File(this.criteriaPanel.fsc.tf.getText());
 	}
-	public File save(String fname, Object[][] details, TreeMap<String, Stats> mystats, boolean completed) {
+	public File save(String fname, StatsItemConfig details, TreeMap<String, Stats> mystats, boolean completed) {
 		File f = super.save(fname, details, mystats, completed);
 		this.criteriaPanel.fctf.setText("");
 		return f;
 	}
 	
-	public void showSummary(String name, Object[][] details, TreeMap<String,Stats>types, boolean completed, String note){
+	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
 		summaryPanel = new SummaryPanel(this);
 		summaryPanel.showStats(details,types); 
 		summaryPanel.note.setText(note);

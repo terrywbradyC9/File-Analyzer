@@ -26,7 +26,7 @@ public class NameValidationStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 
-	public static Object[][] details = StatsItem.toObjectArray(NameValidationStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(NameValidationStatsItems.class);
 
 	public NameValidationStats(String key) {
 		super(key);

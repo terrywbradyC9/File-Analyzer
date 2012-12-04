@@ -2,6 +2,9 @@ package gov.nara.nwts.ftapp.gui;
 
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
+import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -30,6 +33,16 @@ import javax.swing.JTextField;
  *
  */
 class ImportPanel extends MyPanel {
+	public static enum ImportStatsItems implements StatsItemEnum {
+		Key(StatsItem.makeStringStatsItem("Key")),
+		Count(StatsItem.makeIntStatsItem("Count").setWidth(10));
+		
+		StatsItem si;
+		ImportStatsItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	public static StatsItemConfig details = StatsItemConfig.create(ImportStatsItems.class);
+
 	private static final long serialVersionUID = 1L;
 	JTextField prefix;
 	JTextField suffix;
@@ -121,10 +134,6 @@ class ImportPanel extends MyPanel {
 		jb = new JButton("Auto-Generate Keys for Analysis");
 		p.add(jb);
 		jb.addActionListener(new ActionListener(){
-			Object[][] details = {
-				{String.class,"Key",100},
-				{Integer.class,"Count",10}
-			};
 			public void actionPerformed(ActionEvent arg0) {
 				TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 				Long startval = (Long)start.getValue();

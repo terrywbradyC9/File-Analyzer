@@ -12,6 +12,7 @@ import gov.nara.nwts.ftapp.stats.RandomStats;
 import gov.nara.nwts.ftapp.stats.RandomStats.RandomStatsItems;
 import gov.nara.nwts.ftapp.stats.Randomizer;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 /**
  * Random sampling engine that will compute an appropriate test batch size for a given AQL (acceptable quality level) using the Mil 105E algorithm.
@@ -41,7 +42,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 	
     public String getShortName(){return "Random";}
 
-    public Object[][] getStatsDetails() {
+    public StatsItemConfig getStatsDetails() {
     	return RandomStats.details;
     }
 

@@ -5,6 +5,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.BufferedReader;
@@ -42,12 +43,12 @@ public class Parser extends DefaultImporter {
 		}
 	}
 	
-	public static Object[][] details = StatsItem.toObjectArray(ParserStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(ParserStatsItems.class);
 	Pattern p;
 	int cols;
-	Object[][]mydetails;
+	StatsItemConfig mydetails;
 	
-	public Object[][] getDetails() {
+	public StatsItemConfig getDetails() {
 		return details;
 	}
 	public Pattern getPattern() {
@@ -57,7 +58,7 @@ public class Parser extends DefaultImporter {
 	public Parser(FTDriver dt) {
 		super(dt);
 		mydetails = getDetails();
-		cols = mydetails.length - 1;
+		cols = mydetails.size() - 1;
 		p = getPattern();
 	}
 	

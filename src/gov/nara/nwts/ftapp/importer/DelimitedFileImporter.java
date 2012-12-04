@@ -4,6 +4,8 @@ import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -99,27 +101,15 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 			}
 			types.put(key, stats);
 		}
-		Object[][] details = (forceKey) ?  new Object[colcount+1][5] : new Object[colcount][5];
+		
+		StatsItemConfig details = new StatsItemConfig();
 		if (forceKey) {
-			details[0][0] = String.class;
-			details[0][1] = "Col0";
-			details[0][2] = 100;
-			details[0][4] = false;
-			for(int i=0; i<colcount; i++) {
-				details[i+1][0] = String.class;
-				details[i+1][1] = "Col" + (i+1);
-				details[i+1][2] = 100;
-				details[i+1][4] = true;
-			}
-
-		} else {
-			for(int i=0; i<colcount; i++) {
-				details[i][0] = String.class;
-				details[i][1] = "Col" + i;
-				details[i][2] = 100;
-				details[i][4] = true;
-			}			
+			details.add(StatsItem.makeStringStatsItem("Auto Num").setExport(false));
 		}
+		for(int i=0; i<colcount; i++){
+			details.add(StatsItem.makeStringStatsItem("Col"+(i+1)));
+		}
+		
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());
 	}
 	

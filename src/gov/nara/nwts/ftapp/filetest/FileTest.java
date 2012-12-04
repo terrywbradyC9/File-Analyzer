@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.filter.FileTestFilter;
 import gov.nara.nwts.ftapp.ftprop.FTProp;
 
@@ -28,7 +29,7 @@ public interface FileTest {
     public List<FileTestFilter> getFilters();
     
     public Stats createStats(String key);
-    public Object[][] getStatsDetails();
+    public StatsItemConfig getStatsDetails();
     public String getShortName();
     public String getShortNameFormatted();
     public String getShortNameNormalized();

@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.filetest;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.DirStats;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
 
@@ -40,7 +41,7 @@ class DirMatch extends DefaultFileTest {
     public Stats createStats(String key){ 
     	return new DirStats(key);
     }
-    public Object[][] getStatsDetails() {
+    public StatsItemConfig getStatsDetails() {
     	return DirStats.details;
     }
 	public void initFilters() {

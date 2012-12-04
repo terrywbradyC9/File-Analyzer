@@ -207,8 +207,8 @@ class MergePanel extends MyBorderPanel {
 			SummaryPanel sp = (SummaryPanel)parent.tabs.getComponentAt(i);
 			Vector<String> v = new Vector<String>();
 			v.add(STR_IGNORE);
-			for(int c=0;c<sp.st.details.length; c++){
-				v.add(sp.st.details[c][1].toString());
+			for(int c=0;c<sp.st.details.size(); c++){
+				v.add(sp.st.details.get(c).header);
 			}
 			v.add(STR_YES);
 			JComboBox<String> cb = new JComboBox<String>(v);

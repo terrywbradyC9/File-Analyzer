@@ -2,6 +2,7 @@ package gov.nara.nwts.ftapp.gui;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -71,7 +72,7 @@ class SummaryPanel extends MyBorderPanel {
 	}
 	
 	
-	void showStats(Object[][] details,TreeMap<String,Stats> types) {
+	void showStats(StatsItemConfig details,TreeMap<String,Stats> types) {
 		st = new StatsTable(details,types, parent);
 		tp.removeAll();
 		tp.add(new JScrollPane(st.jt), BorderLayout.CENTER);

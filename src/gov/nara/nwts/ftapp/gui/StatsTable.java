@@ -1,6 +1,8 @@
 package gov.nara.nwts.ftapp.gui;
 
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -31,7 +33,7 @@ import javax.swing.table.TableRowSorter;
 class StatsTable {
 	JTable jt;
 	MyStatsTableModel tm;
-	Object[][] details;
+	StatsItemConfig details;
 	Pattern patt;
 	Vector<JComboBox<Object>> filters;
 	TableRowSorter<TableModel> sorter;
@@ -43,16 +45,16 @@ class StatsTable {
 		private static final long serialVersionUID = 1L;
 
 		public int getColumnCount() {
-			return details.length;
+			return details.size();
 		}
 
 		public Class<?> getColumnClass(int col) {
-			return (Class<?>) details[col][0];
+			return (Class<?>) details.get(col).myclass;
 		}
 		
 	};
 
-	StatsTable(Object[][] details, TreeMap<String, Stats> mystats, DirectoryTable dt) {
+	StatsTable(StatsItemConfig details, TreeMap<String, Stats> mystats, DirectoryTable dt) {
 		patt = Pattern.compile("\\s\\s+");
 		tm = new MyStatsTableModel();
 		this.details = details;
@@ -78,57 +80,50 @@ class StatsTable {
 		setColumns();
 
 		jt.setPreferredScrollableViewportSize(new Dimension(500, 400));
-		for (Object[] o : details) {
-			if (o.length > 3) {
-				if (o[3] != null) {
-					StringBuffer buf = new StringBuffer((String) o[1]);
-					for (Enum<?> e : (Enum[]) o[3]) {
-						buf.append(";");
-						buf.append(e.toString());
-					}
-					JComboBox<Object> cb = new JComboBox<Object>(buf.toString().split(";"));
-					cb.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent arg0) {
-							RowFilter<TableModel, Integer> rf = new RowFilter<TableModel, Integer>() {
-								public boolean include(
-										Entry<? extends TableModel, ? extends Integer> arg0) {
-									for (int i = 0; i < arg0.getValueCount(); i++) {
-										Object o = arg0.getValue(i);
-										if (o == null)
-											continue;
-										JComboBox<Object> cb = filters.get(i);
-										if (cb == null)
-											continue;
-										if (cb.getSelectedIndex() == 0)
-											continue;
-										if (!cb.getSelectedItem().equals(o)) {
-											if (!cb.getSelectedItem()
-													.toString().equals(
-															o.toString())) {
-												return false;
-											}
+		for (StatsItem o : details) {
+			if (o.values != null) {
+				ArrayList<Object> list = new ArrayList<Object>();
+				list.add(o.header);
+				for(Object obj: o.values) {
+					list.add(obj);
+				}
+				JComboBox<Object> cb = new JComboBox<Object>(list.toArray());
+				cb.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						RowFilter<TableModel, Integer> rf = new RowFilter<TableModel, Integer>() {
+							public boolean include(
+									Entry<? extends TableModel, ? extends Integer> arg0) {
+								for (int i = 0; i < arg0.getValueCount(); i++) {
+									Object o = arg0.getValue(i);
+									if (o == null)
+										continue;
+									JComboBox<Object> cb = filters.get(i);
+									if (cb == null)
+										continue;
+									if (cb.getSelectedIndex() == 0)
+										continue;
+									if (!cb.getSelectedItem().equals(o)) {
+										if (!cb.getSelectedItem()
+												.toString().equals(
+														o.toString())) {
+											return false;
 										}
 									}
-									return true;
 								}
-							};
-							StatsTable.this.sorter.setRowFilter(rf);
-							StatsTable.this.dt.summaryPanel.setFilterNote(jt.getRowCount(), tm.getRowCount());
-						}
-					});
-					filters.add(cb);
-				} else {
-					filters.add(null);
-				}
+								return true;
+							}
+						};
+						StatsTable.this.sorter.setRowFilter(rf);
+						StatsTable.this.dt.summaryPanel.setFilterNote(jt.getRowCount(), tm.getRowCount());
+					}
+				});
+				filters.add(cb);
 			} else {
 				filters.add(null);
 			}
-			if (o.length > 4) {
-				if (o[4]!=null) {
-				if (!(Boolean)o[4]) {
-					noExport.add((String)o[1]);
-				}
-				}
+			
+			if (!o.export) {
+				noExport.add((String)o.header);				
 			}
 		}
 	}
@@ -138,11 +133,11 @@ class StatsTable {
 		jth.setReorderingAllowed(true);
 		TableColumnModel tcm = jt.getColumnModel();
 		TableColumn tc;
-		for (int i = 0; i < details.length; i++) {
+		for (int i = 0; i < details.size(); i++) {
 			tc = tcm.getColumn(i);
-			int cw = (Integer) details[i][2];
+			int cw = (Integer) details.get(i).width;
 			tc.setPreferredWidth(cw);
-			tc.setHeaderValue(details[i][1]);
+			tc.setHeaderValue(details.get(i).header);
 
 			if (i != 0) {
 				tc.setCellRenderer(new DefaultTableCellRenderer() {

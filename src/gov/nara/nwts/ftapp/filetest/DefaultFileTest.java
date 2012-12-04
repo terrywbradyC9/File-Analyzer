@@ -16,6 +16,7 @@ import gov.nara.nwts.ftapp.filter.TiffFileTestFilter;
 import gov.nara.nwts.ftapp.ftprop.FTProp;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.CountStats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 /**
  * Abstract implementation of the FileTest interface; FileTest objects will derive these behaviors unless explicitly overridden.
@@ -112,7 +113,7 @@ public abstract class DefaultFileTest implements FileTest {
     public Stats createStats(String key){
     	return new CountStats(key);
     }
-    public Object[][] getStatsDetails() {
+    public StatsItemConfig getStatsDetails() {
     	return CountStats.details;
     }
 

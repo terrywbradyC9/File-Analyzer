@@ -23,7 +23,7 @@ public class DirTypeStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 
-	public static Object[][] details = StatsItem.toObjectArray(DirStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(DirStatsItems.class);
 
 	public DirTypeStats(String key) {
 		super(key);

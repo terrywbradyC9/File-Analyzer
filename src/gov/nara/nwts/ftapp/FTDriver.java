@@ -5,6 +5,7 @@ import gov.nara.nwts.ftapp.filter.FileTestFilter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -98,10 +99,10 @@ public class FTDriver {
 	}
 
 	
-	public void showSummary(String name, Object[][] details, TreeMap<String,Stats>types, boolean completed){
+	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed){
 		showSummary(name, details, types, completed, "");
 	}
-	public void showSummary(String name, Object[][] details, TreeMap<String,Stats>types, boolean completed, String note){
+	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
 		
 	}
 	public boolean getImporterForceKey() {
@@ -176,7 +177,7 @@ public class FTDriver {
 		System.out.println(" ==> "+f.getAbsolutePath());
 	}
 	
-	public File save(String fname, Object[][] details, TreeMap<String, Stats> mystats, boolean completed) {
+	public File save(String fname, StatsItemConfig details, TreeMap<String, Stats> mystats, boolean completed) {
 		boolean writeheader = false;
 		String newname = getSaveFileName();
 		if (newname.equals("")) {
@@ -196,20 +197,17 @@ public class FTDriver {
 		try {
 			FileWriter fw = new FileWriter(f);
 			BufferedWriter bw = new BufferedWriter(fw);
-			boolean[] cols = new boolean[details.length];
-			for(int i=0; i<details.length; i++) {
-				cols[i] = (details[i].length > 4) ? (Boolean)details[i][4] : true;
-			}
+			boolean[] cols = details.getExportArray();
 			boolean first = true;
 			if (writeheader){
-				for(int i=0; i<details.length; i++) {
+				for(int i=0; i<details.size(); i++) {
 					if (!cols[i]) continue;
 					if (first)
 						first = false;
 					else
 						bw.write("\t");
 					bw.write("\"");
-					bw.write(details[i][1].toString());
+					bw.write(details.get(i).header);
 					bw.write("\"");
 				}
 				bw.write("\r\n");				

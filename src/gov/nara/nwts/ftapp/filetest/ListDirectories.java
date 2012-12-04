@@ -5,6 +5,7 @@ import java.io.File;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 /**
@@ -21,7 +22,7 @@ class ListDirectories extends DefaultFileTest {
 		DataStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
-	public static Object[][] details = StatsItem.toObjectArray(DataStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(DataStatsItems.class);
 	public class DataStats extends Stats {
 		
 		public DataStats(String key) {
@@ -63,7 +64,7 @@ class ListDirectories extends DefaultFileTest {
 		return stats;
 	}
 
-	public Object[][] getStatsDetails() {
+	public StatsItemConfig getStatsDetails() {
 		return details;
 	}
 

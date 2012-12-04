@@ -18,7 +18,7 @@ public class NameStats extends Stats {
 		NameStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
-	public static Object[][] details = StatsItem.toObjectArray(NameStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(NameStatsItems.class);
 	
 	public NameStats(String key) {
 		super(key);

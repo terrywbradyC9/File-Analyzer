@@ -20,7 +20,7 @@ public class CountStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
-	public static Object[][] details = StatsItem.toObjectArray(CountStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(CountStatsItems.class);
 
 	public CountStats(String key) {
 		super(key);  

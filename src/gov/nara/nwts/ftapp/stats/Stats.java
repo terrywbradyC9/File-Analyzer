@@ -19,7 +19,7 @@ public class Stats {
 		public StatsItem si() {return si;}
 	}
 
-	public static Object[][] details = StatsItem.toObjectArray(StatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(StatsItems.class);
 	
 	public StatsItem header;
 	private Vector<Object> vals;

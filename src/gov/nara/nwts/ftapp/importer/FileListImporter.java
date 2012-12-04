@@ -3,6 +3,9 @@ package gov.nara.nwts.ftapp.importer;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsItem;
+import gov.nara.nwts.ftapp.stats.StatsItemConfig;
+import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,9 +22,15 @@ import java.util.TreeMap;
  *
  */
 public class FileListImporter extends DefaultImporter {
-	public static Object[][] details = {
-		{String.class,"Filename Import",200},
-	};
+	private static enum FileListItems implements StatsItemEnum {
+		Filename(StatsItem.makeStringStatsItem("Filename Import"))
+		;
+		
+		StatsItem si;
+		FileListItems(StatsItem si) {this.si=si;}
+		public StatsItem si() {return si;}
+	}
+	public static StatsItemConfig details = StatsItemConfig.create(FileListItems.class);
 
 	public FileListImporter(FTDriver dt) {
 		super(dt);

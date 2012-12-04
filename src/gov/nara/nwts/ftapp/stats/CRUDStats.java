@@ -24,7 +24,7 @@ public class CRUDStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
-	public static Object[][] details = StatsItem.toObjectArray(CRUDStatsItems.class);
+	public static StatsItemConfig details = StatsItemConfig.create(CRUDStatsItems.class);
 
 	public CRUDStats(String key) {
 		super(key);
