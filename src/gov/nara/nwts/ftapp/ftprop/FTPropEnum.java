@@ -15,12 +15,12 @@ import javax.swing.JComponent;
  */
 
 public class FTPropEnum extends DefaultFTProp {
-	JComboBox<Enum<?>> combo;
+	JComboBox<Object> combo;
 
-	public FTPropEnum(FileTest ft, String name, String shortname, String description, Enum<?>[]vals, Object def) {
+	public FTPropEnum(FileTest ft, String name, String shortname, String description, Object[]vals, Object def) {
 		super(ft, name, shortname, description, def);
 		init(vals);
-		combo = new JComboBox<Enum<?>>();
+		combo = new JComboBox<Object>();
 		initCombo(vals);
 		combo.addItemListener(new ItemListener(){
 			public void itemStateChanged(ItemEvent arg0) {
@@ -33,8 +33,8 @@ public class FTPropEnum extends DefaultFTProp {
 		});
 	}
 
-	public void initCombo(Enum<?>[] vals) {
-		for(Enum<?> obj: vals) {
+	public void initCombo(Object[] vals) {
+		for(Object obj: vals) {
 			combo.addItem(obj);
 		}
 		setValue(def);
