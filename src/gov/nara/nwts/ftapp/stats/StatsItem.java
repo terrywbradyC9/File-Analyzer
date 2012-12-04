@@ -76,6 +76,10 @@ public class StatsItem {
 		return new StatsItem(eclass, name, 100, eclass.getEnumConstants(), true, eclass.getEnumConstants()[0]);
 	}
 
+	public static <T extends Enum<T>> StatsItem makeEnumStatsItem(Class<T> eclass, String name,  Enum<T> initItem) {
+		return new StatsItem(eclass, name, 100, eclass.getEnumConstants(), true, initItem);
+	}
+
 	public static <T extends Enum<T>> StatsItem makeEnumStatsItem(Class<T> eclass) {
 		return makeEnumStatsItem(eclass, eclass.getName());
 	}
