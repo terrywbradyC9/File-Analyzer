@@ -10,7 +10,7 @@ import java.io.File;
  *
  */
 public class FileCountStats extends Stats {
-	public static enum FileCountStatsItems implements StatsItemEnum {
+	private static enum FileCountStatsItems implements StatsItemEnum {
 		Type(StatsItem.makeStringStatsItem("Type")),
 		Count(StatsItem.makeLongStatsItem("Count")),
 		Size(StatsItem.makeLongStatsItem("Size"));
@@ -24,7 +24,7 @@ public class FileCountStats extends Stats {
 
 	public FileCountStats(String key) {
 		super(key);
-		init(FileCountStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

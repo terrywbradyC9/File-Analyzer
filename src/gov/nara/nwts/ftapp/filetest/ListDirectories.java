@@ -27,7 +27,7 @@ class ListDirectories extends DefaultFileTest {
 		
 		public DataStats(String key) {
 			super(key);
-			init(DataStatsItems.class);
+			init(details);
 		}
 		
 		public Object compute(File f, FileTest fileTest) {

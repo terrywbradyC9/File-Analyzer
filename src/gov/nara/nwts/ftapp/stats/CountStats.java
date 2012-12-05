@@ -24,7 +24,7 @@ public class CountStats extends Stats {
 
 	public CountStats(String key) {
 		super(key);  
-		init(CountStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

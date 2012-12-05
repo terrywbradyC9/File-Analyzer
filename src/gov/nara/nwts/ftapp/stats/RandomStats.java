@@ -28,7 +28,7 @@ public class RandomStats extends Stats {
 	
 	public RandomStats(String key) {
 		super(key);
-		init(RandomStatsItems.class);
+		init(details);
 		random = new Random();
 	}
 	

@@ -14,7 +14,7 @@ import java.io.File;
  *
  */
 public class NameValidationStats extends Stats {
-	public static enum NameValidationStatsItems implements StatsItemEnum {
+	private static enum NameValidationStatsItems implements StatsItemEnum {
 		Path(StatsItem.makeStringStatsItem("Path", 450)),
 		PassFail(StatsItem.makeEnumStatsItem(RenamePassFail.class, "Pass/Fail").setWidth(50)),
 		Status(StatsItem.makeEnumStatsItem(RenameStatus.class,"Status").setWidth(150)),
@@ -30,7 +30,7 @@ public class NameValidationStats extends Stats {
 
 	public NameValidationStats(String key) {
 		super(key);
-		init(NameValidationStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

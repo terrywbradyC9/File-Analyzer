@@ -78,6 +78,8 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 		br.close();
 		return rows;
 	}
+	
+	public static String KEY = "key";
 
 	public ActionResult importFile(File selectedFile) throws IOException {
 		Timer timer = new Timer();
@@ -85,29 +87,34 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 		BufferedReader br = new BufferedReader(new FileReader(selectedFile));
 		int colcount = 0;
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
+		StatsItemConfig details = new StatsItemConfig();
+		if (forceKey) {
+			details.addStatsItem(KEY, StatsItem.makeStringStatsItem("Auto Num").setExport(false));
+		}
+		
+		int colset = 0;
+		
 		for(String line=br.readLine(); line!=null; line=br.readLine()){
 			Vector<String> cols = parseLine(line, getSeparator());
 			colcount = Math.max(colcount,cols.size());
+			for(int i=colset; i<colcount; i++) {
+				String colkey = "Col"+(i+1);
+				details.addStatsItem(colkey, StatsItem.makeStringStatsItem(colkey));
+			}
+			
 			String key = cols.get(0);
 			if (forceKey) {
 				key = "" + (rowKey++);
 			} 
 			Stats stats = new Stats(key);
 			if (forceKey) {
-				stats.addExtraVal(cols.get(0));
+				stats.setKeyVal(details.getByKey(KEY), cols.get(0));
 			}
 			for(int i=1; i<cols.size(); i++){
-				stats.addExtraVal(cols.get(i));
+				String colkey = "Col"+(i+1);
+				stats.setKeyVal(details.getByKey(colkey), cols.get(i));
 			}
 			types.put(key, stats);
-		}
-		
-		StatsItemConfig details = new StatsItemConfig();
-		if (forceKey) {
-			details.add(StatsItem.makeStringStatsItem("Auto Num").setExport(false));
-		}
-		for(int i=0; i<colcount; i++){
-			details.add(StatsItem.makeStringStatsItem("Col"+(i+1)));
 		}
 		
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());

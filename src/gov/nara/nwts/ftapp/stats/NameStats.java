@@ -10,8 +10,9 @@ import java.io.File;
  *
  */
 public class NameStats extends Stats {
-	public static enum NameStatsItems implements StatsItemEnum {
+	private static enum NameStatsItems implements StatsItemEnum {
 		Name(StatsItem.makeStringStatsItem("Name")),
+		Count(StatsItem.makeLongStatsItem("Count")),
 		Size(StatsItem.makeLongStatsItem("Size"));
 		
 		StatsItem si;
@@ -22,10 +23,11 @@ public class NameStats extends Stats {
 	
 	public NameStats(String key) {
 		super(key);
-		init(NameStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
+		sumVal(NameStatsItems.Count, 1);
 		sumVal(NameStatsItems.Size, f.length());
 		return fileTest.fileTest(f);
 	}

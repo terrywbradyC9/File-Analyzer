@@ -7,6 +7,7 @@ public class StatsItem {
 	public Object[] values;
 	public boolean export = true;
 	public Object initVal;
+	private int index;
 	
 	public StatsItem(Class<?> myclass, String header, int width, Object[] values, boolean export, Object initVal) {
 		this.myclass = myclass;
@@ -16,6 +17,9 @@ public class StatsItem {
 		this.export = export;
 		this.initVal = initVal;
 	}
+	
+	public int getIndex() {return index;}
+	void setIndex(int index) {this.index = index;}
 	
 	public static StatsItem makeStatsItem(Class<?> myclass, String header, int width) {
 		return new StatsItem(myclass, header, width, null, true, null);

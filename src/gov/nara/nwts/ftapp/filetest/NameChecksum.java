@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class NameChecksum extends DefaultFileTest {
 	
-	public static enum ChecksumStatsItems implements StatsItemEnum {
+	private static enum ChecksumStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Key", 400)),
 		Data(StatsItem.makeStatsItem(Object.class, "Data", 300).setInitVal("")),
 		Duplicate(StatsItem.makeEnumStatsItem(YN.class, "Duplicate").setInitVal(YN.N)),
@@ -34,12 +34,13 @@ public abstract class NameChecksum extends DefaultFileTest {
 		ChecksumStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
-
+	public static StatsItemConfig details = StatsItemConfig.create(ChecksumStatsItems.class);
+	
 	public class ChecksumStats extends Stats {
 		
 		public ChecksumStats(String key) {
 			super(key);
-			init(ChecksumStatsItems.class);
+			init(details);
 		}
 		
 		public Object compute(File f, FileTest fileTest) {
@@ -138,7 +139,7 @@ public abstract class NameChecksum extends DefaultFileTest {
     	return new ChecksumStats(key);
     }
     public StatsItemConfig getStatsDetails() {
-    	return StatsItemConfig.create(ChecksumStatsItems.class);
+    	return details; 
 
     }
 	public void initFilters() {

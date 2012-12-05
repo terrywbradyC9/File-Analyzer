@@ -35,13 +35,22 @@ import javax.swing.JTextField;
 class ImportPanel extends MyPanel {
 	public static enum ImportStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Key")),
-		Count(StatsItem.makeIntStatsItem("Count").setWidth(10));
+		Count(StatsItem.makeIntStatsItem("Count").setWidth(10).setInitVal(1));
 		
 		StatsItem si;
 		ImportStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(ImportStatsItems.class);
+	
+	public class ImportStats extends Stats {
+
+		public ImportStats(String key) {
+			super(key);
+			init(details);
+		}
+		
+	}
 
 	private static final long serialVersionUID = 1L;
 	JTextField prefix;
@@ -148,8 +157,7 @@ class ImportPanel extends MyPanel {
 					  nf.setMinimumIntegerDigits((Integer)pad.getSelectedItem());
 					}
 					String key = prefix.getText() + nf.format(i) + suffix.getText();
-					Stats stats = new Stats(key);
-					stats.addExtraVal(1);
+					ImportStats stats = new ImportStats(key);
 					types.put(key, stats);
 				}
 				parent.showSummary("Generated "+(++parent.summaryCount), details, types, true);

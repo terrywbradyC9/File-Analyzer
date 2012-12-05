@@ -11,7 +11,7 @@ import gov.nara.nwts.ftapp.filetest.FileTest;
  *
  */
 public class DirTypeStats extends Stats {
-	public static enum DirStatsItems implements StatsItemEnum {
+	private static enum DirStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Key", 100)),
 		Type(StatsItem.makeStringStatsItem("Type", 80)),
 		Path(StatsItem.makeStringStatsItem("Path", 300)),
@@ -27,7 +27,7 @@ public class DirTypeStats extends Stats {
 
 	public DirTypeStats(String key) {
 		super(key);
-		init(DirStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

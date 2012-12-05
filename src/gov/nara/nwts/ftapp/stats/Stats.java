@@ -19,7 +19,11 @@ public class Stats {
 		public StatsItem si() {return si;}
 	}
 
-	public static StatsItemConfig details = StatsItemConfig.create(StatsItems.class);
+	//private to prevent use by subclass inner classes
+	private static StatsItemConfig details = StatsItemConfig.create(StatsItems.class);
+	static {
+		details.hashCode();  //intentional no op
+	}
 	
 	public StatsItem header;
 	private Vector<Object> vals;
@@ -29,17 +33,25 @@ public class Stats {
 		this.key = key;
 		vals = new Vector<Object>();
 	}
-	 
-	public void setVal(StatsItemEnum eitem, Object val) {
-		int index = eitem.ordinal() - 1; 
+
+	public void setKeyVal(StatsItem si, Object val) {
+		if (si == null) return;
+		int index = si.getIndex();
 		if (vals.size() > index) {
+			vals.set(index,val);
+		}		
+	}
+	
+	public void setVal(StatsItemEnum eitem, Object val) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			vals.set(index,val);
 		}
 	}
 	 
 	public void sumVal(StatsItemEnum eitem, int val) {
-		int index = eitem.ordinal() - 1; 
-		if (vals.size() > index) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			Object obj = vals.get(index);
 			if (obj == null) {
 				vals.set(index,val);				
@@ -60,8 +72,8 @@ public class Stats {
 	}
 	 
 	public void sumVal(StatsItemEnum eitem, float val) {
-		int index = eitem.ordinal() - 1; 
-		if (vals.size() > index) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			Object obj = vals.get(index);
 			if (obj == null) {
 				vals.set(index,val);				
@@ -74,8 +86,8 @@ public class Stats {
 	}
 	 
 	public void sumVal(StatsItemEnum eitem, long val) {
-		int index = eitem.ordinal() - 1; 
-		if (vals.size() > index) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			Object obj = vals.get(index);
 			if (obj == null) {
 				vals.set(index,val);				
@@ -88,8 +100,8 @@ public class Stats {
 	}
 	 
 	public void appendVal(StatsItemEnum eitem, String val) {
-		int index = eitem.ordinal() - 1; 
-		if (vals.size() > index) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			Object obj = vals.get(index);
 			if (obj == null) {
 				vals.set(index,val);				
@@ -105,15 +117,6 @@ public class Stats {
 		return vals;
 	}
 	
-	
-	public void addExtraVal(Object val) {
-		vals.add(val);
-	}
-	
-	public Object getExtraVal(int base, int index) {
-		return vals.get(base+index);
-	}
-	
 	public Object getVal(StatsItemEnum eitem) {
 		return getVal(eitem, null);
 	}
@@ -123,21 +126,21 @@ public class Stats {
 	}
 
 	public Object getVal(StatsItemEnum eitem, Object def) {
-		int index = eitem.ordinal() - 1;
-		if (vals.size() > index) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
 			return vals.get(index);
 		}
 		return def;
 	}
 	 
-	public <T extends Enum<T> & StatsItemEnum> void init(Class<T> eclass) {
+	public <T extends Enum<T> & StatsItemEnum> void init(StatsItemConfig config) {
 		boolean first = true;
 		vals.clear();
-		for(StatsItemEnum item: eclass.getEnumConstants()) {
+		for(StatsItem item: config) {
 			if (first) {
 				first = false;
 			} else {
-				vals.add(item.si().initVal);
+				vals.add(item.initVal);
 			}
 		}
 	}

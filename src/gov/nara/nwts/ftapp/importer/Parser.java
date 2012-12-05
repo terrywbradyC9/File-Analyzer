@@ -39,7 +39,7 @@ public class Parser extends DefaultImporter {
 	class ParserStats extends Stats {
 		ParserStats(String key) {
 			super(key);
-			init(ParserStatsItems.class);
+			init(details);
 		}
 	}
 	
@@ -83,12 +83,12 @@ public class Parser extends DefaultImporter {
 	public void setVals(Matcher m, ParserStats stats, String line) {
 		if (m.matches()) {
 			for(int i=1;i<=cols;i++) {
-				stats.addExtraVal(getVal(m,i));
+				stats.setKeyVal(details.getByKey(i), getVal(m,i));
 			}
 		} else {
 			stats.setVal(ParserStatsItems.PassFail, status.FAIL);
 			for(int i=1;i<=cols;i++) {
-				stats.addExtraVal(getDefVal(m,i,line));
+				stats.setKeyVal(details.getByKey(i), getDefVal(m,i,line));
 			}
 		}
 		

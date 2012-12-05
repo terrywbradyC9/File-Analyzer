@@ -24,7 +24,7 @@ public class DirStats extends Stats {
 	
 	public DirStats(String key) {
 		super(key);
-		init(DirStatsItems.class);
+		init(details);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {
