@@ -20,11 +20,14 @@ public class DirStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public DirStats create(String key) {return new DirStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(DirStatsItems.class);
 	
-	public DirStats(String key) {
-		super(key);
-		init(details);
+	private DirStats(String key) {
+		super(DirStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

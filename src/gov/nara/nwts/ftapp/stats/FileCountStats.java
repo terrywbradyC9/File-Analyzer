@@ -20,11 +20,14 @@ public class FileCountStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public FileCountStats create(String key) {return new FileCountStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(FileCountStatsItems.class);
 
-	public FileCountStats(String key) {
-		super(key);
-		init(details);
+	private FileCountStats(String key) {
+		super(FileCountStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

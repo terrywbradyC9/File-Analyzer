@@ -26,11 +26,14 @@ public class NameValidationStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public Stats create(String key) {return new NameValidationStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(NameValidationStatsItems.class);
 
-	public NameValidationStats(String key) {
-		super(key);
-		init(details);
+	private NameValidationStats(String key) {
+		super(NameValidationStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

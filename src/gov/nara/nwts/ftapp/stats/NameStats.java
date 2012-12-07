@@ -19,11 +19,14 @@ public class NameStats extends Stats {
 		NameStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public NameStats create(String key) {return new NameStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(NameStatsItems.class);
 	
-	public NameStats(String key) {
-		super(key);
-		init(details);
+	private NameStats(String key) {
+		super(NameStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

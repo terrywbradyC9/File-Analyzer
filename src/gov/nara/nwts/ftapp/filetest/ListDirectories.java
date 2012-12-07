@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.filetest;
 import java.io.File;
 
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.stats.DataStats;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -23,19 +24,6 @@ class ListDirectories extends DefaultFileTest {
 		public StatsItem si() {return si;}
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(DataStatsItems.class);
-	public class DataStats extends Stats {
-		
-		public DataStats(String key) {
-			super(key);
-			init(details);
-		}
-		
-		public Object compute(File f, FileTest fileTest) {
-			Object o = fileTest.fileTest(f);
-			setVal(DataStatsItems.Data, o);
-			return o;
-		}
-	}
 
 	public ListDirectories(FTDriver dt) {
 		super(dt);
@@ -55,17 +43,11 @@ class ListDirectories extends DefaultFileTest {
 	}
 
 	public Stats createStats(String key) {
-		DataStats stats = new DataStats(key) {
-			public Object compute(File f, FileTest fileTest) {
-				setVal(DataStatsItems.Data, f.getName());
-				return f.getName();
-			}
-		};
-		return stats;
+		return DataStats.Generator.INSTANCE.create(ListDirectories.details, key);
 	}
 
 	public StatsItemConfig getStatsDetails() {
-		return details;
+		return ListDirectories.details;
 	}
 
 	public String getShortName() {

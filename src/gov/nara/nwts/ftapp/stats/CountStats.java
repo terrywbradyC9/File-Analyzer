@@ -19,12 +19,15 @@ public class CountStats extends Stats {
 		CountStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public CountStats create(String key) {return new CountStats(key);}
+	}
 	
 	public static StatsItemConfig details = StatsItemConfig.create(CountStatsItems.class);
 
 	public CountStats(String key) {
-		super(key);  
-		init(details);
+		super(CountStats.details, key);  
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

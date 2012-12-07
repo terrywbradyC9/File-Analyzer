@@ -36,13 +36,6 @@ public class Parser extends DefaultImporter {
 		public StatsItem si() {return si;}
 	}
 	
-	class ParserStats extends Stats {
-		ParserStats(String key) {
-			super(key);
-			init(details);
-		}
-	}
-	
 	public static StatsItemConfig details = StatsItemConfig.create(ParserStatsItems.class);
 	Pattern p;
 	int cols;
@@ -80,7 +73,7 @@ public class Parser extends DefaultImporter {
 		return "";
 	}
 
-	public void setVals(Matcher m, ParserStats stats, String line) {
+	public void setVals(Matcher m, Stats stats, String line) {
 		if (m.matches()) {
 			for(int i=1;i<=cols;i++) {
 				stats.setKeyVal(details.getByKey(i), getVal(m,i));
@@ -102,7 +95,7 @@ public class Parser extends DefaultImporter {
 			int i=1000000;
 			for(String line=br.readLine(); line!=null; line=br.readLine()){
 				String key = ""+ (i++);
-				ParserStats stats = new ParserStats(key);
+				Stats stats = Stats.Generator.INSTANCE.create(Parser.details, key);
 				types.put(key, stats);
 				Matcher m = test(line);
 				setVals(m, stats, line);

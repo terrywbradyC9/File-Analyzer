@@ -39,7 +39,7 @@ class DirMatch extends DefaultFileTest {
 		return null;
 	}
     public Stats createStats(String key){ 
-    	return new DirStats(key);
+    	return DirStats.Generator.INSTANCE.create(key);
     }
     public StatsItemConfig getStatsDetails() {
     	return DirStats.details;

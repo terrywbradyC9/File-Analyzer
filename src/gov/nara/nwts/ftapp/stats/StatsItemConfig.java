@@ -23,7 +23,7 @@ public class StatsItemConfig implements Iterable<StatsItem>  {
 		columns = new ArrayList<StatsItem>();
 		columnMap = new HashMap<Object, StatsItem>();
 	}
-
+	
 	public void addStatsItem(Object key, StatsItem si) {
 		si.setIndex(columns.size()-1);
 		columns.add(si);
@@ -39,8 +39,6 @@ public class StatsItemConfig implements Iterable<StatsItem>  {
 	public StatsItem getByKey(Object key) {
 		return columnMap.get(key);
 	}
-	
-	
 	
 	public boolean[] getExportArray() {
 		boolean[] exarr = new boolean[size()];

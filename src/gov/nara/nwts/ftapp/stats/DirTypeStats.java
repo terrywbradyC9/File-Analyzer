@@ -23,11 +23,14 @@ public class DirTypeStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public DirTypeStats create(String key) {return new DirTypeStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(DirStatsItems.class);
 
-	public DirTypeStats(String key) {
-		super(key);
-		init(details);
+	private DirTypeStats(String key) {
+		super(DirTypeStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

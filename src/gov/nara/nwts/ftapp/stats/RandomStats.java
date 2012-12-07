@@ -21,14 +21,18 @@ public class RandomStats extends Stats {
 		RandomStatsItems(StatsItem si) {this.si=si;}
 		public StatsItem si() {return si;}
 	}
-	
+
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public Stats create(String key) {return new RandomStats(key);}
+	}
+
 	public static StatsItemConfig details = StatsItemConfig.create(RandomStatsItems.class);
 	long randomVal;
 	Random random;
 	
-	public RandomStats(String key) {
-		super(key);
-		init(details);
+	private RandomStats(String key) {
+		super(RandomStats.details, key);
 		random = new Random();
 	}
 	

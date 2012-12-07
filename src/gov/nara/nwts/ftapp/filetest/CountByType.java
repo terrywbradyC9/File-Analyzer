@@ -26,7 +26,7 @@ class CountByType extends DefaultFileTest {
 	}
 
     public Stats createStats(String key){ 
-    	return new FileCountStats(key);
+    	return FileCountStats.Generator.INSTANCE.create(key);
     }
     public StatsItemConfig getStatsDetails() {
     	return FileCountStats.details;

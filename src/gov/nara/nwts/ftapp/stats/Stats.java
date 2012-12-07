@@ -19,6 +19,12 @@ public class Stats {
 		public StatsItem si() {return si;}
 	}
 
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public Stats create(StatsItemConfig config, String key) {return new Stats(config, key);}
+		public Stats create(String key) {return create(Stats.details, key);}
+	}
+	
 	//private to prevent use by subclass inner classes
 	private static StatsItemConfig details = StatsItemConfig.create(StatsItems.class);
 	static {
@@ -29,15 +35,16 @@ public class Stats {
 	private Vector<Object> vals;
 	public String key;
 	
-	public Stats(String key) {
+	public Stats(StatsItemConfig config, String key) {
 		this.key = key;
 		vals = new Vector<Object>();
+		init(config);
 	}
 
 	public void setKeyVal(StatsItem si, Object val) {
 		if (si == null) return;
 		int index = si.getIndex();
-		if (vals.size() > index) {
+		if ((index >= 0) && (vals.size() > index)) {
 			vals.set(index,val);
 		}		
 	}

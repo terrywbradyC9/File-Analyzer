@@ -2,10 +2,10 @@ package gov.nara.nwts.ftapp.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
+import gov.nara.nwts.ftapp.stats.ChecksumStats;
+import gov.nara.nwts.ftapp.stats.ChecksumStats.ChecksumStatsItems;
 import gov.nara.nwts.ftapp.stats.Stats;
-import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,38 +23,6 @@ import java.util.List;
  *
  */
 public abstract class NameChecksum extends DefaultFileTest {
-	
-	private static enum ChecksumStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Key", 400)),
-		Data(StatsItem.makeStatsItem(Object.class, "Data", 300).setInitVal("")),
-		Duplicate(StatsItem.makeEnumStatsItem(YN.class, "Duplicate").setInitVal(YN.N)),
-		MatchCount(StatsItem.makeIntStatsItem("Num of Matches").setInitVal(1));
-		
-		StatsItem si;
-		ChecksumStatsItems(StatsItem si) {this.si=si;}
-		public StatsItem si() {return si;}
-	}
-	public static StatsItemConfig details = StatsItemConfig.create(ChecksumStatsItems.class);
-	
-	public class ChecksumStats extends Stats {
-		
-		public ChecksumStats(String key) {
-			super(key);
-			init(details);
-		}
-		
-		public Object compute(File f, FileTest fileTest) {
-			Object o = fileTest.fileTest(f);
-			setVal(ChecksumStatsItems.Data, o);
-			
-			if (fileTest instanceof NameChecksum) {
-				if (o != null) {
-					((NameChecksum)fileTest).setChecksumKey(o.toString(), this);				
-				}
-			}
-			return o;
-		}
-	}
 	
 	HashMap<String, List<ChecksumStats>> keymap;
 
@@ -116,10 +84,8 @@ public abstract class NameChecksum extends DefaultFileTest {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (fis!=null)
@@ -136,10 +102,10 @@ public abstract class NameChecksum extends DefaultFileTest {
 		return getChecksum(f);
 	}
     public Stats createStats(String key){ 
-    	return new ChecksumStats(key);
+    	return ChecksumStats.Generator.INSTANCE.create(key);
     }
     public StatsItemConfig getStatsDetails() {
-    	return details; 
+    	return ChecksumStats.details; 
 
     }
 	public void initFilters() {

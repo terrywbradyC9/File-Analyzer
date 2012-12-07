@@ -36,8 +36,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 		return f.getAbsolutePath();
 	}
     public Stats createStats(String key){
-    	RandomStats stats = new RandomStats(key);
-    	return stats;
+    	return RandomStats.Generator.INSTANCE.create(key);
     }
 	
     public String getShortName(){return "Random";}

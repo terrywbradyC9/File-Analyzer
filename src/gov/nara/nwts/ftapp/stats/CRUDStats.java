@@ -12,7 +12,7 @@ import java.io.File;
  * @author TBrady
  *
  */
-public class CRUDStats extends Stats {
+class CRUDStats extends Stats {
 
 	public static enum CRUDStatsItems implements StatsItemEnum {
 		Path(StatsItem.makeStringStatsItem("Path",450)),
@@ -24,10 +24,14 @@ public class CRUDStats extends Stats {
 		public StatsItem si() {return si;}
 	}
 	
+	public static enum Generator implements StatsGenerator {
+		INSTANCE;
+		public CRUDStats create(String key) {return new CRUDStats(key);}
+	}
 	public static StatsItemConfig details = StatsItemConfig.create(CRUDStatsItems.class);
 
 	public CRUDStats(String key) {
-		super(key);
+		super(CRUDStats.details, key);
 	}
 	
 	public Object compute(File f, FileTest fileTest) {

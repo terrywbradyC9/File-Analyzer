@@ -43,15 +43,6 @@ class ImportPanel extends MyPanel {
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(ImportStatsItems.class);
 	
-	public class ImportStats extends Stats {
-
-		public ImportStats(String key) {
-			super(key);
-			init(details);
-		}
-		
-	}
-
 	private static final long serialVersionUID = 1L;
 	JTextField prefix;
 	JTextField suffix;
@@ -157,7 +148,7 @@ class ImportPanel extends MyPanel {
 					  nf.setMinimumIntegerDigits((Integer)pad.getSelectedItem());
 					}
 					String key = prefix.getText() + nf.format(i) + suffix.getText();
-					ImportStats stats = new ImportStats(key);
+					Stats stats = Stats.Generator.INSTANCE.create(ImportPanel.details, key);
 					types.put(key, stats);
 				}
 				parent.showSummary("Generated "+(++parent.summaryCount), details, types, true);

@@ -44,7 +44,7 @@ public class FileListImporter extends DefaultImporter {
 		for(String line=br.readLine(); line!=null; line=br.readLine()){
 			File f=new File(line);
 			String s = f.getName();
-			Stats stats = new Stats(s);
+			Stats stats = Stats.Generator.INSTANCE.create(FileListImporter.details, s);
 			types.put(s,stats);
 		}			
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());

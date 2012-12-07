@@ -35,8 +35,8 @@ class DirTypeNameMatch extends DirMatch {
 	}
 	
     public String getShortName(){return "Type&Dir";}
-    public Stats createStats(String key){ 
-    	return new DirTypeStats(key);
+    public Stats createStats(String key){  
+    	return DirTypeStats.Generator.INSTANCE.create(key);
     }
     public StatsItemConfig getStatsDetails() {
     	return DirTypeStats.details;

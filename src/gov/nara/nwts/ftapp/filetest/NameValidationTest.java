@@ -211,7 +211,7 @@ abstract public class NameValidationTest extends DefaultFileTest {
 	}
 
 	public Stats createStats(String key) {
-		return new NameValidationStats(key);
+		return NameValidationStats.Generator.INSTANCE.create(key);
 	}
 
 	public StatsItemConfig getStatsDetails() {

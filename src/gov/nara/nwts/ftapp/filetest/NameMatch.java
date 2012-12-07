@@ -30,7 +30,7 @@ class NameMatch extends DefaultFileTest {
 		return null;
 	}
     public Stats createStats(String key){ 
-    	return new NameStats(key);
+    	return NameStats.Generator.INSTANCE.create(key);
     }
     public StatsItemConfig getStatsDetails() {
     	return NameStats.details;

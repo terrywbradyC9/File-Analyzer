@@ -100,13 +100,19 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 			for(int i=colset; i<colcount; i++) {
 				String colkey = "Col"+(i+1);
 				details.addStatsItem(colkey, StatsItem.makeStringStatsItem(colkey));
+				colset++;
 			}
-			
+		}
+		
+		br = new BufferedReader(new FileReader(selectedFile));
+		for(String line=br.readLine(); line!=null; line=br.readLine()){
+			Vector<String> cols = parseLine(line, getSeparator());
 			String key = cols.get(0);
 			if (forceKey) {
 				key = "" + (rowKey++);
 			} 
-			Stats stats = new Stats(key);
+			Stats stats = Stats.Generator.INSTANCE.create(key);
+			stats.init(details);
 			if (forceKey) {
 				stats.setKeyVal(details.getByKey(KEY), cols.get(0));
 			}
