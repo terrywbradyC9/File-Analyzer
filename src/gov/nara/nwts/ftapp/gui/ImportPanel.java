@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -54,6 +56,7 @@ class ImportPanel extends MyPanel {
 	JCheckBox forceKey;
 	DirectoryTable parent;
 	FileSelectChooser fsc;
+	JPanel genPanel;
 	
 	void updateDesc() {
 		Importer i = (Importer)importers.getSelectedItem();
@@ -66,14 +69,41 @@ class ImportPanel extends MyPanel {
 		JPanel p = addBorderPanel("Contents to Import for Analysis");
 		JPanel tp = new JPanel(new BorderLayout());
 		p.add(tp, BorderLayout.NORTH);
+		JPanel ttp = new JPanel();
+		tp.add(ttp, BorderLayout.NORTH);
+		
 		fsc = new FileSelectChooser(parent.frame, "Select file to Import", parent.preferences, "IMPORT", "");
-		fsc.setBorder(BorderFactory.createTitledBorder("File to Import"));
-		tp.add(fsc, BorderLayout.NORTH);
+		ttp.setBorder(BorderFactory.createTitledBorder("File to Import"));
+		ttp.add(fsc);
+		JButton jb = new JButton("Recent");
+		p.add(jb);
+		jb.addActionListener(
+				new ActionListener(){
+					@SuppressWarnings("unchecked")
+					public void actionPerformed(ActionEvent arg0) {
+						ArrayList<File> recentrev = (ArrayList<File>)parent.recentImport.clone();
+						Collections.reverse(recentrev);
+						File o = (File)JOptionPane.showInputDialog(
+							parent.frame,
+							"Select a recently imported file",
+							"Recent Imports",
+							JOptionPane.INFORMATION_MESSAGE,
+							null,
+							recentrev.toArray(),
+							null
+						);
+						if (o != null) {
+							parent.importPanel.fsc.tf.setText(o.getAbsolutePath());
+						}
+					}
+				}
+			);
+		ttp.add(jb);
 		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		p.add(p1, BorderLayout.SOUTH);
 		forceKey = new JCheckBox("Force Unique Keys");
 		p1.add(forceKey);
-		JButton jb = new JButton("Import File");
+		jb = new JButton("Import File");
 		jb.addActionListener(
 			new ActionListener(){
 				public void actionPerformed(ActionEvent arg0) {
@@ -85,6 +115,11 @@ class ImportPanel extends MyPanel {
 						} catch (IOException e) {
 							JOptionPane.showMessageDialog(parent.frame, e.getMessage()+": "+f.getAbsolutePath());
 						}
+						parent.recentImport.remove(f);
+						parent.recentImport.add(f);
+						for(int i=0; ((i<parent.recentImport.size())&&(i<20));i++){
+							parent.setPreference("recentImport"+i,parent.recentImport.get(parent.recentImport.size()-i-1).getAbsolutePath());
+						}			
 					}
 				}
 			}
@@ -108,31 +143,32 @@ class ImportPanel extends MyPanel {
 		p.add(importerDesc);
 		updateDesc();
 		
-		p = addPanel("Auto-Number");
-		p.setLayout(new GridLayout(0,2));
+		genPanel = addPanel("Auto-Number");
+		genPanel.setVisible(false);
+		genPanel.setLayout(new GridLayout(0,2));
 		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setGroupingUsed(false);
-		p.add(new JLabel("Prefix"));
+		genPanel.add(new JLabel("Prefix"));
 		prefix = new JTextField(25);
-		p.add(prefix);
-		p.add(new JLabel("Start Number"));
+		genPanel.add(prefix);
+		genPanel.add(new JLabel("Start Number"));
 		start = new JFormattedTextField(nf);
 		start.setColumns(8);
-		p.add(start);
-		p.add(new JLabel("End Number"));
+		genPanel.add(start);
+		genPanel.add(new JLabel("End Number"));
 		end = new JFormattedTextField(nf);
 		end.setColumns(8);
-		p.add(end);
-		p.add(new JLabel());
+		genPanel.add(end);
+		genPanel.add(new JLabel("Num Digits"));
 		Object[] objs = {"No Padding",2,3,4,5,6,7,8};
 		pad = new JComboBox<Object>(objs);
-		p.add(pad);
-		p.add(new JLabel("Suffix"));
+		genPanel.add(pad);
+		genPanel.add(new JLabel("Suffix"));
 		suffix = new JTextField(25);
-		p.add(suffix);
-		p.add(new JLabel(""));
+		genPanel.add(suffix);
+		genPanel.add(new JLabel(""));
 		jb = new JButton("Auto-Generate Keys for Analysis");
-		p.add(jb);
+		genPanel.add(jb);
 		jb.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				TreeMap<String,Stats> types = new TreeMap<String,Stats>();

@@ -67,6 +67,7 @@ public class DirectoryTable extends FTDriver {
 	JLabel countLabel;
 	JTabbedPane tabs;
 	ArrayList<File> recent;
+	ArrayList<File> recentImport;
 	
 	CriteriaPanel criteriaPanel;
 	ImportPanel importPanel;
@@ -76,7 +77,8 @@ public class DirectoryTable extends FTDriver {
 	SummaryPanel summaryPanel;
 	
 	Preferences preferences;
-
+	public String title = "File Analyzer and Metadata Harvester";
+	public String message = "This tool is intended to provide a toolkit of features for analyzing files and harvesting metadata.";
 	
 	public Preferences getPreferences() {
 		return preferences;
@@ -98,12 +100,17 @@ public class DirectoryTable extends FTDriver {
 	public DirectoryTable(File root, boolean modifyAllowed) {
 		super(root);
 		this.modifyAllowed = modifyAllowed;
-		frame = new JFrame("NARA File Analyzer and Metadata Harvester");
+		frame = new JFrame(title);
 		preferences = Preferences.userNodeForPackage(getClass());
 		recent = new ArrayList<File>();
 		for(int i=20-1; i>=0;i--){
 			String s = preferences.get("recent"+i,"");
 			if (s!="") recent.add(new File(s));
+		}
+		recentImport = new ArrayList<File>();
+		for(int i=20-1; i>=0;i--){
+			String s = preferences.get("recentImport"+i,"");
+			if (s!="") recentImport.add(new File(s));
 		}
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
@@ -131,11 +138,13 @@ public class DirectoryTable extends FTDriver {
 		menu.add(jmi);
 		jmi.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
-				JOptionPane.showMessageDialog(DirectoryTable.this.frame, 
-				"This application was created by the Digitization Services Branch of \n" +
+				JOptionPane.showMessageDialog(DirectoryTable.this.frame,
+				message +
+				"\n\nThis application has been derived from code created by \n" +
 				"the National Archives and Records Administration (NARA).\n" +
 				"Please see the accompanying README file for more information." +
-				"\n\nContact: OpenGov@nara.gov", 
+				"\n\nContact: OpenGov@nara.gov" +
+				"\n\nhttps://github.com/usnationalarchives/File-Analyzer", 
 				"About File Analyzer", JOptionPane.INFORMATION_MESSAGE);
 			}});
 		jmi = new JMenuItem("Enable Batch Processing");
@@ -143,6 +152,13 @@ public class DirectoryTable extends FTDriver {
 		jmi.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				progressPanel.batchp.setVisible(true);
+			}});
+		jmb.add(menu);
+		jmi = new JMenuItem("Enable Key Generate");
+		menu.add(jmi);
+		jmi.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				importPanel.genPanel.setVisible(true);
 			}});
 		jmb.add(menu);
 		
