@@ -6,6 +6,11 @@ import gov.nara.nwts.ftapp.filetest.NameChecksum;
 
 import java.io.File;
 
+/**
+ * Identify items by checksum value, identify duplicate items.
+ * @author TBrady
+ *
+ */
 public class ChecksumStats extends Stats {
 	
 	public static enum ChecksumStatsItems implements StatsItemEnum {
