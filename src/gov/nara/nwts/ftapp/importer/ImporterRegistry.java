@@ -18,7 +18,6 @@ public class ImporterRegistry extends Vector<Importer> {
 		add(new CsvFileImporter(dt));
 		add(new SemicolonFileImporter(dt));
 		add(new PipeFileImporter(dt));
-		add(new FileListImporter(dt));
 		add(new Parser(dt));
 	}
 	

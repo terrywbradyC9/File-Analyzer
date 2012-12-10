@@ -17,6 +17,7 @@ public class ActionRegistry extends Vector<FileTest> {
 	public ActionRegistry(FTDriver dt, boolean modifyAllowed) {
 		this.modifyAllowed = modifyAllowed;
 		add(new CountByType(dt));
+		add(new ListFiles(dt));
 		add(new ListDirectories(dt));
 		add(new NameMatch(dt));
 		add(new BaseNameMatch(dt));

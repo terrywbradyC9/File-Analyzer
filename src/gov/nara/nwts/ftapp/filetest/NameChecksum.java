@@ -54,8 +54,15 @@ public abstract class NameChecksum extends DefaultFileTest {
 	@Override public void refineResults() {
 		for(List<ChecksumStats> matches: keymap.values()) {
 			if (matches.size() == 1) continue;
+			int count = 0;
 			for(ChecksumStats match: matches) {
-				match.setVal(ChecksumStatsItems.Duplicate, YN.Y);
+				match.setVal(ChecksumStatsItems.IsDuplicate, YN.Y);
+				if (count == 0) {
+					match.setVal(ChecksumStatsItems.DuplicateStat, ChecksumStats.DUP.FirstFound);					
+				} else {
+					match.setVal(ChecksumStatsItems.DuplicateStat, ChecksumStats.DUP.Duplicate);										
+				}
+				count++;
 				match.setVal(ChecksumStatsItems.MatchCount, matches.size());
 			}
 		}

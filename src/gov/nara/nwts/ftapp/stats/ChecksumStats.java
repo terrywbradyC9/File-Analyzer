@@ -12,11 +12,12 @@ import java.io.File;
  *
  */
 public class ChecksumStats extends Stats {
-	
+	public static enum DUP {Unique, FirstFound, Duplicate;}
 	public static enum ChecksumStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Key", 400)),
 		Data(StatsItem.makeStatsItem(Object.class, "Data", 300).setInitVal("")),
-		Duplicate(StatsItem.makeEnumStatsItem(YN.class, "Duplicate").setInitVal(YN.N)),
+		IsDuplicate(StatsItem.makeEnumStatsItem(YN.class, "Is Duplicate").setInitVal(YN.N)),
+		DuplicateStat(StatsItem.makeEnumStatsItem(DUP.class, "Duplicate Stat").setInitVal(DUP.Unique)),
 		MatchCount(StatsItem.makeIntStatsItem("Num of Matches").setInitVal(1));
 		
 		StatsItem si;
