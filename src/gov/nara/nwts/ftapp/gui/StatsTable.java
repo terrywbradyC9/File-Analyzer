@@ -79,7 +79,7 @@ class StatsTable {
 
 		setColumns();
 
-		jt.setPreferredScrollableViewportSize(new Dimension(500, 400));
+		jt.setPreferredScrollableViewportSize(new Dimension(500, 300));
 		for (StatsItem o : details) {
 			if (o.values != null) {
 				ArrayList<Object> list = new ArrayList<Object>();

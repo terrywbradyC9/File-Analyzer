@@ -49,7 +49,7 @@ class ProgressPanel extends MyPanel {
 	ProgressPanel(DirectoryTable dt) {
 		parent = dt;
 		JPanel p = addPanel("Status");
-		status = new JTextArea(10,60);
+		status = new JTextArea(7,60);
 		status.setEditable(false);
 		p.add(new JScrollPane(status));
 		p = addBorderPanel("File Processing Status");
@@ -110,7 +110,7 @@ class ProgressPanel extends MyPanel {
 		jt.getColumnModel().getColumn(5).setPreferredWidth(100);
 		jt.getColumnModel().getColumn(6).setPreferredWidth(200);
 		jt.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		jt.setPreferredScrollableViewportSize(new Dimension(500, 200));
+		jt.setPreferredScrollableViewportSize(new Dimension(500, 150));
 		p.add(new JScrollPane(jt), BorderLayout.CENTER);
 		jt.repaint();
 		batchp = addBorderPanel("Batch Processing");

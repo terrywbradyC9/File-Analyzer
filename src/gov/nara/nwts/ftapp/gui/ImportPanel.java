@@ -9,6 +9,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -19,6 +20,8 @@ import java.util.Collections;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,6 +29,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -56,7 +60,8 @@ class ImportPanel extends MyPanel {
 	JCheckBox forceKey;
 	DirectoryTable parent;
 	FileSelectChooser fsc;
-	JPanel genPanel;
+	
+	JPanel ipGen;
 	
 	void updateDesc() {
 		Importer i = (Importer)importers.getSelectedItem();
@@ -66,17 +71,30 @@ class ImportPanel extends MyPanel {
 	
 	ImportPanel(DirectoryTable dt) {
 		parent = dt;
-		JPanel p = addBorderPanel("Contents to Import for Analysis");
-		JPanel tp = new JPanel(new BorderLayout());
-		p.add(tp, BorderLayout.NORTH);
-		JPanel ttp = new JPanel();
-		tp.add(ttp, BorderLayout.NORTH);
+		JPanel ip = addBorderPanel("Import Type");
+		JTabbedPane tabs = new JTabbedPane();
+		ip.add(tabs, BorderLayout.CENTER);
 		
+		JPanel ipFile = new JPanel(new BorderLayout());
+		Box fileBox = new Box(BoxLayout.Y_AXIS);
+		ipFile.add(fileBox, BorderLayout.CENTER);
+		tabs.add(ipFile, "File Import");
+		
+		ipGen = new JPanel(new BorderLayout());
+		JPanel genp = new JPanel(new GridLayout(0, 2));
+		ipGen.add(genp, BorderLayout.NORTH);
+		tabs.add(ipGen, "Auto-Generate Unique Keys");
+		
+		JPanel ipWeb = new JPanel();
+		tabs.add(ipWeb, "Web Harvest");
+		tabs.setEnabledAt(2, false);
+		
+		JPanel ttp = new JPanel();
+		fileBox.add(ttp);
 		fsc = new FileSelectChooser(parent.frame, "Select file to Import", parent.preferences, "IMPORT", "");
 		ttp.setBorder(BorderFactory.createTitledBorder("File to Import"));
 		ttp.add(fsc);
 		JButton jb = new JButton("Recent");
-		p.add(jb);
 		jb.addActionListener(
 				new ActionListener(){
 					@SuppressWarnings("unchecked")
@@ -100,9 +118,40 @@ class ImportPanel extends MyPanel {
 			);
 		ttp.add(jb);
 		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		p.add(p1, BorderLayout.SOUTH);
+		fileBox.add(p1);
+		p1 = new JPanel();
+		p1.setBorder(BorderFactory.createTitledBorder("File Import Action"));
+		String importrule = parent.preferences.get("import-rule", "");
+		importers = new JComboBox<Importer>(parent.importerRegistry);
+		for(int i=0; i<importers.getItemCount(); i++){
+			Importer im = importers.getItemAt(i);
+			if (im.toString().equals(importrule)) {
+				importers.setSelectedIndex(i);
+				break;
+			}
+		}
+		importers.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				updateDesc();
+			}
+		});
+		p1.add(importers);
+		fileBox.add(p1, BorderLayout.SOUTH);
+		JPanel dp = new JPanel();
+		fileBox.add(dp, BorderLayout.SOUTH);
+		JTabbedPane dptab = new JTabbedPane();
+		dp.add(dptab);
+		importerDesc = new JTextArea(9,60);
+		importerDesc.setMargin(new Insets(10,10,10,10));
+		importerDesc.setLineWrap(true);
+		importerDesc.setWrapStyleWord(true);
+		importerDesc.setBackground(this.getBackground());
+		importerDesc.setEditable(false);
+		dptab.add(importerDesc, "Importer Description");
+		JPanel dpadv = new JPanel();
+		dptab.add(dpadv, "Import Options");
 		forceKey = new JCheckBox("Force Unique Keys");
-		p1.add(forceKey);
+		dpadv.add(forceKey);
 		jb = new JButton("Import File");
 		jb.addActionListener(
 			new ActionListener(){
@@ -119,56 +168,38 @@ class ImportPanel extends MyPanel {
 						parent.recentImport.add(f);
 						for(int i=0; ((i<parent.recentImport.size())&&(i<20));i++){
 							parent.setPreference("recentImport"+i,parent.recentImport.get(parent.recentImport.size()-i-1).getAbsolutePath());
-						}			
+						}	
+						parent.setPreference("import-rule", imp.toString());
 					}
 				}
 			}
 		);
-		p1.add(jb);
-		p1 = new JPanel();
-		p1.add(new JLabel("File Import Action"));
-		importers = new JComboBox<Importer>(parent.importerRegistry);
-		importers.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent arg0) {
-				updateDesc();
-			}
-		});
-		p1.add(importers);
-		tp.add(p1, BorderLayout.SOUTH);
-		importerDesc = new JTextArea(5,60);
-		importerDesc.setLineWrap(true);
-		importerDesc.setWrapStyleWord(true);
-		importerDesc.setBackground(this.getBackground());
-		importerDesc.setEditable(false);
-		p.add(importerDesc);
+		fileBox.add(jb);
 		updateDesc();
 		
-		genPanel = addPanel("Auto-Number");
-		genPanel.setVisible(false);
-		genPanel.setLayout(new GridLayout(0,2));
 		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setGroupingUsed(false);
-		genPanel.add(new JLabel("Prefix"));
+		genp.add(new JLabel("Prefix"));
 		prefix = new JTextField(25);
-		genPanel.add(prefix);
-		genPanel.add(new JLabel("Start Number"));
+		genp.add(prefix);
+		genp.add(new JLabel("Start Number"));
 		start = new JFormattedTextField(nf);
 		start.setColumns(8);
-		genPanel.add(start);
-		genPanel.add(new JLabel("End Number"));
+		genp.add(start);
+		genp.add(new JLabel("End Number"));
 		end = new JFormattedTextField(nf);
 		end.setColumns(8);
-		genPanel.add(end);
-		genPanel.add(new JLabel("Num Digits"));
+		genp.add(end);
+		genp.add(new JLabel("Num Digits"));
 		Object[] objs = {"No Padding",2,3,4,5,6,7,8};
 		pad = new JComboBox<Object>(objs);
-		genPanel.add(pad);
-		genPanel.add(new JLabel("Suffix"));
+		genp.add(pad);
+		genp.add(new JLabel("Suffix"));
 		suffix = new JTextField(25);
-		genPanel.add(suffix);
-		genPanel.add(new JLabel(""));
+		genp.add(suffix);
+		genp.add(new JLabel(""));
 		jb = new JButton("Auto-Generate Keys for Analysis");
-		genPanel.add(jb);
+		genp.add(jb);
 		jb.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
 				TreeMap<String,Stats> types = new TreeMap<String,Stats>();

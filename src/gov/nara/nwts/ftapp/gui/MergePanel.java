@@ -78,7 +78,7 @@ class MergePanel extends MyBorderPanel {
 		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		p.add(pp, BorderLayout.SOUTH);
-		p.setPreferredSize(new Dimension(600,250));
+		p.setPreferredSize(new Dimension(600,200));
 		pp.add(p1, BorderLayout.NORTH);
 		pp.add(p2, BorderLayout.SOUTH);
 		filterOptions.addActionListener(new ActionListener(){

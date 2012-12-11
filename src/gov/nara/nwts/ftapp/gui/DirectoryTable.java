@@ -158,7 +158,7 @@ public class DirectoryTable extends FTDriver {
 		menu.add(jmi);
 		jmi.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {
-				importPanel.genPanel.setVisible(true);
+				importPanel.ipGen.setVisible(true);
 			}});
 		jmb.add(menu);
 		
@@ -189,16 +189,13 @@ public class DirectoryTable extends FTDriver {
 		b.add(Box.createHorizontalStrut(500));
 		criteriaPanel.propPanel.add(b);
 		List<FTProp> myprops = fileTest.getPropertyList();
-		criteriaPanel.propFilter.setEnabledAt(1, false);
+		criteriaPanel.propFilter.setEnabledAt(2, false);
 		for(FTProp myprop: myprops) {
 			JComponent c = myprop.getEditor();
 			c.setBorder(BorderFactory.createTitledBorder(myprop.getName()));
 			c.setToolTipText(myprop.describe());
 			b.add(c);
-			criteriaPanel.propFilter.setEnabledAt(1, true);
-		}
-		if (myprops.isEmpty()) {
-			b.add(new JLabel("No custom properties for this File Test"));
+			criteriaPanel.propFilter.setEnabledAt(2, true);
 		}
 		//criteriaPanel.propPanel.repaint();
 	}

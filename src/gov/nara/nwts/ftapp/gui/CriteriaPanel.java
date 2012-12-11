@@ -5,6 +5,7 @@ import gov.nara.nwts.ftapp.filetest.FileTest;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -94,17 +96,22 @@ class CriteriaPanel extends MyPanel {
 				}
 			);
 
-		p = addPanel("Directory Identification");
+		JPanel advanced = new JPanel(new BorderLayout());
+		JPanel adv1 = new JPanel();
+		adv1.setBorder(BorderFactory.createTitledBorder("Directory Identification"));
+		advanced.add(adv1, BorderLayout.NORTH);
 		ignorePeriods = new JCheckBox();
 		ignorePeriods.setSelected(true);
 		ignorePeriods.setText("Assume directory names do not contain periods (faster)");
-		p.add(ignorePeriods);
+		adv1.add(ignorePeriods);
 
-		p = addBorderPanel("Auto-save Output directory");
+		JPanel adv2 = new JPanel();
+		adv2.setBorder(BorderFactory.createTitledBorder("Auto-save Output directory"));
+		advanced.add(adv2, BorderLayout.CENTER);
 		fsc = new DirSelectChooser(parent.frame, "Output dir for results", parent.preferences, "outdir", "");
-		p.add(fsc, BorderLayout.CENTER);
+		adv2.add(fsc, BorderLayout.CENTER);
 		JPanel pp = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		p.add(pp, BorderLayout.SOUTH);
+		adv2.add(pp, BorderLayout.SOUTH);
 		autoSave = new JCheckBox("Auto-save Results");
 		autoSave.setSelected(parent.preferences.getBoolean("autoSave", false));
 		autoSave.addActionListener(new ActionListener(){
@@ -161,27 +168,20 @@ class CriteriaPanel extends MyPanel {
 		p.add(limit);
 
 		
-		p = addPanel("Description of test to be performed");
-		description = new JTextArea(4,60);
+		JPanel descp = addBorderPanel("Description of test to be performed");
+		description = new JTextArea();
+		description.setMargin(new Insets(10,10,10,10));
+		//description.setBorder(BorderFactory.createEmptyBorder());
 		description.setEditable(false);
 		description.setLineWrap(true);
 		description.setBackground(parent.frame.getBackground());
 		description.setFont(description.getFont().deriveFont(Font.ITALIC));
-		p.add(new JScrollPane(description));
+		descp.add(new JScrollPane(description), BorderLayout.CENTER);
 
-		p = addPanel();
-		fcb = new JCheckBox("Show Filters and Properties", false);
-		p.add(fcb);
-		fcb.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				propFilterPanel.setVisible(fcb.isSelected());
-			}
-		});
-		
 		propFilterPanel = addPanel();
-		propFilterPanel.setVisible(false);
 		propFilter = new JTabbedPane();
 		propFilterPanel.add(propFilter, BorderLayout.CENTER);
+		propFilter.add(descp, "File Test Desc");
 		filterTabs = new JTabbedPane();
 		propFilter.add(filterTabs,"File Filter Criteria");
 
@@ -205,6 +205,7 @@ class CriteriaPanel extends MyPanel {
 		JScrollPane sp = new JScrollPane(propPanel);
 		sp.setPreferredSize(filterTabs.getPreferredSize());
 		propFilter.add(sp,"File Test Properties");
+		propFilter.add(advanced, "Advanced Options");
 		
 	}
 }

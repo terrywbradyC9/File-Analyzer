@@ -47,7 +47,7 @@ class DetailsPanel extends MyBorderPanel {
 		sorter = new TableRowSorter<TableModel>(tm);
 		jt.setRowSorter(sorter);
 		tm.setColumns(jt);
-		jt.setPreferredScrollableViewportSize(new Dimension(600,400));
+		jt.setPreferredScrollableViewportSize(new Dimension(600,300));
 		p.add(new JScrollPane(jt),BorderLayout.CENTER);
 		ph.add(new DetailsFilter(), BorderLayout.SOUTH);
 		
