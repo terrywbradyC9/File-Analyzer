@@ -2,9 +2,6 @@ package gov.nara.nwts.ftapp.gui;
 
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
-import gov.nara.nwts.ftapp.stats.StatsItem;
-import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -39,15 +36,6 @@ import javax.swing.JTextField;
  *
  */
 class ImportPanel extends MyPanel {
-	public static enum ImportStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Key")),
-		Count(StatsItem.makeIntStatsItem("Count").setWidth(10).setInitVal(1));
-		
-		StatsItem si;
-		ImportStatsItems(StatsItem si) {this.si=si;}
-		public StatsItem si() {return si;}
-	}
-	public static StatsItemConfig details = StatsItemConfig.create(ImportStatsItems.class);
 	
 	private static final long serialVersionUID = 1L;
 	JTextField prefix;
@@ -215,10 +203,11 @@ class ImportPanel extends MyPanel {
 					  nf.setMinimumIntegerDigits((Integer)pad.getSelectedItem());
 					}
 					String key = prefix.getText() + nf.format(i) + suffix.getText();
-					Stats stats = Stats.Generator.INSTANCE.create(ImportPanel.details, key);
+					Stats stats = Stats.Generator.INSTANCE.create(Stats.getDefaultStatsConfig(), key);
 					types.put(key, stats);
 				}
-				parent.showSummary("Generated "+(++parent.summaryCount), details, types, true);
+				String s = "Generated "+(++parent.summaryCount);
+				parent.showSummary(s,"Generated Sequence", Stats.getDefaultStatsConfig(), types, true, "");
 			}
 		});
 	}

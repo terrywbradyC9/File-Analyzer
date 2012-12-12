@@ -99,10 +99,7 @@ public class FTDriver {
 	}
 
 	
-	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed){
-		showSummary(name, details, types, completed, "");
-	}
-	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
+	public void showSummary(String name, String longname, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
 		
 	}
 	public boolean getImporterForceKey() {

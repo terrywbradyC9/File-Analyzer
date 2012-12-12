@@ -154,12 +154,6 @@ public class DirectoryTable extends FTDriver {
 				progressPanel.batchp.setVisible(true);
 			}});
 		jmb.add(menu);
-		jmi = new JMenuItem("Enable Key Generate");
-		menu.add(jmi);
-		jmi.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent arg0) {
-				importPanel.ipGen.setVisible(true);
-			}});
 		jmb.add(menu);
 		
 		criteriaPanel.rootLabel.setText(root == null ? preferences.get("root", "") : root.getAbsolutePath());
@@ -270,13 +264,14 @@ public class DirectoryTable extends FTDriver {
 	 */
 	public void logResult(ActionResult res) {
 		saveResult(res);
-		countLabel.setText(detailsPanel.tm.getRowCount()+" items.  "+ ndurf.format(res.duration) + " seconds");
+		countLabel.setText(res.types.size()+" items.  "+ ndurf.format(res.duration) + " seconds");
 		progressPanel.logTest(res.name,res.action, res.root, res.completed, fileTraversal.getNumProcessed(), res.duration, lastSavedFile);
 		logBatchSize();
 
 		if (!isBatchProcessing){
 			showSummary(
 					res.name,
+					res.longname,
 					res.details,
 					res.types,
 					res.completed,
@@ -322,10 +317,9 @@ public class DirectoryTable extends FTDriver {
 		return f;
 	}
 	
-	public void showSummary(String name, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
-		summaryPanel = new SummaryPanel(this);
+	public void showSummary(String name, String longname, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
+		summaryPanel = new SummaryPanel(this, longname, note);
 		summaryPanel.showStats(details,types); 
-		summaryPanel.note.setText(note);
 		tabs.add(summaryPanel, name);
 		if (completed) {
 			tabs.setSelectedComponent(summaryPanel);

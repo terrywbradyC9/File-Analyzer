@@ -29,12 +29,13 @@ class SummaryPanel extends MyBorderPanel {
 	StatsTable st;
 	JTextField note;
 	JTextField fnote;
+	JTextField hnote;
 	DirectoryTable parent;
-	SummaryPanel(DirectoryTable dt) {
+	SummaryPanel(DirectoryTable dt, String header, String notetxt) {
 		parent = dt;
 		tp = addBorderPanel("Summary Counts");
 		JPanel p = addPanel("", BorderLayout.SOUTH);
-		note = new JTextField();
+		note = new JTextField(notetxt);
 		note.setEditable(false);
 		note.setBorder(BorderFactory.createEmptyBorder());
 		fnote = new JTextField(45);
@@ -55,11 +56,10 @@ class SummaryPanel extends MyBorderPanel {
 		np.setLayout(new BorderLayout());
 		p = new JPanel();
 		np.add(p, BorderLayout.NORTH);
-		String note = parent.criteriaPanel.actions.getSelectedItem().toString() +": "+parent.criteriaPanel.rootLabel.getText();
-		JTextField jtf = new JTextField(note,30);
-		parent.detailsPanel.jtfRoot.setText(jtf.getText());
-		jtf.setEditable(false);
-		p.add(jtf);
+		hnote = new JTextField(header,60);
+		parent.detailsPanel.jtfRoot.setText(hnote.getText());
+		hnote.setEditable(false);
+		p.add(hnote);
 		JButton b = new JButton("Remove Tab");
 		b.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) {

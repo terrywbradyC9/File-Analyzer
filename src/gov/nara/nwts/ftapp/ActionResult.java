@@ -16,6 +16,10 @@ public class ActionResult {
 	 */
 	public String name;
 	/**
+	 * Action name + input
+	 */
+	public String longname;
+	/**
 	 * Descriptive name of the action that was performed
 	 */
 	public String action;
@@ -43,6 +47,8 @@ public class ActionResult {
 	public ActionResult(File root, String name, String action, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, double duration) {
 		this.root = root;
 		this.name = name;
+		String s = (root.getParentFile() == null) ? "" : root.getParentFile().getName();
+		this.longname = action + " for .../" + s + "/" + root.getName();
 		this.action = action;
 		this.details = details;
 		this.types = types;

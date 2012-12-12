@@ -27,8 +27,9 @@ public class Stats {
 	
 	//private to prevent use by subclass inner classes
 	private static StatsItemConfig details = StatsItemConfig.create(StatsItems.class);
-	static {
-		details.hashCode();  //intentional no op
+	
+	public static StatsItemConfig getDefaultStatsConfig() {
+		return details;
 	}
 	
 	public StatsItem header;

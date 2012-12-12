@@ -125,13 +125,18 @@ public class BatchImporter {
 		System.out.flush();
 	}
 
-	public static void main(String[] args) {
-		BatchImporter ba = new BatchImporter();
-		ba.parse(args);
-		ba.report();
-		boolean b = ba.run();
+	public boolean run(String[] args) {
+		parse(args);
+		report();
+		boolean b = run();
 		System.out.println("Completion:      \t" + b);
 		System.out.flush();
+		return b;
+	}
+
+	public static void main(String[] args) {
+		BatchImporter ba = new BatchImporter();
+		ba.run(args);
 	}
 
 }
