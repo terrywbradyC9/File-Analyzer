@@ -1,6 +1,6 @@
 package edu.georgetown.library.fileAnalyzer;
 
-import edu.georgetown.library.fileAnalyzer.filetest.GUActionRegistry;
+import edu.georgetown.library.fileAnalyzer.filetest.DemoActionRegistry;
 import edu.georgetown.library.fileAnalyzer.importer.DemoImporterRegistry;
 
 import gov.nara.nwts.ftapp.BatchAnalyzer;
@@ -19,7 +19,7 @@ public class DemoBatchAnalyzer extends BatchAnalyzer {
 	}
 	
 	public ActionRegistry getActionRegistry(FTDriver ft) {
-		return new GUActionRegistry(ft, true);
+		return new DemoActionRegistry(ft, true);
 	}
 
 	protected ImporterRegistry getImporterRegistry(FTDriver ft) {

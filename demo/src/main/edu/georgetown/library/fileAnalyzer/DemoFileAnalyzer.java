@@ -2,7 +2,7 @@ package edu.georgetown.library.fileAnalyzer;
 
 import java.io.File;
 
-import edu.georgetown.library.fileAnalyzer.filetest.GUActionRegistry;
+import edu.georgetown.library.fileAnalyzer.filetest.DemoActionRegistry;
 import edu.georgetown.library.fileAnalyzer.importer.DemoImporterRegistry;
 
 import gov.nara.nwts.ftapp.filetest.ActionRegistry;
@@ -20,7 +20,7 @@ public class DemoFileAnalyzer extends DirectoryTable {
 	}
 	
 	protected ActionRegistry getActionRegistry() {
-		return new GUActionRegistry(this, modifyAllowed);
+		return new DemoActionRegistry(this, modifyAllowed);
 	}
 
 	protected ImporterRegistry getImporterRegistry() {

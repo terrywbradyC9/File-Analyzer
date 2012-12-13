@@ -5,7 +5,6 @@ import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.JpegFileTestFilter;
 import gov.nara.nwts.ftapp.filter.TiffFileTestFilter;
 import gov.nara.nwts.ftapp.filter.TiffJpegFileTestFilter;
-import gov.nara.nwts.ftappImg.filetest.GenericImageProperties.Generator.GenericImageStats;
 import gov.nara.nwts.ftappImg.jpeg.JpegExtractor;
 import gov.nara.nwts.ftappImg.tif.TifExtractor;
 import gov.nara.nwts.ftappImg.tags.XMPExtractor;
@@ -20,6 +19,7 @@ import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
+import gov.nara.nwts.ftappImg.filetest.GenericImageProperties.Generator.GenericImageStats;
 
 import java.io.File;
 import java.util.ArrayList;

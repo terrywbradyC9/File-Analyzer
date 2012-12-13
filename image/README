@@ -1,0 +1,11 @@
+This code requires the following additional libraries in order to execute.
+
+Java Advanced Imaging 1.1.4 jai_core.jar 
+Java Advanced Imaging 1.1.4 jai_codec.jar 
+
+It is difficult to find these jars online, so this implementation is likely obsolete.  Add these files to your local maven repository.
+
+mvn install:install-file -Dfile=<path-to-file> -DgroupId=javax.media -DartifactId=jai_core -Dversion=1.1.4 -Dpackaging=jar
+mvn install:install-file -Dfile=<path-to-file> -DgroupId=com.sun.media -DartifactId=jai_codec -Dversion=1.1.4 -Dpackaging=jar
+
+This package also uses Apache Tika which is availabe via the Maven central repository.
