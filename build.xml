@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<project name="GUFileAnalyzer" default="export">
-
-    <target name="export">
-		<mkdir dir="export"/>
-    	<jar destfile="export\fileAnalyzer.jar" basedir="bin"/>
-    </target>
-
-</project>
