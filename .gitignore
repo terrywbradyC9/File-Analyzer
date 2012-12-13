@@ -10,3 +10,4 @@ dspace/target/*
 demo/target/*
 gulibrary/target/*
 image/target/*
+image/lib/*

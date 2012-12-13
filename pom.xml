@@ -32,6 +32,8 @@
    <modules>
       <module>core</module>
       <module>dspace</module>
+      <module>demo</module>
+      <module>image</module>
       <module>distribution</module>
    </modules>
 </project>

@@ -2,9 +2,10 @@ package edu.georgetown.library.fileAnalyzer;
 
 import java.io.File;
 
-import edu.georgetown.library.fileAnalyzer.filetest.GUActionRegistry;
-import edu.georgetown.library.fileAnalyzer.importer.GUImporterRegistry;
+import edu.georgetown.library.fileAnalyzer.filetest.DSpaceActionRegistry;
+import edu.georgetown.library.fileAnalyzer.importer.DSpaceImporterRegistry;
 
+import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.ActionRegistry;
 import gov.nara.nwts.ftapp.gui.DirectoryTable;
 import gov.nara.nwts.ftapp.importer.ImporterRegistry;
@@ -19,12 +20,12 @@ public class DSpaceFileAnalyzer extends DirectoryTable {
 		super(f, modifyAllowed);
 	}
 	
-	protected ActionRegistry getActionRegistry() {
-		return new GUActionRegistry(this, modifyAllowed);
+	public ActionRegistry getActionRegistry(FTDriver ft) {
+		return new DSpaceActionRegistry(ft, true);
 	}
 
-	protected ImporterRegistry getImporterRegistry() {
-		return new GUImporterRegistry(this);
+	protected ImporterRegistry getImporterRegistry(FTDriver ft) {
+		return new DSpaceImporterRegistry(ft);
 	}
 	public static void main(String[] args) {
 		if (args.length > 0)

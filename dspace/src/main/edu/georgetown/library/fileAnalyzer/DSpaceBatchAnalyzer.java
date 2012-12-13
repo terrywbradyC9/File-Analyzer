@@ -1,7 +1,7 @@
 package edu.georgetown.library.fileAnalyzer;
 
-import edu.georgetown.library.fileAnalyzer.filetest.GUActionRegistry;
-import edu.georgetown.library.fileAnalyzer.importer.GUImporterRegistry;
+import edu.georgetown.library.fileAnalyzer.filetest.DSpaceActionRegistry;
+import edu.georgetown.library.fileAnalyzer.importer.DSpaceImporterRegistry;
 
 import gov.nara.nwts.ftapp.BatchAnalyzer;
 import gov.nara.nwts.ftapp.FTDriver;
@@ -19,11 +19,11 @@ public class DSpaceBatchAnalyzer extends BatchAnalyzer {
 	}
 	
 	public ActionRegistry getActionRegistry(FTDriver ft) {
-		return new GUActionRegistry(ft, true);
+		return new DSpaceActionRegistry(ft, true);
 	}
 
 	protected ImporterRegistry getImporterRegistry(FTDriver ft) {
-		return new GUImporterRegistry(ft);
+		return new DSpaceImporterRegistry(ft);
 	}
 	public static void main(String[] args) {
 		DSpaceBatchAnalyzer ba = new DSpaceBatchAnalyzer();
