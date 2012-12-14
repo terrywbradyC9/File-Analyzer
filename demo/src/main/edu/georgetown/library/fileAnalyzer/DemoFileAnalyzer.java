@@ -17,6 +17,10 @@ public class DemoFileAnalyzer extends DirectoryTable {
 
 	public DemoFileAnalyzer(File f, boolean modifyAllowed) {
 		super(f, modifyAllowed);
+		this.title = "My Demo File Analyzer";
+		this.message = "Illustrates extensions to the file analzyer.";
+		this.refreshTitle();
+		
 	}
 	
 	protected ActionRegistry getActionRegistry() {

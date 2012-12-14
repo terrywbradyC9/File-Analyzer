@@ -96,6 +96,10 @@ public class DirectoryTable extends FTDriver {
 		return new ImporterRegistry(this);
 	}
 
+	protected void refreshTitle() {
+		frame.setTitle(title);
+	}
+	
 	protected boolean modifyAllowed;
 	public DirectoryTable(File root, boolean modifyAllowed) {
 		super(root);

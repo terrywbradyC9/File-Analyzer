@@ -32,12 +32,6 @@
 			<artifactId>DSpaceFileAnalyzer</artifactId>
 			<version>2.0</version>
 		</dependency>
-		<dependency>
-			<groupId>edu.georgetown.library</groupId>
-			<artifactId>ImageFileAnalyzer</artifactId>
-			<version>2.0</version>
-		</dependency>
-
 	</dependencies>
 	<build>
 		<plugins>
