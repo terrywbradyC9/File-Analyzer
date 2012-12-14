@@ -5,7 +5,6 @@ import java.io.File;
 import edu.georgetown.library.fileAnalyzer.filetest.DSpaceActionRegistry;
 import edu.georgetown.library.fileAnalyzer.importer.DSpaceImporterRegistry;
 
-import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.ActionRegistry;
 import gov.nara.nwts.ftapp.gui.DirectoryTable;
 import gov.nara.nwts.ftapp.importer.ImporterRegistry;
@@ -20,12 +19,12 @@ public class DSpaceFileAnalyzer extends DirectoryTable {
 		super(f, modifyAllowed);
 	}
 	
-	public ActionRegistry getActionRegistry(FTDriver ft) {
-		return new DSpaceActionRegistry(ft, true);
+	@Override protected ActionRegistry getActionRegistry() {
+		return new DSpaceActionRegistry(this, true);
 	}
 
-	protected ImporterRegistry getImporterRegistry(FTDriver ft) {
-		return new DSpaceImporterRegistry(ft);
+	@Override protected ImporterRegistry getImporterRegistry() {
+		return new DSpaceImporterRegistry(this);
 	}
 	public static void main(String[] args) {
 		if (args.length > 0)

@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-  		<groupId>edu.georgetown.library</groupId>
-	  	<artifactId>FileAnalyzer</artifactId>
-  		<version>2.0</version>
+		<groupId>edu.georgetown.library</groupId>
+		<artifactId>FileAnalyzer</artifactId>
+		<version>2.0</version>
 	</parent>
 
 	<groupId>edu.georgetown.library</groupId>
@@ -61,6 +61,20 @@
 						</manifest>
 					</archive>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<directory>target</directory>

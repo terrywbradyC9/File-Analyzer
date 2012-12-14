@@ -1,39 +1,53 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>edu.georgetown.library</groupId>
-  <artifactId>FileAnalyzer</artifactId>
-  <version>2.0</version>
-  <packaging>pom</packaging>
+	<groupId>edu.georgetown.library</groupId>
+	<artifactId>FileAnalyzer</artifactId>
+	<version>2.0</version>
+	<packaging>pom</packaging>
 
-  <url>http://maven.apache.org</url>
+	<url>http://maven.apache.org</url>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
-          <configuration>
-            <descriptors>
-              <descriptor>src/assemble/bin.xml</descriptor>
-            </descriptors>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>com.googlecode.addjars-maven-plugin</groupId>
+					<artifactId>addjars-maven-plugin</artifactId>
+					<version>1.0.5</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>add-jars</goal>
+							</goals>
+							<configuration>
+								<resources>
+									<resource>
+										<directory>${basedir}/lib</directory>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 
-   <modules>
-      <module>core</module>
-      <module>dspace</module>
-      <module>demo</module>
-      <module>image</module>
-      <module>distribution</module>
-   </modules>
+	<modules>
+		<module>core</module>
+		<module>dspace</module>
+		<module>demo</module>
+		<module>image</module>
+		<module>distribution</module>
+	</modules>
 </project>

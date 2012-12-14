@@ -28,6 +28,7 @@ public class DSpaceBatchAnalyzer extends BatchAnalyzer {
 	public static void main(String[] args) {
 		DSpaceBatchAnalyzer ba = new DSpaceBatchAnalyzer();
 		ba.run(args);
+		
 	}
 
 }
