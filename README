@@ -1,4 +1,25 @@
-This code has been derived from the NARA File Analyzer and Metadata Harvester which is available at https://github.com/usnationalarchives/File-Analyzer.
+This code has been derived from the NARA File Analyzer and Metadata Harvester which is available at 
+https://github.com/usnationalarchives/File-Analyzer.
+
+PREREQUISITES
+- JDK 1.6 or higher
+- Maven (or you will need to compile the modules manually)
+
+INSTALLATION
+- Clone this code to your computer
+- Run mvn install
+
+DEPLOYMENTS
+This code will build 3 flavors of the File Analyzer.
+(1) Core File Analyzer 
+	All code runs from a self-extracting jar file
+(2) DSpace File Analyzer
+	This version of the file analyzer is a self-extracting jar file that references the core file analyzer jar file. 
+	It contains tools for automating the creation of DSpace ingestion folders
+(3) Demo File Analyzer
+	This version contains extensions illustrating various capabilities of the File Analyzer.  
+	This version of the file analyzer is a self-extracting jar file that references both the core and dspace file analyzer jar files.
+	Sample data will also be added. 
 
 The original license information is contained below.
 
