@@ -1,6 +1,6 @@
 package gov.nara.nwts.ftapp.ftprop;
 
-import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.FTDriver;
 
 /**
  * Abstract base class for File Test Properties
@@ -13,14 +13,14 @@ public abstract class DefaultFTProp implements FTProp {
 	String shortname;
 	String description;
 	Object def;
-	FileTest ft;
+	FTDriver ft;
 	
 	public enum RUNMODE {
 		TEST,
 		PROD;
 	}
 
-	public DefaultFTProp(FileTest ft, String name, String shortname, String description, Object def) {
+	public DefaultFTProp(FTDriver ft, String name, String shortname, String description, Object def) {
 		this.name = name;
 		this.shortname = shortname;
 		this.description = description;
@@ -29,13 +29,13 @@ public abstract class DefaultFTProp implements FTProp {
 	}
 	
 	public void init() {
-		if (ft.getFTDriver().hasPreferences()) {
-			def = ft.getFTDriver().getPreferences().get(getPrefString(), def.toString());
+		if (ft.hasPreferences()) {
+			def = ft.getPreferences().get(getPrefString(), def.toString());
 		}
 	}
 	public void init(Object[] vals) {
-		if (ft.getFTDriver().hasPreferences()) {
-			String s = ft.getFTDriver().getPreferences().get(getPrefString(), def.toString());
+		if (ft.hasPreferences()) {
+			String s = ft.getPreferences().get(getPrefString(), def.toString());
 			if (s == null) return;
 			for(Object obj: vals) {
 				if (s.equals(obj.toString())) {

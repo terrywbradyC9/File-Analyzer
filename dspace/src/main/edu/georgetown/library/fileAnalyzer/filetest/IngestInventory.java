@@ -8,6 +8,7 @@ import edu.georgetown.library.fileAnalyzer.filter.GUImageFileTestFilter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.filter.DefaultFileTestFilter;
 import gov.nara.nwts.ftapp.filter.Jp2FileTestFilter;
 import gov.nara.nwts.ftapp.filter.JpegFileTestFilter;
 import gov.nara.nwts.ftapp.filter.PdfFileTestFilter;
@@ -25,7 +26,8 @@ public class IngestInventory extends DefaultFileTest {
 	private static enum InventoryStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Key")),
 		File(StatsItem.makeStringStatsItem("File")),
-		ThumbFile(StatsItem.makeStringStatsItem("Thumb File"))
+		ThumbFile(StatsItem.makeStringStatsItem("Thumb File")),
+		LicenseFile(StatsItem.makeStringStatsItem("License File"))
 		;
 		
 		StatsItem si;
@@ -80,21 +82,21 @@ public class IngestInventory extends DefaultFileTest {
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(5);
 		nf.setGroupingUsed(false);
-		this.ftprops.add(new FTPropEnum(this, "metadata 1", "m1",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 1", "m1",
 				"field to be populated for each item found", META, "dc.title"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 2", "m2",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 2", "m2",
 				"field to be populated for each item found", META, "dc.date.creator"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 3", "m3",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 3", "m3",
 				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 4", "m4",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 4", "m4",
 				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 5", "m5",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 5", "m5",
 				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 6", "m6",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 6", "m6",
 				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 7", "m7",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 7", "m7",
 				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 8", "m8",
+		this.ftprops.add(new FTPropEnum(dt, "metadata 8", "m8",
 				"field to be populated for each item found", META, "NA"));
 	}
 
@@ -153,6 +155,7 @@ public class IngestInventory extends DefaultFileTest {
 		filters.add(new TiffFileTestFilter());
 		filters.add(new JpegFileTestFilter());
 		filters.add(new Jp2FileTestFilter());
+		filters.add(new DefaultFileTestFilter());
 	}
 
     public Stats createStats(String key){

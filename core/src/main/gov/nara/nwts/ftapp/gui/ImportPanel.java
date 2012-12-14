@@ -1,5 +1,6 @@
 package gov.nara.nwts.ftapp.gui;
 
+import gov.nara.nwts.ftapp.ftprop.FTProp;
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -22,10 +24,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -48,6 +52,8 @@ class ImportPanel extends MyPanel {
 	JCheckBox forceKey;
 	DirectoryTable parent;
 	FileSelectChooser fsc;
+	JPanel propPanel;
+	JTabbedPane dptab;
 	
 	JPanel ipGen;
 	
@@ -55,6 +61,20 @@ class ImportPanel extends MyPanel {
 		Importer i = (Importer)importers.getSelectedItem();
 		importerDesc.setText(i.getDescription());
 		forceKey.setEnabled(i.allowForceKey());
+		
+		propPanel.removeAll();
+		Box b = new Box(BoxLayout.Y_AXIS);
+		b.add(Box.createHorizontalStrut(500));
+		propPanel.add(b);
+		List<FTProp> myprops = i.getPropertyList();
+		dptab.setEnabledAt(1, false);
+		for(FTProp myprop: myprops) {
+			JComponent c = myprop.getEditor();
+			c.setBorder(BorderFactory.createTitledBorder(myprop.getName()));
+			c.setToolTipText(myprop.describe());
+			b.add(c);
+			dptab.setEnabledAt(1, true);
+		}
 	}
 	
 	ImportPanel(DirectoryTable dt) {
@@ -127,7 +147,7 @@ class ImportPanel extends MyPanel {
 		fileBox.add(p1, BorderLayout.SOUTH);
 		JPanel dp = new JPanel();
 		fileBox.add(dp, BorderLayout.SOUTH);
-		JTabbedPane dptab = new JTabbedPane();
+		dptab = new JTabbedPane();
 		dp.add(dptab);
 		importerDesc = new JTextArea(9,60);
 		importerDesc.setMargin(new Insets(10,10,10,10));
@@ -136,6 +156,9 @@ class ImportPanel extends MyPanel {
 		importerDesc.setBackground(this.getBackground());
 		importerDesc.setEditable(false);
 		dptab.add(importerDesc, "Importer Description");
+		propPanel = new JPanel();
+		JScrollPane sp = new JScrollPane(propPanel);
+		dptab.add(sp,"Importer Properties");
 		JPanel dpadv = new JPanel();
 		dptab.add(dpadv, "Import Options");
 		forceKey = new JCheckBox("Force Unique Keys");

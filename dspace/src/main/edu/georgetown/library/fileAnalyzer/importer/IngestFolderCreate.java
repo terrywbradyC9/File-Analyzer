@@ -17,6 +17,7 @@ import org.w3c.dom.Element;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -120,6 +121,12 @@ public class IngestFolderCreate extends DefaultImporter {
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(8);
 		nf.setGroupingUsed(false);
+
+		this.ftprops.add(new FTPropString(dt, "Reusable Thumbnail", "thumb",
+				"Relative path to thumbnail file to be used for all items w/o thumbnail (optional)", ""));
+		this.ftprops.add(new FTPropString(dt, "Reusable License", "license",
+				"Relative path to license file to be used for all items w/o license (optional)", ""));
+
 	}
 
 	public String toString() {
@@ -132,12 +139,14 @@ public class IngestFolderCreate extends DefaultImporter {
 				"\t1) Folder Name - A unique folder will be created for each item to be ingested.  Names must be unique\n"+
 				"\t2) Item file name - required, a file with that name must exist relative to the imported spreadsheet\n"+
 				"\t3) Thumbnail file name - optional, file must exist is present\n"+
+				"\t4) License file name - optional, file must exist is present\n"+
 				"\tAddition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
 				"A title (dc.title) and a properly formatted creation date (dc.date.created) must be present somewhere in the set of additional columns.";
 	}
 	public String getShortName() {
 		return "Ingest Folder";
 	}
+	
 
 	public createStatus createItem(File selectedFile, Vector<String> cols) {
 		Document d = XMLUtil.db.newDocument();
