@@ -23,9 +23,9 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 public class IngestInventory extends DefaultFileTest {
 
-	private static enum InventoryStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Key")),
-		File(StatsItem.makeStringStatsItem("File")),
+	public static enum InventoryStatsItems implements StatsItemEnum {
+		Key(StatsItem.makeStringStatsItem("Key/Folder Name")),
+		File(StatsItem.makeStringStatsItem("Item File")),
 		ThumbFile(StatsItem.makeStringStatsItem("Thumb File")),
 		LicenseFile(StatsItem.makeStringStatsItem("License File"))
 		;

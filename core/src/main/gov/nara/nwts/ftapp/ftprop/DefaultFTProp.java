@@ -47,7 +47,7 @@ public abstract class DefaultFTProp implements FTProp {
 	}
 	
 	public String getPrefString() {
-		return ft.toString()+"--"+name;
+		return ft.toString()+"--"+shortname;
 	}
 
 	public String describe() {
