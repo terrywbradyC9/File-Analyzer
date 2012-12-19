@@ -188,7 +188,22 @@ public class CreateDateParser extends DefaultImporter {
 		return "Demo: Creation Date Analysis";
 	}
 	public String getDescription() {
-		return "Prototype: This rule will parse a creation date analysis record.";
+		return "Prototype: This rule will parse a pipe separated file containing several unnormalized DSpace date fields.\n" +
+				"Thus rule is for illustrative purposes, it does not have an operational purpose." +
+				"Expected input format\n" +
+				"-Item id\n" +
+				"-Community\n" +
+				"-Collection\n" +
+				"-Title\n" +
+				"-Handle\n" +
+				"-Creation date\n" +
+				"-Issue date\n" +
+				"-Unqualified date\n" +
+				"-Accession date\n" +
+				"-Available date\n" +
+				"-Copyright date\n" +
+				"-Submission date\n" +
+				"";
 	}
 	public String getShortName() {
 		return "Create";

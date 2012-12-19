@@ -50,7 +50,10 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 	}
 
 	public String getDescription() {
-		return "This test will return a list of files in random order for QC processing";
+		return "This test will return a list of files in random order for QC processing.\n" +
+				"Select the AQL (acceptable quality level) target for your test.  \n" +
+				"This rule will generate a random sample of the appropriate size based on the number of files found.\n" +
+				"See http://en.wikipedia.org/wiki/MIL-STD-105 for an explaination.";
 	}
 
 	public Object fileTest(File f) {

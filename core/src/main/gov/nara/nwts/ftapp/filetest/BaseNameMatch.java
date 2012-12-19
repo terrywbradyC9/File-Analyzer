@@ -43,7 +43,7 @@ class BaseNameMatch extends DefaultFileTest {
 	}
 
 	public String getDescription() {
-		return "This test reports on file size by base name (no extension) regardless of the directory in a file name is found.";
+		return "This test reports on file size by base name (no extension) regardless of the directory in which a file name is found.";
 	}
 
 }

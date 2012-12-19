@@ -137,14 +137,14 @@ public class Parser extends DefaultImporter {
 	}
 
 	public String toString() {
-		return "Parser";
+		return "Regular Expression Parser";
 	}
 	public String getDescription() {
 		return "This rule will parse each line of a file and add it to the results table.\n" +
 				"This rule requires an understanding of regular expressions.";
 	}
 	public String getShortName() {
-		return "Parse";
+		return "Regex";
 	}
 
 }

@@ -135,7 +135,9 @@ public class NameChecksum extends DefaultFileTest {
 	}
 
 	public String getDescription() {
-		return "This test reports the checksum for a given filename.\nNote, the checksum will be overwritten if the file is found more than once.";
+		return "This test reports the checksum for a given filename.\n" +
+				"The summary report will identify files with the same checksum value.\n" +
+				"You may select from a number of standard checksum algorithms.";
 	}
     public void progress(int count) {
     	if (count % 5000 == 0) {

@@ -222,9 +222,15 @@ abstract public class NameValidationTest extends DefaultFileTest {
 		return shortname + (allowRename ? " Rename" : "");
 	}
 
+	
+	public String getNameValidationDisclaimer() {
+		return ((allowRename) ? "\nFILES WILL BE RENAMED IF POSSIBLE." : "") +
+				"\n\nThe File Analzyer can be re-compiled to allow the actual re-name to take place.";
+	}
+	
 	public String getDescription() {
-		return "This test will check filename case."
-				+ ((allowRename) ? "\nFILES WILL BE RENAMED IF POSSIBLE." : "");
+		return "This test will check filename that a filename conforms to an established set of rules."
+				+  getNameValidationDisclaimer() ;
 	}
 
     public boolean isTestFiles() {

@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.importer.DefaultImporter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
@@ -30,7 +31,7 @@ import edu.georgetown.library.fileAnalyzer.importer.demo.TabSepToDC.Generator.DC
  * @author TBrady
  *
  */
-public class TabSepToDC extends DelimitedFileImporter {
+public class TabSepToDC extends DefaultImporter {
 
 	public enum status {PASS,FAIL}
 	NumberFormat nf;
@@ -94,7 +95,17 @@ public class TabSepToDC extends DelimitedFileImporter {
 		return "Demo: Convert Tab Separated File to Dublin Core";
 	}
 	public String getDescription() {
-		return "Prototype: This rule will import a tab separated file and create a Dublin Core File from it";
+		return "Prototype: This rule will import a tab separated file and create a Dublin Core File from it.\n" +
+				"Thus rule is for illustrative purposes, it does not have an operational purpose.\n" +
+				"Expected input format\n" +
+				"- Directory name\n" +
+				"- Creator\n" +
+				"- Title\n" +
+				"- Date\n" +
+				"- Language\n" +
+				"- Subject\n" +
+				"- Format\n" +
+				"- Publisher";
 	}
 	public String getShortName() {
 		return "Tab2DC";
@@ -130,7 +141,7 @@ public class TabSepToDC extends DelimitedFileImporter {
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		int rowKey = 0;
 		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = parseLine(line, getSeparator());
+			Vector<String> cols = DelimitedFileImporter.parseLine(line, getSeparator());
 			String key = nf.format(rowKey++);
 			DCStats stats = Generator.INSTANCE.create(key);
 			if (cols.size() == 8) {
