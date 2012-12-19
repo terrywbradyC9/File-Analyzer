@@ -83,9 +83,17 @@ public class IngestInventory extends DefaultFileTest {
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(5);
 		nf.setGroupingUsed(false);
-		for(int i=1; i<=COUNT; i++) {
+		for(int i=1; i<=1; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
 					"field to be populated for each item found", META, "dc.title"));			
+		}
+		for(int i=2; i<=2; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", META, "dc.date.created"));			
+		}
+		for(int i=3; i<=COUNT; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", META, "NA"));			
 		}
 	}
 

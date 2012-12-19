@@ -160,7 +160,7 @@ class ImportPanel extends MyPanel {
 		dptab.add(importerDesc, "Importer Description");
 		propPanel = new JPanel();
 		JScrollPane sp = new JScrollPane(propPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		sp.setPreferredSize(new Dimension(parent.criteriaPanel.propFilter.getWidth(), 220));
+		sp.setPreferredSize(new Dimension(parent.criteriaPanel.propFilter.getWidth()-20, 220));
 		dptab.add(sp,"Importer Properties");
 		JPanel dpadv = new JPanel();
 		dptab.add(dpadv, "Import Options");
