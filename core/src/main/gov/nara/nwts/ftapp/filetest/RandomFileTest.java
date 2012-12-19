@@ -26,7 +26,7 @@ class RandomFileTest extends DefaultFileTest implements Randomizer {
 	public RandomFileTest(FTDriver dt) {
 		super(dt);
 		keySet = new TreeMap<Long, String>();
-		ftprops.add(new FTPropEnum(dt, LAQL,"AQL","Set the acceptible quality level",AQL.values(),AQL.AQLp04));
+		ftprops.add(new FTPropEnum(dt, this.getClass().getName(), LAQL,"AQL","Set the acceptible quality level",AQL.values(),AQL.AQLp04));
 	}
 
 	public String toString() {

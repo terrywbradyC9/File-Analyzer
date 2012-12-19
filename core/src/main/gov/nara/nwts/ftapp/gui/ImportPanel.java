@@ -5,6 +5,7 @@ import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -33,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 
 /**
  * User interface component presenting file import options and auto-sequencing options.
@@ -157,7 +159,8 @@ class ImportPanel extends MyPanel {
 		importerDesc.setEditable(false);
 		dptab.add(importerDesc, "Importer Description");
 		propPanel = new JPanel();
-		JScrollPane sp = new JScrollPane(propPanel);
+		JScrollPane sp = new JScrollPane(propPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp.setPreferredSize(new Dimension(parent.criteriaPanel.propFilter.getWidth(), 220));
 		dptab.add(sp,"Importer Properties");
 		JPanel dpadv = new JPanel();
 		dptab.add(dpadv, "Import Options");

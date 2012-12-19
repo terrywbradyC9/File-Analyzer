@@ -2,6 +2,7 @@ package gov.nara.nwts.ftapp.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.stats.ChecksumStats;
 import gov.nara.nwts.ftapp.stats.ChecksumStats.ChecksumStatsItems;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -22,13 +23,28 @@ import java.util.List;
  * @author TBrady
  *
  */
-public abstract class NameChecksum extends DefaultFileTest {
+public class NameChecksum extends DefaultFileTest {
 	
 	HashMap<String, List<ChecksumStats>> keymap;
+	public static final String ALGORITHM = "Algorithm";
+	private static enum Algorithm {
+		MD5("MD5"),
+		SHA1("SHA-1"),
+		SHA256("SHA-256"),
+		SHA384("SHA-384"),
+		SHA512("SHA-512");
+		String algorithm;
+		Algorithm(String s) {algorithm = s;}
+		MessageDigest getInstance() throws NoSuchAlgorithmException {
+			return MessageDigest.getInstance(algorithm);
+		}
+	}
 
 	public NameChecksum(FTDriver dt) {
 		super(dt);
 		keymap = new HashMap<String, List<ChecksumStats>>();
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), ALGORITHM, "algorithm",
+				"Checksum Algorithm", Algorithm.values(), Algorithm.MD5));
 	}
 
 	public String toString() {
@@ -70,12 +86,11 @@ public abstract class NameChecksum extends DefaultFileTest {
 	
     public String getShortName(){return "Checksum";}
 
-    abstract public MessageDigest getMessageDigest() throws NoSuchAlgorithmException;
-    
     public String getChecksum(File f) {
+    	Algorithm algorithm = (Algorithm)getProperty(ALGORITHM);
     	FileInputStream fis = null;
 		try {
-			MessageDigest md = getMessageDigest();
+			MessageDigest md = algorithm.getInstance();
 			fis = new FileInputStream(f);
 			byte[] dataBytes = new byte[1204];
 			int nread = 0;

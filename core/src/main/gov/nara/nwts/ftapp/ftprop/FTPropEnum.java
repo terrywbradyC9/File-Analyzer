@@ -17,8 +17,8 @@ import javax.swing.JComponent;
 public class FTPropEnum extends DefaultFTProp {
 	JComboBox combo;
 
-	public FTPropEnum(FTDriver ft, String name, String shortname, String description, Object[]vals, Object def) {
-		super(ft, name, shortname, description, def);
+	public FTPropEnum(FTDriver ft, String prefix, String name, String shortname, String description, Object[]vals, Object def) {
+		super(ft, prefix, name, shortname, description, def);
 		init(vals);
 		combo = new JComboBox();
 		initCombo(vals);
@@ -27,7 +27,7 @@ public class FTPropEnum extends DefaultFTProp {
 				Object obj = combo.getSelectedItem();
 				if (obj == null) return;
 				if (FTPropEnum.this.ft.hasPreferences()){
-					FTPropEnum.this.ft.getPreferences().put(getPrefString(), combo.getSelectedItem().toString());				
+					FTPropEnum.this.ft.setPreference(getPrefString(), combo.getSelectedItem().toString());				
 				}
 			}
 		});

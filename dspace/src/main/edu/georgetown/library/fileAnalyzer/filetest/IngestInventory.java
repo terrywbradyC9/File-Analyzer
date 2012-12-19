@@ -77,27 +77,16 @@ public class IngestInventory extends DefaultFileTest {
 			"dc.subject.mesh", "dc.title", "dc.title.alternative", "dc.type" };
 
 	NumberFormat nf;
+	public static final int COUNT = 8;
 	public IngestInventory(FTDriver dt) {
 		super(dt);
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(5);
 		nf.setGroupingUsed(false);
-		this.ftprops.add(new FTPropEnum(dt, "metadata 1", "m1",
-				"field to be populated for each item found", META, "dc.title"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 2", "m2",
-				"field to be populated for each item found", META, "dc.date.creator"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 3", "m3",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 4", "m4",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 5", "m5",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 6", "m6",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 7", "m7",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(dt, "metadata 8", "m8",
-				"field to be populated for each item found", META, "NA"));
+		for(int i=1; i<=COUNT; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", META, "dc.title"));			
+		}
 	}
 
 	public String getDescription() {

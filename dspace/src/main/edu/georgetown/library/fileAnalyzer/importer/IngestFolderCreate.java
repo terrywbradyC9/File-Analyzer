@@ -131,9 +131,9 @@ public class IngestFolderCreate extends DefaultImporter {
 		nf.setMinimumIntegerDigits(8);
 		nf.setGroupingUsed(false);
 
-		this.ftprops.add(new FTPropString(dt, REUSABLE_THUMBNAIL, "thumb",
+		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), REUSABLE_THUMBNAIL, "thumb",
 				"Relative path to thumbnail file to be used for all items w/o thumbnail (optional)", ""));
-		this.ftprops.add(new FTPropString(dt, REUSABLE_LICENSE, "license",
+		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), REUSABLE_LICENSE, "license",
 				"Relative path to license file to be used for all items w/o license (optional)", ""));
 
 	}
@@ -147,8 +147,8 @@ public class IngestFolderCreate extends DefaultImporter {
 				"File Structure\n"+
 				"\t1) Folder Name - A unique folder will be created for each item to be ingested.  Names must be unique\n"+
 				"\t2) Item file name - required, a file with that name must exist relative to the imported spreadsheet\n"+
-				"\t3) Thumbnail file name - optional, file must exist is present\n"+
-				"\t4) License file name - optional, file must exist is present\n"+
+				"\t3) Thumbnail file name - optional, file must exist if present\n"+
+				"\t4) License file name - optional, file must exist if present\n"+
 				"\tAddition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
 				"A title (dc.title) and a properly formatted creation date (dc.date.created) must be present somewhere in the set of additional columns.";
 	}

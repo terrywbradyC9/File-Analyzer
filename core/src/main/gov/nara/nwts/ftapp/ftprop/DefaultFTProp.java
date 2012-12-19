@@ -14,18 +14,20 @@ public abstract class DefaultFTProp implements FTProp {
 	String description;
 	Object def;
 	FTDriver ft;
+	String prefix = "";
 	
 	public enum RUNMODE {
 		TEST,
 		PROD;
 	}
 
-	public DefaultFTProp(FTDriver ft, String name, String shortname, String description, Object def) {
+	public DefaultFTProp(FTDriver ft, String prefix, String name, String shortname, String description, Object def) {
 		this.name = name;
 		this.shortname = shortname;
 		this.description = description;
 		this.ft = ft;
 		this.def =  def;
+		this.prefix = prefix;
 	}
 	
 	public void init() {
@@ -47,7 +49,7 @@ public abstract class DefaultFTProp implements FTProp {
 	}
 	
 	public String getPrefString() {
-		return ft.toString()+"--"+shortname;
+		return "ftprop--"+prefix+"--"+shortname;
 	}
 
 	public String describe() {

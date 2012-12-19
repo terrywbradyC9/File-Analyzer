@@ -21,9 +21,7 @@ public class ActionRegistry extends Vector<FileTest> {
 		add(new ListDirectories(dt));
 		add(new NameMatch(dt));
 		add(new BaseNameMatch(dt));
-		add(new NameMD5Checksum(dt));
-		add(new NameSha1Checksum(dt));
-		add(new NameSha256Checksum(dt));
+		add(new NameChecksum(dt));
 		add(new DirMatch(dt));
 		add(new DirTypeNameMatch(dt));
 		add(new RandomFileTest(dt));
