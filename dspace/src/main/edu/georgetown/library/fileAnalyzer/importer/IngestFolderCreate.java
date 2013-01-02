@@ -164,7 +164,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		d.appendChild(e);
 		for(int i=0; i<cols.size(); i++) {
 			String col = cols.get(i);
-			if (col == "") continue;
+			if (col.isEmpty()) continue;
 			column colhead = colHeaderDefs.get(i);
 			if (colhead.valid) {
 				addElement(e, colhead.element, colhead.qualifier, col);
