@@ -1,6 +1,6 @@
 package gov.nara.nwts.ftapp.ftprop;
 
-import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.FTDriver;
 
 /**
  * Abstract base class for File Test Properties
@@ -13,29 +13,31 @@ public abstract class DefaultFTProp implements FTProp {
 	String shortname;
 	String description;
 	Object def;
-	FileTest ft;
+	FTDriver ft;
+	String prefix = "";
 	
 	public enum RUNMODE {
 		TEST,
 		PROD;
 	}
 
-	public DefaultFTProp(FileTest ft, String name, String shortname, String description, Object def) {
+	public DefaultFTProp(FTDriver ft, String prefix, String name, String shortname, String description, Object def) {
 		this.name = name;
 		this.shortname = shortname;
 		this.description = description;
 		this.ft = ft;
 		this.def =  def;
+		this.prefix = prefix;
 	}
 	
 	public void init() {
-		if (ft.getFTDriver().hasPreferences()) {
-			def = ft.getFTDriver().getPreferences().get(getPrefString(), def.toString());
+		if (ft.hasPreferences()) {
+			def = ft.getPreferences().get(getPrefString(), def.toString());
 		}
 	}
 	public void init(Object[] vals) {
-		if (ft.getFTDriver().hasPreferences()) {
-			String s = ft.getFTDriver().getPreferences().get(getPrefString(), def.toString());
+		if (ft.hasPreferences()) {
+			String s = ft.getPreferences().get(getPrefString(), def.toString());
 			if (s == null) return;
 			for(Object obj: vals) {
 				if (s.equals(obj.toString())) {
@@ -47,7 +49,7 @@ public abstract class DefaultFTProp implements FTProp {
 	}
 	
 	public String getPrefString() {
-		return ft.toString()+"--"+name;
+		return "ftprop--"+prefix+"--"+shortname;
 	}
 
 	public String describe() {

@@ -68,7 +68,9 @@ public class FTDriver {
 	public boolean hasPreferences() {
 		return getPreferences()!=null;
 	}
-	
+
+	public void setPreference(String path, String value){
+	}
 	protected Vector<Vector<String>>batchItems;
 	
 	public static void dumpNode(Node n) {

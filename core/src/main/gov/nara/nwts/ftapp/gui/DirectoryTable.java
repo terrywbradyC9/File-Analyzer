@@ -105,7 +105,7 @@ public class DirectoryTable extends FTDriver {
 		super(root);
 		this.modifyAllowed = modifyAllowed;
 		frame = new JFrame(title);
-		preferences = Preferences.userNodeForPackage(getClass());
+		preferences = Preferences.userNodeForPackage(DirectoryTable.class);
 		recent = new ArrayList<File>();
 		for(int i=20-1; i>=0;i--){
 			String s = preferences.get("recent"+i,"");

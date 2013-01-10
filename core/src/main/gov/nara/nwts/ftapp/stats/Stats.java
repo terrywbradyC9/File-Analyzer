@@ -50,6 +50,14 @@ public class Stats {
 		}		
 	}
 	
+	public Object getKeyVal(StatsItem si, Object val) {
+		if (si == null) return val;
+		int index = si.getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
+			return vals.get(index);
+		}		
+		return val;
+	}
 	public void setVal(StatsItemEnum eitem, Object val) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {

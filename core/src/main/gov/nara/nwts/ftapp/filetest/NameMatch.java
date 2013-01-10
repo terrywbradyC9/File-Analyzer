@@ -40,7 +40,7 @@ class NameMatch extends DefaultFileTest {
 	}
 
 	public String getDescription() {
-		return "This test reports on file size by name regardless of the directory in a file name is found.";
+		return "This test reports on file size by name regardless of the directory in which a file name is found.";
 	}
 
 }

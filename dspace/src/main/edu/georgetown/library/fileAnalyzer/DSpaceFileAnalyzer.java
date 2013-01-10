@@ -20,7 +20,7 @@ public class DSpaceFileAnalyzer extends DirectoryTable {
 	}
 	
 	@Override protected ActionRegistry getActionRegistry() {
-		return new DSpaceActionRegistry(this, true);
+		return new DSpaceActionRegistry(this, modifyAllowed);
 	}
 
 	@Override protected ImporterRegistry getImporterRegistry() {

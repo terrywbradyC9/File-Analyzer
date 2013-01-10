@@ -14,10 +14,7 @@ public class ImporterRegistry extends Vector<Importer> {
 	private static final long serialVersionUID = 1L;
 
 	public ImporterRegistry(FTDriver dt) {
-		add(new TabSepFileImporter(dt));
-		add(new CsvFileImporter(dt));
-		add(new SemicolonFileImporter(dt));
-		add(new PipeFileImporter(dt));
+		add(new DelimitedFileImporter(dt));
 		add(new Parser(dt));
 	}
 	

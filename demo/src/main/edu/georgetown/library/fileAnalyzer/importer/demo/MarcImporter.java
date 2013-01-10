@@ -53,7 +53,8 @@ public class MarcImporter extends DefaultImporter {
 		return "Demo: Import Key Marc Info";
 	}
 	public String getDescription() {
-		return "Prototype: This rule will perform a simple parse of a MARC record";
+		return "Prototype: This rule will perform a simple parse of a MARC record\n" +
+				"Thus rule is for illustrative purposes, it does not have an operational purpose.";
 	}
 	public String getShortName() {
 		return "Marc";

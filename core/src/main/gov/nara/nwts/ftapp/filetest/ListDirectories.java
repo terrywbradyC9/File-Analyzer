@@ -70,7 +70,8 @@ class ListDirectories extends DefaultFileTest {
 
 
 	public String getDescription() {
-		return "Generate a list of directories";
+		return "This rule will generate a listing of the unique directory names found within a specific directory.\n" +
+				"The purpose of this rule is to generate an tracking list when performing a similar batch process on a collection of directories.";
 	}
 
     public boolean isTestDirectory() {

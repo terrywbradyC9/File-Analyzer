@@ -37,6 +37,8 @@ class CountByType extends DefaultFileTest {
 	}
 
 	public String getDescription() {
-		return "This test counts the number of files found by file extension.";
+		return "This test counts the number of files found by file extension.\n" +
+				"A report will be generated listing the number of files found for each extension" +
+				" as well as a cumulative number of bytes for files of each type.";
 	}
 }

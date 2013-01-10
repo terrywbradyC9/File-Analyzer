@@ -292,7 +292,14 @@ public class IngestValidate extends DefaultFileTest {
     public boolean isTestDirectory() {return true;}
 
     public String getDescription() {
-		return "Analyzes directories to be imported into DigitalGeorgetown";
+		return "Analyzes an ingest folder to be uploaded into DSpace.\n\n" +
+				"This rule should be pointed at a folder of subfolders where each sub-folder conforms to DSpace's ingest folder conventions.\n" +
+				"- An item file should be present\n" +
+				"- A thumbnail file may be present.  If present, it must match the item file name + '.jpg'\n" +
+				"- An optional license file or text file may be present\n" +
+				"- A dublin core metadata file 'dublin_core.xml' is required.  This file will be scanned for required metadata.\n" +
+				"- A contents file 'contents' is required.  This file must contain a list of all other required files.\n" +
+				"";
 	}
 
 }

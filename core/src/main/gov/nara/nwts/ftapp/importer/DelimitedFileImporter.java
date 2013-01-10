@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.importer;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -19,14 +20,26 @@ import java.util.Vector;
  * @author TBrady
  *
  */
-public abstract class DelimitedFileImporter extends DefaultImporter {
+public class DelimitedFileImporter extends DefaultImporter {
+	private static enum Separator{
+		Comma(","),
+		Tab("\t"),
+		Semicolon(";"),
+		Pipe("|");
+		
+		String separator;
+		Separator(String s) {separator = s;}
+	}
+	public static final String DELIM = "Delimiter";
 	public DelimitedFileImporter(FTDriver dt) {
 		super(dt);
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
+				"Delimiter character separating fileds", Separator.values(), Separator.Comma));
 	}
 	boolean forceKey;
 	int rowKey = 1000000;
+	String currentSeparator;
 	
-	public abstract String getSeparator();
 	protected static String getNextString(String in, String sep) {
 		return getNextString(in,sep,0);
 	}
@@ -82,6 +95,7 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 	public static String KEY = "key";
 
 	public ActionResult importFile(File selectedFile) throws IOException {
+		Separator fileSeparator = (Separator)getProperty(DELIM);
 		Timer timer = new Timer();
 		forceKey = dt.getImporterForceKey();
 		BufferedReader br = new BufferedReader(new FileReader(selectedFile));
@@ -95,7 +109,7 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 		int colset = 0;
 		
 		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = parseLine(line, getSeparator());
+			Vector<String> cols = parseLine(line, fileSeparator.separator);
 			colcount = Math.max(colcount,cols.size());
 			for(int i=colset; i<colcount; i++) {
 				String colkey = "Col"+(i+1);
@@ -106,7 +120,7 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 		
 		br = new BufferedReader(new FileReader(selectedFile));
 		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = parseLine(line, getSeparator());
+			Vector<String> cols = parseLine(line, fileSeparator.separator);
 			String key = cols.get(0);
 			if (forceKey) {
 				key = "" + (rowKey++);
@@ -141,5 +155,14 @@ public abstract class DelimitedFileImporter extends DefaultImporter {
 	}
 	public boolean allowForceKey() {
 		return true;
+	}
+	public String toString() {
+		return "Import Delimited File";
+	}
+	public String getDescription() {
+		return "This rule will import a delimited file (comma separated, tab separated, etc).  Please specify the delimiter character to use.";
+	}
+	public String getShortName() {
+		return "Delim";
 	}
 }
