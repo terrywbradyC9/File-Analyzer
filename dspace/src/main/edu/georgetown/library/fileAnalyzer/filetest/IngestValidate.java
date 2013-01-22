@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class IngestValidate extends DefaultFileTest { 
+	
+	Pattern pOther = Pattern.compile("^metadata_(.+)\\.xml$");
 	
 	public enum OVERALL_STAT {
 		VALID,
@@ -55,6 +58,12 @@ public class IngestValidate extends DefaultFileTest {
 		INVALID
 	}
 
+	public enum OTHER_STAT {
+		NA,
+		VALID,
+		INVALID
+	}
+
 	public enum THUMBNAIL_STAT {
 		NA,
 		VALID,
@@ -68,6 +77,8 @@ public class IngestValidate extends DefaultFileTest {
 		ContentsStat(StatsItem.makeEnumStatsItem(CONTENTS_STAT.class, "Contents File", CONTENTS_STAT.MISSING).setWidth(80)),
 		ContentFileCount(StatsItem.makeIntStatsItem("Num ContentF Files").setWidth(80)),
 		DublinCoreStat(StatsItem.makeEnumStatsItem(DC_STAT.class, "Dublin Core File", DC_STAT.MISSING).setWidth(80)),
+		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
+		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(OTHER_STAT.class, "Other Metadata File Status").setWidth(120)),
 		ItemTitle(StatsItem.makeStringStatsItem("Item Title", 150)),
 		Author(StatsItem.makeStringStatsItem("Author", 150)),
 		Date(StatsItem.makeStringStatsItem("Date Created", 80)),
@@ -102,6 +113,8 @@ public class IngestValidate extends DefaultFileTest {
 				setVal(DSpaceStatsItems.ContentsStat, info.contents_stat);
 				setVal(DSpaceStatsItems.ContentFileCount, info.contentsList.size());
 				setVal(DSpaceStatsItems.DublinCoreStat, info.dc_stat);
+				setVal(DSpaceStatsItems.OtherSchemas, info.otherSchemas);
+				setVal(DSpaceStatsItems.OtherMetadataFileStats, info.other_stat);
 				setVal(DSpaceStatsItems.ItemTitle, info.title);
 				setVal(DSpaceStatsItems.Author, info.author);
 				setVal(DSpaceStatsItems.Date, info.date);
@@ -131,10 +144,12 @@ public class IngestValidate extends DefaultFileTest {
 		public File[] files;
 		public ArrayList<String> contentsList;
 		
-		public Document d;
+		HashMap<String, Document> docs;
 		
 		public CONTENTS_STAT contents_stat = CONTENTS_STAT.MISSING;
 		public DC_STAT dc_stat = DC_STAT.MISSING;
+		public OTHER_STAT other_stat = OTHER_STAT.NA;
+		public String otherSchemas = "";
 		public THUMBNAIL_STAT thumbnail_stat = THUMBNAIL_STAT.NA;
 		
 		public String title ="";
@@ -151,6 +166,7 @@ public class IngestValidate extends DefaultFileTest {
 		public String other ="";
 		
 		public DSpaceInfo(File f) {
+			docs = new HashMap<String, Document>();
 			files = f.listFiles();
 			contentsList = new ArrayList<String>();
 			
@@ -162,7 +178,7 @@ public class IngestValidate extends DefaultFileTest {
 				} else if (file.getName().equals("dublin_core.xml")) {
 					dc = file;
 					try {
-						d = XMLUtil.db.parse(dc);
+						docs.put("dc", XMLUtil.db.parse(dc));
 						dc_stat = DC_STAT.VALID;
 						title = getText("title");
 						author = getText("creator");
@@ -173,10 +189,24 @@ public class IngestValidate extends DefaultFileTest {
 						publisher = getText("publisher");
 					} catch (SAXException e) {
 						dc_stat = DC_STAT.INVALID;
-						e.printStackTrace();
 					} catch (IOException e) {
 						dc_stat = DC_STAT.INVALID;
-						e.printStackTrace();
+					}
+				} else {
+					Matcher m = pOther.matcher(file.getName());
+					if (!m.matches()) continue;
+					otherSchemas += m.group(1) + " ";
+					if (m.matches()) {
+						try {
+							docs.put(m.group(1), XMLUtil.db.parse(file));
+							if (other_stat != OTHER_STAT.INVALID) {
+								other_stat = OTHER_STAT.VALID;
+							} 
+						} catch (SAXException e) {
+							other_stat = OTHER_STAT.INVALID;
+						} catch (IOException e) {
+							other_stat = OTHER_STAT.INVALID;
+						}
 					}
 				}
 			}
@@ -185,6 +215,7 @@ public class IngestValidate extends DefaultFileTest {
 				if (name.equals("contents")) continue;
 				if (name.equals("dublin_core.xml")) continue;
 				if (name.equals("Thumbs.db")) continue;
+				if (pOther.matcher(name).matches()) continue;
 				boolean found = false;
 				for(String s: contentsList) {
 					if (name.equals(s)) found = true;
@@ -209,6 +240,8 @@ public class IngestValidate extends DefaultFileTest {
 		public OVERALL_STAT getOverallStat() {
 			if (dc_stat != DC_STAT.VALID) 
 				return OVERALL_STAT.INVALID;
+			if (other_stat == OTHER_STAT.INVALID) 
+				return OVERALL_STAT.INVALID;
 			if (thumbnail_stat == THUMBNAIL_STAT.INVALID_FILENAME)
 				return OVERALL_STAT.INVALID;
 			if (contents_stat == CONTENTS_STAT.VALID)
@@ -220,21 +253,14 @@ public class IngestValidate extends DefaultFileTest {
 		
 		
 		public String getText(String tag) {
-			if (d == null) return "";
-			if (d.getDocumentElement() == null) return "";
-			NodeList nl = d.getDocumentElement().getElementsByTagName("dcvalue");
-			for(int i=0; i<nl.getLength();i++) {
-				Element el = (Element)nl.item(i);
-				String att = el.getAttribute("element");
-				if (att == null) continue;
-				if (att.equals(tag)) {
-					return el.getTextContent();
-				}
-			}
-			return "";
+			return getText("dc", tag, "");
 		}
 		
 		public String getText(String tag, String qual) {
+			return getText("dc", tag, qual);
+		}
+		public String getText(String schema, String tag, String qual) {
+			Document d = docs.get(schema);
 			if (d == null) return "";
 			if (d.getDocumentElement() == null) return "";
 			NodeList nl = d.getDocumentElement().getElementsByTagName("dcvalue");
@@ -242,11 +268,19 @@ public class IngestValidate extends DefaultFileTest {
 				Element el = (Element)nl.item(i);
 				String att = el.getAttribute("element");
 				if (att == null) continue;
-				String q = el.getAttribute("qualifier");
-				if (q == null) continue;
-				if (att.equals(tag) && qual.equals(q)) {
-					return el.getTextContent();
+				
+				if (qual.isEmpty()) {
+					if (att.equals(tag)) {
+						return el.getTextContent();
+					}
+				} else {
+					String q = el.getAttribute("qualifier");
+					if (q == null) continue;
+					if (att.equals(tag) && qual.equals(q)) {
+						return el.getTextContent();
+					}					
 				}
+				
 			}
 			return "";
 		}

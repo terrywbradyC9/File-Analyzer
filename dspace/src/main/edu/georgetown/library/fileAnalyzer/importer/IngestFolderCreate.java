@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -48,6 +49,8 @@ public class IngestFolderCreate extends DefaultImporter {
 		LicenseFileStats(StatsItem.makeEnumStatsItem(FileStats.class, "License File Status").setWidth(120)),
 		ContentsFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Contents File Status").setWidth(120)),
 		DublinCoreFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Dublin Core File Status").setWidth(120)),
+		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
+		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Other Metadata File Status").setWidth(120)),
 		Message(StatsItem.makeStringStatsItem("Message", 300).setExport(false))
 		;
 		
@@ -68,6 +71,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		String element;
 		String qualifier;
 		String name;
+		String schema = "dc";
 		
 		column(int inputCol, String header) {
 			this(inputCol, header, false);
@@ -79,17 +83,16 @@ public class IngestFolderCreate extends DefaultImporter {
 			String[] parts = header.split("\\.");
 			if ((parts.length < 2) || (parts.length > 3)) {
 				valid = false;
-			} else if (parts[0].equals("dc")) {
+			} else  {
 				valid = true;
+				schema = parts[0];
 				element = parts[1];
 				if (parts.length > 2) {
 					qualifier = parts[2];
 				} else {
 					qualifier = "none";
 				}
-			} else {
-				valid = false;
-			}
+			} 
 		}
 		
 	}
@@ -156,43 +159,69 @@ public class IngestFolderCreate extends DefaultImporter {
 		return "Ingest Folder";
 	}
 	
-
-	public void createItem(Stats stats, File selectedFile, Vector<String> cols) {
+	public void createMetadataFile(File dir, Stats stats, Vector<String> cols, String schema) {
+		String filename = "dublin_core.xml";
+		IngestStatsItems index = IngestStatsItems.DublinCoreFileStats;
+		
+		if (!schema.equals("dc")) {
+			filename = "metadata_" + schema + ".xml";
+			index = IngestStatsItems.OtherMetadataFileStats;
+			stats.appendVal(IngestStatsItems.OtherSchemas, schema);
+		} 
+		
 		Document d = XMLUtil.db.newDocument();
 		Element e = d.createElement("dublin_core");
-		e.setAttribute("schema", "dc");
+		e.setAttribute("schema", schema);
 		d.appendChild(e);
 		for(int i=0; i<cols.size(); i++) {
 			String col = cols.get(i);
 			if (col.isEmpty()) continue;
 			column colhead = colHeaderDefs.get(i);
+			if (!colhead.schema.equals(schema)) continue;
 			if (colhead.valid) {
 				addElement(e, colhead.element, colhead.qualifier, col);
 			}
 		}
 
-		File dir = new File(new File(selectedFile.getParentFile(), "ingest"), cols.get(0));
-		dir.mkdirs();
-		File f = new File(dir, "dublin_core.xml");
+		File f = new File(dir, filename);
 		if (f.exists()) {
-			stats.setVal(IngestStatsItems.DublinCoreFileStats, MetaStats.OVERWRITTEN);
+			stats.setVal(index, MetaStats.OVERWRITTEN);
 		} else {
-			stats.setVal(IngestStatsItems.DublinCoreFileStats, MetaStats.CREATED);
+			stats.setVal(index, MetaStats.CREATED);
 		}
 
 		try {
 			XMLUtil.doSerialize(d, f);
 		} catch (TransformerException e2) {
 			stats.setVal(IngestStatsItems.Status, status.FAIL);
-			stats.setVal(IngestStatsItems.DublinCoreFileStats, MetaStats.ERROR);
+			stats.setVal(index, MetaStats.ERROR);
 			stats.setVal(IngestStatsItems.Message, e2.getMessage());
 		} catch (IOException e2) {
 			stats.setVal(IngestStatsItems.Status, status.FAIL);
-			stats.setVal(IngestStatsItems.DublinCoreFileStats, MetaStats.ERROR);
+			stats.setVal(index, MetaStats.ERROR);
 			stats.setVal(IngestStatsItems.Message, e2.getMessage());
 		}
+		
+	}
 
-		f = new File(dir, "contents");
+	public void createItem(Stats stats, File selectedFile, Vector<String> cols) {
+		File dir = new File(new File(selectedFile.getParentFile(), "ingest"), cols.get(0));
+		dir.mkdirs();
+		
+		HashSet<String> schemas = new HashSet<String>();
+		for(int i=0; i<cols.size(); i++) {
+			String col = cols.get(i);
+			if (col.isEmpty()) continue;
+			column colhead = colHeaderDefs.get(i);
+			String schema = colhead.schema;
+			schemas.add(schema);
+		}
+
+		for(String schema: schemas){
+			createMetadataFile(dir, stats, cols, schema);
+		}
+		
+		File f = new File(dir, "contents");
 		if (f.exists()) {
 			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.OVERWRITTEN);
 		} else {
