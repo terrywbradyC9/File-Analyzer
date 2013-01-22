@@ -138,6 +138,7 @@ public class IngestInventory extends DefaultFileTest {
     		if (prop.getValue().equals("NA")) continue;
     		details.addStatsItem(prop.getValue(), StatsItem.makeStringStatsItem(prop.getValue().toString()));
     	}
+    	count = 0;
     }
     
     public boolean isTestable(File f) {
