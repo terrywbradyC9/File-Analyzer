@@ -74,7 +74,10 @@ public class IngestInventory extends DefaultFileTest {
 			"dc.relation.isreplacedby", "dc.relation.uri", "dc.rights",
 			"dc.rights.uri", "dc.source", "dc.source.uri", "dc.subject",
 			"dc.subject.ddc", "dc.subject.lcc", "dc.subject.lcsh",
-			"dc.subject.mesh", "dc.title", "dc.title.alternative", "dc.type" };
+			"dc.subject.mesh", "dc.title", "dc.title.alternative", "dc.type"};
+	
+	public String[] getMETA() {return META;}
+	
 
 	NumberFormat nf;
 	public static final int COUNT = 8;
@@ -85,15 +88,15 @@ public class IngestInventory extends DefaultFileTest {
 		nf.setGroupingUsed(false);
 		for(int i=1; i<=1; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be populated for each item found", META, "dc.title"));			
+					"field to be populated for each item found", getMETA(), "dc.title"));			
 		}
 		for(int i=2; i<=2; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be populated for each item found", META, "dc.date.created"));			
+					"field to be populated for each item found", getMETA(), "dc.date.created"));			
 		}
 		for(int i=3; i<=COUNT; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be populated for each item found", META, "NA"));			
+					"field to be populated for each item found", getMETA(), "NA"));			
 		}
 	}
 

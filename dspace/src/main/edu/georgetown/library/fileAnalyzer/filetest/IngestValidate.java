@@ -54,10 +54,6 @@ public class IngestValidate extends DefaultFileTest {
 		VALID,
 		INVALID
 	}
-	public enum DATE_STAT {
-		VALID,
-		INVALID
-	}
 
 	public static enum DSpaceStatsItems implements StatsItemEnum {
 		ItemFolder(StatsItem.makeStringStatsItem("Item Folder", 200)),
@@ -68,7 +64,7 @@ public class IngestValidate extends DefaultFileTest {
 		DublinCoreStat(StatsItem.makeEnumStatsItem(DC_STAT.class, "Dublin Core File", DC_STAT.MISSING).setWidth(80)),
 		ItemTitle(StatsItem.makeStringStatsItem("Item Title", 150)),
 		Author(StatsItem.makeStringStatsItem("Author", 150)),
-		Date(StatsItem.makeStringStatsItem("Date", 80)),
+		Date(StatsItem.makeStringStatsItem("Date Created", 80)),
 		Language(StatsItem.makeStringStatsItem("Language", 80)),
 		Subject(StatsItem.makeStringStatsItem("Subject", 150)),
 		Format(StatsItem.makeStringStatsItem("Format", 150)),
@@ -111,13 +107,15 @@ public class IngestValidate extends DefaultFileTest {
 				setVal(DSpaceStatsItems.License,info.license);
 				setVal(DSpaceStatsItems.Text,info.text);
 				setVal(DSpaceStatsItems.Other,info.other);
-			
 			}
 
 		}
 		public DSpaceStats create(String key) {return new DSpaceStats(key);}
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(DSpaceStatsItems.class);
+    public void init() {
+    	details = StatsItemConfig.create(DSpaceStatsItems.class);
+    }
 	
 	public class DSpaceInfo {
 		public File contents = null;
@@ -158,14 +156,13 @@ public class IngestValidate extends DefaultFileTest {
 					try {
 						d = XMLUtil.db.parse(dc);
 						dc_stat = DC_STAT.VALID;
-						Element root = d.getDocumentElement();
-						title = getText(root, "title");
-						author = getText(root, "creator");
-						date = getText(root, "date");
-						language = getText(root, "language");
-						subject = getText(root, "subject");
-						format = getText(root, "format");
-						publisher = getText(root, "publisher");
+						title = getText("title");
+						author = getText("creator");
+						date = getText("date", "created");
+						language = getText("language");
+						subject = getText("subject");
+						format = getText("format");
+						publisher = getText("publisher");
 					} catch (SAXException e) {
 						dc_stat = DC_STAT.INVALID;
 						e.printStackTrace();
@@ -205,11 +202,16 @@ public class IngestValidate extends DefaultFileTest {
 			}
 			
 		}
-		public String getText(Element root, String tag) {
-			NodeList nl = root.getElementsByTagName("dcvalue");
+		
+		
+		public String getText(String tag) {
+			if (d == null) return "";
+			if (d.getDocumentElement() == null) return "";
+			NodeList nl = d.getDocumentElement().getElementsByTagName("dcvalue");
 			for(int i=0; i<nl.getLength();i++) {
 				Element el = (Element)nl.item(i);
 				String att = el.getAttribute("element");
+				if (att == null) continue;
 				if (att.equals(tag)) {
 					return el.getTextContent();
 				}
@@ -217,6 +219,22 @@ public class IngestValidate extends DefaultFileTest {
 			return "";
 		}
 		
+		public String getText(String tag, String qual) {
+			if (d == null) return "";
+			if (d.getDocumentElement() == null) return "";
+			NodeList nl = d.getDocumentElement().getElementsByTagName("dcvalue");
+			for(int i=0; i<nl.getLength();i++) {
+				Element el = (Element)nl.item(i);
+				String att = el.getAttribute("element");
+				if (att == null) continue;
+				String q = el.getAttribute("qualifier");
+				if (q == null) continue;
+				if (att.equals(tag) && qual.equals(q)) {
+					return el.getTextContent();
+				}
+			}
+			return "";
+		}
 		public void readContents(File f) {
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(f));
@@ -262,7 +280,7 @@ public class IngestValidate extends DefaultFileTest {
 	public IngestValidate(FTDriver dt) {
 		super(dt);
 	}
-
+	
 	public String toString() {
 		return "Ingest Validate";
 	}
