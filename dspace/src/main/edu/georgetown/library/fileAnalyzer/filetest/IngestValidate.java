@@ -55,6 +55,12 @@ public class IngestValidate extends DefaultFileTest {
 		INVALID
 	}
 
+	public enum THUMBNAIL_STAT {
+		NA,
+		VALID,
+		INVALID_FILENAME
+	}
+
 	public static enum DSpaceStatsItems implements StatsItemEnum {
 		ItemFolder(StatsItem.makeStringStatsItem("Item Folder", 200)),
 		OverallStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "Status", OVERALL_STAT.INVALID).setWidth(80)),
@@ -71,6 +77,7 @@ public class IngestValidate extends DefaultFileTest {
 		Publisher(StatsItem.makeStringStatsItem("Publisher", 150)),
 		PrimaryBitstream(StatsItem.makeStringStatsItem("PrimaryBitstream", 150)),
 		Thumbnail(StatsItem.makeStringStatsItem("Thumbnail", 150)),
+		ThumbnailStatus(StatsItem.makeEnumStatsItem(THUMBNAIL_STAT.class, "Thumbnail Filename")),
 		License(StatsItem.makeStringStatsItem("License", 150)),
 		Text(StatsItem.makeStringStatsItem("TextBitstream", 150)),
 		Other(StatsItem.makeStringStatsItem("OtherBitstream", 150)),
@@ -90,7 +97,7 @@ public class IngestValidate extends DefaultFileTest {
 			}
 
 			public void setInfo(DSpaceInfo info) {
-				setVal(DSpaceStatsItems.OverallStat, info.overall_stat);
+				setVal(DSpaceStatsItems.OverallStat, info.getOverallStat());
 				setVal(DSpaceStatsItems.NumFiles, info.files.length);
 				setVal(DSpaceStatsItems.ContentsStat, info.contents_stat);
 				setVal(DSpaceStatsItems.ContentFileCount, info.contentsList.size());
@@ -104,6 +111,7 @@ public class IngestValidate extends DefaultFileTest {
 				setVal(DSpaceStatsItems.Publisher,info.publisher);
 				setVal(DSpaceStatsItems.PrimaryBitstream,info.primary);
 				setVal(DSpaceStatsItems.Thumbnail,info.thumbnail);
+				setVal(DSpaceStatsItems.ThumbnailStatus,info.thumbnail_stat);
 				setVal(DSpaceStatsItems.License,info.license);
 				setVal(DSpaceStatsItems.Text,info.text);
 				setVal(DSpaceStatsItems.Other,info.other);
@@ -127,7 +135,7 @@ public class IngestValidate extends DefaultFileTest {
 		
 		public CONTENTS_STAT contents_stat = CONTENTS_STAT.MISSING;
 		public DC_STAT dc_stat = DC_STAT.MISSING;
-		public OVERALL_STAT overall_stat;
+		public THUMBNAIL_STAT thumbnail_stat = THUMBNAIL_STAT.NA;
 		
 		public String title ="";
 		public String author ="";
@@ -189,18 +197,25 @@ public class IngestValidate extends DefaultFileTest {
 				}
 			}
 			
-			if (contents_stat == CONTENTS_STAT.VALID && dc_stat == DC_STAT.VALID) {
-				if (license.equals("") && text.equals("")) {
-					overall_stat = OVERALL_STAT.VALID;					
-				} else {
-					overall_stat = OVERALL_STAT.EXTRA;
-				}
-			} else if (contents_stat == CONTENTS_STAT.OTHER && dc_stat == DC_STAT.VALID) {
-				overall_stat = OVERALL_STAT.EXTRA;
+			if (thumbnail.isEmpty()) {
+			} else if (thumbnail.equals(primary + ".jpg")) {
+				thumbnail_stat = THUMBNAIL_STAT.VALID;
 			} else {
-				overall_stat = OVERALL_STAT.INVALID;
+				thumbnail_stat = THUMBNAIL_STAT.INVALID_FILENAME;				
 			}
 			
+		}
+		
+		public OVERALL_STAT getOverallStat() {
+			if (dc_stat != DC_STAT.VALID) 
+				return OVERALL_STAT.INVALID;
+			if (thumbnail_stat == THUMBNAIL_STAT.INVALID_FILENAME)
+				return OVERALL_STAT.INVALID;
+			if (contents_stat == CONTENTS_STAT.VALID)
+				return OVERALL_STAT.VALID;
+			else if (contents_stat == CONTENTS_STAT.OTHER)
+				return OVERALL_STAT.EXTRA;
+			return OVERALL_STAT.INVALID;
 		}
 		
 		
