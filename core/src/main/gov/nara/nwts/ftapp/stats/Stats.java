@@ -128,7 +128,23 @@ public class Stats {
 			}
 		}
 	}
-	 
+
+	public void appendKeyVal(StatsItem si, Object val) {
+		if (si == null) return;
+		int index = si.getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof String) {
+				String s = (String)obj;
+				s += val;
+				vals.set(index, s);
+			}
+		}
+	}
+
+	
 	public Vector<Object> getVals() {
 		return vals;
 	}

@@ -2,6 +2,8 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
+import gov.nara.nwts.ftapp.ftprop.FTProp;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -79,13 +81,6 @@ public class IngestValidate extends DefaultFileTest {
 		DublinCoreStat(StatsItem.makeEnumStatsItem(DC_STAT.class, "Dublin Core File", DC_STAT.MISSING).setWidth(80)),
 		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
 		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(OTHER_STAT.class, "Other Metadata File Status").setWidth(120)),
-		ItemTitle(StatsItem.makeStringStatsItem("Item Title", 150)),
-		Author(StatsItem.makeStringStatsItem("Author", 150)),
-		Date(StatsItem.makeStringStatsItem("Date Created", 80)),
-		Language(StatsItem.makeStringStatsItem("Language", 80)),
-		Subject(StatsItem.makeStringStatsItem("Subject", 150)),
-		Format(StatsItem.makeStringStatsItem("Format", 150)),
-		Publisher(StatsItem.makeStringStatsItem("Publisher", 150)),
 		PrimaryBitstream(StatsItem.makeStringStatsItem("PrimaryBitstream", 150)),
 		Thumbnail(StatsItem.makeStringStatsItem("Thumbnail", 150)),
 		ThumbnailStatus(StatsItem.makeEnumStatsItem(THUMBNAIL_STAT.class, "Thumbnail Filename")),
@@ -115,19 +110,21 @@ public class IngestValidate extends DefaultFileTest {
 				setVal(DSpaceStatsItems.DublinCoreStat, info.dc_stat);
 				setVal(DSpaceStatsItems.OtherSchemas, info.otherSchemas);
 				setVal(DSpaceStatsItems.OtherMetadataFileStats, info.other_stat);
-				setVal(DSpaceStatsItems.ItemTitle, info.title);
-				setVal(DSpaceStatsItems.Author, info.author);
-				setVal(DSpaceStatsItems.Date, info.date);
-				setVal(DSpaceStatsItems.Language, info.language);
-				setVal(DSpaceStatsItems.Subject,info.subject);
-				setVal(DSpaceStatsItems.Format,info.format);
-				setVal(DSpaceStatsItems.Publisher,info.publisher);
 				setVal(DSpaceStatsItems.PrimaryBitstream,info.primary);
 				setVal(DSpaceStatsItems.Thumbnail,info.thumbnail);
 				setVal(DSpaceStatsItems.ThumbnailStatus,info.thumbnail_stat);
 				setVal(DSpaceStatsItems.License,info.license);
 				setVal(DSpaceStatsItems.Text,info.text);
 				setVal(DSpaceStatsItems.Other,info.other);
+				
+				for(String tag: info.metadata.keySet()) {
+					ArrayList<String>vals = info.metadata.get(tag);
+					String sep = "";
+					for(String val: vals) {
+						appendKeyVal(details.getByKey(tag), sep+val);
+						sep=",\n";
+					}
+				}
 			}
 
 		}
@@ -136,6 +133,10 @@ public class IngestValidate extends DefaultFileTest {
 	public static StatsItemConfig details = StatsItemConfig.create(DSpaceStatsItems.class);
     public void init() {
     	details = StatsItemConfig.create(DSpaceStatsItems.class);
+    	for(FTProp prop: ftprops) {
+    		if (prop.getValue().equals("NA")) continue;
+    		details.addStatsItem(prop.getValue(), StatsItem.makeStringStatsItem(prop.getValue().toString()));
+    	}
     }
 	
 	public class DSpaceInfo {
@@ -143,8 +144,7 @@ public class IngestValidate extends DefaultFileTest {
 		public File dc = null;
 		public File[] files;
 		public ArrayList<String> contentsList;
-		
-		HashMap<String, Document> docs;
+		public HashMap<String,ArrayList<String>> metadata;
 		
 		public CONTENTS_STAT contents_stat = CONTENTS_STAT.MISSING;
 		public DC_STAT dc_stat = DC_STAT.MISSING;
@@ -152,13 +152,6 @@ public class IngestValidate extends DefaultFileTest {
 		public String otherSchemas = "";
 		public THUMBNAIL_STAT thumbnail_stat = THUMBNAIL_STAT.NA;
 		
-		public String title ="";
-		public String author ="";
-		public String date ="";
-		public String language ="";
-		public String subject ="";
-		public String format ="";
-		public String publisher ="";
 		public String primary ="";
 		public String thumbnail ="";
 		public String license ="";
@@ -166,9 +159,9 @@ public class IngestValidate extends DefaultFileTest {
 		public String other ="";
 		
 		public DSpaceInfo(File f) {
-			docs = new HashMap<String, Document>();
 			files = f.listFiles();
 			contentsList = new ArrayList<String>();
+			metadata = new HashMap<String,ArrayList<String>>();
 			
 			for(File file : files) {
 				if (file.getName().equals("contents")) {
@@ -178,15 +171,11 @@ public class IngestValidate extends DefaultFileTest {
 				} else if (file.getName().equals("dublin_core.xml")) {
 					dc = file;
 					try {
-						docs.put("dc", XMLUtil.db.parse(dc));
+						Document d = XMLUtil.db.parse(dc);
+						if (d!=null) {
+							loadMetadata(d);
+						}
 						dc_stat = DC_STAT.VALID;
-						title = getText("title");
-						author = getText("creator");
-						date = getText("date", "created");
-						language = getText("language");
-						subject = getText("subject");
-						format = getText("format");
-						publisher = getText("publisher");
 					} catch (SAXException e) {
 						dc_stat = DC_STAT.INVALID;
 					} catch (IOException e) {
@@ -198,7 +187,10 @@ public class IngestValidate extends DefaultFileTest {
 					otherSchemas += m.group(1) + " ";
 					if (m.matches()) {
 						try {
-							docs.put(m.group(1), XMLUtil.db.parse(file));
+							Document d = XMLUtil.db.parse(file);
+							if (d!=null) {
+								loadMetadata(d);
+							}
 							if (other_stat != OTHER_STAT.INVALID) {
 								other_stat = OTHER_STAT.VALID;
 							} 
@@ -251,39 +243,61 @@ public class IngestValidate extends DefaultFileTest {
 			return OVERALL_STAT.INVALID;
 		}
 		
-		
-		public String getText(String tag) {
-			return getText("dc", tag, "");
-		}
-		
-		public String getText(String tag, String qual) {
-			return getText("dc", tag, qual);
-		}
-		public String getText(String schema, String tag, String qual) {
-			Document d = docs.get(schema);
-			if (d == null) return "";
-			if (d.getDocumentElement() == null) return "";
+		public void loadMetadata(Document d) {
+			String schema = d.getDocumentElement().getAttribute("schema");
 			NodeList nl = d.getDocumentElement().getElementsByTagName("dcvalue");
 			for(int i=0; i<nl.getLength();i++) {
-				Element el = (Element)nl.item(i);
-				String att = el.getAttribute("element");
-				if (att == null) continue;
-				
-				if (qual.isEmpty()) {
-					if (att.equals(tag)) {
-						return el.getTextContent();
-					}
-				} else {
-					String q = el.getAttribute("qualifier");
-					if (q == null) continue;
-					if (att.equals(tag) && qual.equals(q)) {
-						return el.getTextContent();
-					}					
+				Element elem = (Element)nl.item(i);
+				String tag = getMetadataKey(schema, elem);
+				String text = elem.getTextContent();
+				if (text.isEmpty()) continue;
+				ArrayList<String> vals = metadata.get(tag);
+				if (vals == null) {
+					vals = new ArrayList<String>();
+					metadata.put(tag, vals);
 				}
-				
+				vals.add(text);
 			}
-			return "";
 		}
+		
+		public String getMetadataKey(String s, String e, String q) {
+			StringBuffer buf = new StringBuffer();
+			buf.append(s.isEmpty() ? "dc" : s);
+			buf.append(".");
+			buf.append(e);
+
+			if (q == null) {
+			} else if (q.isEmpty()) {
+			} else if (q.equals("none")) {
+			} else {
+				buf.append(".");
+				buf.append(q);
+			}
+			return buf.toString();
+		}
+		
+		public String getMetadataKey(String s, String e) {
+			return getMetadataKey(s, e, "");
+		}
+
+		
+		public String getMetadataKey(String s, Element elem) {
+			return getMetadataKey(s, elem.getAttribute("element"), elem.getAttribute("qualifier"));
+		}
+		
+		public String getTextVal(String key, String def) {
+			ArrayList<String> vals = metadata.get(key);
+			if (vals == null) return def;
+			if (vals.size() == 1) return vals.get(0);
+			return def;
+		}
+		
+		public ArrayList<String> getTextVals(String key) {
+			ArrayList<String> vals = metadata.get(key);
+			if (vals == null) return new ArrayList<String>(0);
+			return vals;
+		}
+
 		public void readContents(File f) {
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(f));
@@ -324,10 +338,26 @@ public class IngestValidate extends DefaultFileTest {
 		}
 		
 	}
+
+	public String[] getMETA() {return IngestInventory.META;}
+	public static final int COUNT = 8;
+
 	
 	long counter = 1000000;
 	public IngestValidate(FTDriver dt) {
 		super(dt);
+		for(int i=1; i<=1; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be display for each item found", getMETA(), "dc.title"));			
+		}
+		for(int i=2; i<=2; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be display for each item found", getMETA(), "dc.date.created"));			
+		}
+		for(int i=3; i<=COUNT; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be display for each item found", getMETA(), "NA"));			
+		}
 	}
 	
 	public String toString() {
