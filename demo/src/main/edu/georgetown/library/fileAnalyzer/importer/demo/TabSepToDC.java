@@ -1,8 +1,6 @@
 package edu.georgetown.library.fileAnalyzer.importer.demo;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.TreeMap;
@@ -15,7 +13,7 @@ import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
-import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
+import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -136,12 +134,10 @@ public class TabSepToDC extends DefaultImporter {
 		Document d = XMLUtil.db.newDocument();
 		d.appendChild(d.createElement("items"));
 		Timer timer = new Timer();
-		FileReader fr = new FileReader(selectedFile);
-		BufferedReader br = new BufferedReader(fr);
+		DelimitedFileReader dfr = new DelimitedFileReader(selectedFile, getSeparator());
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		int rowKey = 0;
-		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = DelimitedFileImporter.parseLine(line, getSeparator());
+		for(Vector<String> cols = dfr.getRow(); cols!=null; cols=dfr.getRow()){
 			String key = nf.format(rowKey++);
 			DCStats stats = Generator.INSTANCE.create(key);
 			if (cols.size() == 8) {
@@ -154,7 +150,6 @@ public class TabSepToDC extends DefaultImporter {
 			stats.setColumnVals(cols);
 			types.put(key, stats);
 		}
-		fr.close();
 		File f = new File(selectedFile.getParentFile(), selectedFile.getName() + ".xml");
 		XMLUtil.serialize(d, f);
 		

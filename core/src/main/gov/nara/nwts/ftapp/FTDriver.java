@@ -2,7 +2,7 @@ package gov.nara.nwts.ftapp;
 
 import gov.nara.nwts.ftapp.filetest.FileTest;
 import gov.nara.nwts.ftapp.filter.FileTestFilter;
-import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
+import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -266,7 +266,7 @@ public class FTDriver {
 		fileTraversal.traverseFile();		
 	}
 	public void loadBatch(File f) throws IOException {
-		batchItems = DelimitedFileImporter.parseFile(f, "\t", false);
+		batchItems = DelimitedFileReader.parseFile(f, "\t", false);
 		batchLoaded();
 	}
 	

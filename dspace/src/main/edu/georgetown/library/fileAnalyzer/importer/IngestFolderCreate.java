@@ -25,7 +25,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
-import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
+import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -296,7 +296,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		String globalLicense = (String)getProperty(REUSABLE_LICENSE);
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		int rowKey = 0;
-		Vector<Vector<String>> data = DelimitedFileImporter.parseFile(selectedFile, "\t");
+		Vector<Vector<String>> data = DelimitedFileReader.parseFile(selectedFile, "\t");
 		folders = new HashMap<String,Integer>();
 		colHeaderDefs = new Vector<column>();
 		colByName = new HashMap<String, column>();

@@ -19,7 +19,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
-import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
+import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -211,7 +211,7 @@ public class CreateDateParser extends DefaultImporter {
 	public ActionResult importFile(File selectedFile) throws IOException {
 		Timer timer = new Timer();
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
-		Vector<Vector<String>> data = DelimitedFileImporter.parseFile(selectedFile, "|", true);
+		Vector<Vector<String>> data = DelimitedFileReader.parseFile(selectedFile, "|", true);
 		for (Vector<String> v : data) {
 			String item = v.get(0);
 			Stats stats = Generator.INSTANCE.create(item);

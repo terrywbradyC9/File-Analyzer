@@ -8,12 +8,12 @@ import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.Vector;
+
+import gov.nara.nwts.ftapp.YN;
 
 /**
  * Abstract class handling the import of a character-delimited text file allowing for individual values to be wrapped by quotation marks.
@@ -31,66 +31,16 @@ public class DelimitedFileImporter extends DefaultImporter {
 		Separator(String s) {separator = s;}
 	}
 	public static final String DELIM = "Delimiter";
+	public static final String HEADROW = "HeadRow";
 	public DelimitedFileImporter(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
-				"Delimiter character separating fileds", Separator.values(), Separator.Comma));
+				"Delimiter character separating fields", Separator.values(), Separator.Comma));
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), HEADROW, HEADROW,
+				"Treat first row as header", YN.values(), YN.Y));
 	}
 	boolean forceKey;
 	int rowKey = 1000000;
-	String currentSeparator;
-	
-	protected static String getNextString(String in, String sep) {
-		return getNextString(in,sep,0);
-	}
-	protected static String getNextString(String in, String sep, int start) {
-		int pos = -1;
-		if (in.startsWith("\"")) {
-			int qpos = in.indexOf("\"", (start==0) ? 1 : start);
-			int qqpos = in.indexOf("\"\"", (start==0) ? 1 : start);
-			if ((qpos==qqpos)&&(qqpos >= 0)) {
-				return getNextString(in,sep,qqpos+2);
-			}
-			if (qpos == in.length()) {
-				return in;
-			}
-			if (qpos == -1) {
-				qpos = 0;
-			}
-			pos = in.indexOf(sep,qpos+1);
-		} else {
-			pos = in.indexOf(sep, 0);
-		}
-		if (pos == -1) return in;
-		return in.substring(0,pos);
-	}
-	
-	public static Vector<String> parseLine(String line, String sep){
-		String pline = line;
-		Vector<String> cols = new Vector<String>();
-		while(pline!=null){
-			if (!sep.trim().equals("")) pline = pline.trim();
-			String tpline = getNextString(pline,sep);
-			cols.add(normalize(tpline));
-			if (pline.length() == tpline.length()) break;
-			pline = pline.substring(tpline.length()+1);
-		}
-		return cols;
-	}
-	
-	public static Vector<Vector<String>> parseFile(File f, String sep) throws IOException{
-		return parseFile(f,sep,false);
-	}
-	public static Vector<Vector<String>> parseFile(File f, String sep,boolean skipFirstLine) throws IOException{
-		BufferedReader br = new BufferedReader(new FileReader(f));
-		if (skipFirstLine) br.readLine();
-		Vector<Vector<String>> rows = new Vector<Vector<String>>();
-		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			rows.add(parseLine(line, sep));
-		}
-		br.close();
-		return rows;
-	}
 	
 	public static String KEY = "key";
 
@@ -98,7 +48,7 @@ public class DelimitedFileImporter extends DefaultImporter {
 		Separator fileSeparator = (Separator)getProperty(DELIM);
 		Timer timer = new Timer();
 		forceKey = dt.getImporterForceKey();
-		BufferedReader br = new BufferedReader(new FileReader(selectedFile));
+
 		int colcount = 0;
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		StatsItemConfig details = new StatsItemConfig();
@@ -107,30 +57,39 @@ public class DelimitedFileImporter extends DefaultImporter {
 		}
 		
 		int colset = 0;
+
+		DelimitedFileReader dfr = new DelimitedFileReader(selectedFile, fileSeparator.separator);
+		boolean firstRow = (YN)getProperty(HEADROW) == YN.Y;
 		
-		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = parseLine(line, fileSeparator.separator);
+		for(Vector<String> cols = dfr.getRow(); cols != null; cols = dfr.getRow()){
 			colcount = Math.max(colcount,cols.size());
 			for(int i=colset; i<colcount; i++) {
 				String colkey = "Col"+(i+1);
-				details.addStatsItem(colkey, StatsItem.makeStringStatsItem(colkey));
+				details.addStatsItem(colkey, StatsItem.makeStringStatsItem(firstRow ?  cols.get(i) : colkey));
 				colset++;
-			}
+			}			
+			firstRow = false;
 		}
-		
-		br = new BufferedReader(new FileReader(selectedFile));
-		for(String line=br.readLine(); line!=null; line=br.readLine()){
-			Vector<String> cols = parseLine(line, fileSeparator.separator);
+
+		firstRow = (YN)getProperty(HEADROW) == YN.Y;
+		dfr = new DelimitedFileReader(selectedFile, fileSeparator.separator);
+		for(Vector<String> cols = dfr.getRow(); cols != null; cols = dfr.getRow()){
+			if (firstRow) {
+				firstRow = false;
+				continue;
+			}
 			String key = cols.get(0);
 			if (forceKey) {
 				key = "" + (rowKey++);
 			} 
 			Stats stats = Stats.Generator.INSTANCE.create(key);
 			stats.init(details);
+			int start = 1;
 			if (forceKey) {
 				stats.setKeyVal(details.getByKey(KEY), cols.get(0));
+				start = 0;
 			}
-			for(int i=1; i<cols.size(); i++){
+			for(int i=start; i<cols.size(); i++){
 				String colkey = "Col"+(i+1);
 				stats.setKeyVal(details.getByKey(colkey), cols.get(i));
 			}
@@ -140,19 +99,6 @@ public class DelimitedFileImporter extends DefaultImporter {
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());
 	}
 	
-	protected static String normalize(String val) {
-		val = val.trim();
-		if (val.startsWith("\"")) {
-			val = val.substring(1);
-		}
-		if (val.endsWith("\"")) {
-			val = val.substring(0,val.length()-1);
-		}
-		if (val.endsWith("'")) {
-			val = val.substring(0,val.length()-1);
-		}
-		return val;
-	}
 	public boolean allowForceKey() {
 		return true;
 	}
