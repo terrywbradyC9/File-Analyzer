@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -50,9 +52,33 @@ public class XMLUtil {
 	}
 
 	public static void doTransform(Document d, File f, InputStream is) throws TransformerException, IOException {
+		doTransform(d,f,is,new HashMap<String,Object>());
+	}
+	public static void doTransform(Document d, File f, InputStream is, HashMap<String,Object> pmap) throws TransformerException, IOException {
 		Transformer t = tf.newTransformer(new StreamSource(is));
 		FileOutputStream fos = new FileOutputStream(f);
 		StreamResult sr = new StreamResult(fos);
+		for(String s:pmap.keySet()) {
+			t.setParameter(s, pmap.get(s));
+		}
+		t.transform(new DOMSource(d), sr);
+		fos.close();
+	}
+
+	public static void doTransform(Document d, File f, URIResolver urir, String xsl) throws TransformerException, IOException {
+		doTransform(d, f, urir, xsl, new HashMap<String,Object>());		
+	}
+	public static void doTransform(Document d, File f, URIResolver urir, String xsl, HashMap<String,Object> pmap) throws TransformerException, IOException {
+		TransformerFactory tfres = TransformerFactory.newInstance();
+
+		tfres.setURIResolver(urir);
+
+		Transformer t = tfres.newTransformer(urir.resolve(xsl, ""));
+		FileOutputStream fos = new FileOutputStream(f);
+		StreamResult sr = new StreamResult(fos);
+		for(String s:pmap.keySet()) {
+			t.setParameter(s, pmap.get(s));
+		}
 		t.transform(new DOMSource(d), sr);
 		fos.close();
 	}
