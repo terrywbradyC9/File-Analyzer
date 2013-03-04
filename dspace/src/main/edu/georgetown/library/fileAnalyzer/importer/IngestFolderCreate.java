@@ -27,6 +27,8 @@ import edu.georgetown.library.fileAnalyzer.filetest.IngestInventory.InventorySta
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.YN;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
@@ -126,6 +128,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	
 	public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
 	public static final String REUSABLE_LICENSE = "Reusable License";
+	public static final String P_AUTONAME = "Add User and Date to Ingest Folder";
 	public static enum FIXED {
 		FOLDER(0), ITEM(1), THUMB(2), LICENSE(3);
 		int index;
@@ -138,10 +141,12 @@ public class IngestFolderCreate extends DefaultImporter {
 		nf.setMinimumIntegerDigits(8);
 		nf.setGroupingUsed(false);
 
-		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), REUSABLE_THUMBNAIL, "thumb",
+		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_THUMBNAIL, "thumb",
 				"Relative path to thumbnail file to be used for all items w/o thumbnail (optional)", ""));
-		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), REUSABLE_LICENSE, "license",
+		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_LICENSE, "license",
 				"Relative path to license file to be used for all items w/o license (optional)", ""));
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(), P_AUTONAME, "autoname",
+				"Append user name, date and time to ingest folder name", YN.values(), YN.Y));
 
 	}
 
@@ -299,6 +304,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		File parent = selectedFile.getParentFile();
 		File defdir = new File(parent, "ingest");
 		if (defdir.exists()) return defdir;
+		if (this.getProperty(P_AUTONAME) == YN.N) return defdir;
 		File[] list = parent.listFiles(new FilenameFilter(){
 			public boolean accept(File dir, String name) {
 				if (name.startsWith("ingest_")) return true;
@@ -309,7 +315,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		String name = "ingest_";
 		name += System.getProperty("user.name");
 		name += "_";
-		DateFormat df = new SimpleDateFormat("yyyyMMdd");
+		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		name += df.format(new Date());
 		return new File(parent, name);
 	}
@@ -518,7 +524,6 @@ public class IngestFolderCreate extends DefaultImporter {
 	
 	void prepFile(Stats stats, IngestStatsItems sienum, MODE mode, File selectedFile, String folder, String srcname, String destname)  {
 		try {
-			File parentFile = selectedFile.getParentFile();
 			File dir = new File(currentIngestDir, folder);
 			dir.mkdirs();
 
