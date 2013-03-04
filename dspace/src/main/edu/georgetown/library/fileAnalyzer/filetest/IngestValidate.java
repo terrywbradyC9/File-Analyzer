@@ -66,7 +66,7 @@ public class IngestValidate extends DefaultFileTest {
 		INVALID
 	}
 
-	public enum THUMBNAIL_STAT {
+	public enum THUMBNAIL_STAT { 
 		NA,
 		VALID,
 		INVALID_FILENAME
@@ -203,11 +203,8 @@ public class IngestValidate extends DefaultFileTest {
 				}
 			}
 			for(File file : files) {
+				if (isExpectedFile(file)) continue;
 				String name = file.getName();
-				if (name.equals("contents")) continue;
-				if (name.equals("dublin_core.xml")) continue;
-				if (name.equals("Thumbs.db")) continue;
-				if (pOther.matcher(name).matches()) continue;
 				boolean found = false;
 				for(String s: contentsList) {
 					if (name.equals(s)) found = true;
@@ -228,6 +225,7 @@ public class IngestValidate extends DefaultFileTest {
 			}
 			
 		}
+		
 		
 		public OVERALL_STAT getOverallStat() {
 			if (dc_stat != DC_STAT.VALID) 
@@ -348,15 +346,15 @@ public class IngestValidate extends DefaultFileTest {
 		super(dt);
 		for(int i=1; i<=1; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be display for each item found", getMETA(), "dc.title"));			
+					"field to display for each item found", getMETA(), "dc.title"));			
 		}
 		for(int i=2; i<=2; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be display for each item found", getMETA(), "dc.date.created"));			
+					"field to display for each item found", getMETA(), "dc.date.created"));			
 		}
 		for(int i=3; i<=COUNT; i++) {
 			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
-					"field to be display for each item found", getMETA(), "NA"));			
+					"field to display for each item found", getMETA(), "NA"));			
 		}
 	}
 	
@@ -369,6 +367,14 @@ public class IngestValidate extends DefaultFileTest {
 	
     public String getShortName(){return "Ingest Validate";}
 
+	public boolean isExpectedFile(File file) {
+		String name = file.getName();
+		if (name.equals("contents")) return true;
+		if (name.equals("dublin_core.xml")) return true;
+		if (name.equals("Thumbs.db")) return true;
+		if (pOther.matcher(name).matches()) return true;
+		return false;
+	}
 	public Object fileTest(File f) {
 		DSpaceStats stats = (DSpaceStats)this.getStats(getKey(f));
 		DSpaceInfo info = new DSpaceInfo(f);

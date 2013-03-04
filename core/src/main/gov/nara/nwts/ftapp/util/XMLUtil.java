@@ -15,19 +15,30 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
 public class XMLUtil {
 	public static DocumentBuilderFactory dbf;
 	public static DocumentBuilder db;
+	public static DocumentBuilderFactory dbf_ns;
+	public static DocumentBuilder db_ns;
 	public static TransformerFactory tf;
+	public static XPathFactory xf;
+	public static XPath xp;
 	
 	static {
 		try {
 			dbf = DocumentBuilderFactory.newInstance();
 			db = dbf.newDocumentBuilder();
+			dbf_ns = DocumentBuilderFactory.newInstance();
+			dbf_ns.setNamespaceAware(true);
+			db_ns = dbf_ns.newDocumentBuilder();
 			tf = TransformerFactory.newInstance();
+			xf = XPathFactory.newInstance();
+			xp = xf.newXPath();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
