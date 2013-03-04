@@ -4,8 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
@@ -205,7 +209,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	}
 
 	public void createItem(Stats stats, File selectedFile, Vector<String> cols) {
-		File dir = new File(new File(selectedFile.getParentFile(), "ingest"), cols.get(0));
+		File dir = new File(currentIngestDir, cols.get(0));
 		dir.mkdirs();
 		
 		HashSet<String> schemas = new HashSet<String>();
@@ -290,7 +294,29 @@ public class IngestFolderCreate extends DefaultImporter {
 		return getColumnValue(vals, name, null) != null;
 	}
 
+	private File currentIngestDir;
+	public File getCurrentIngestDir(File selectedFile){
+		File parent = selectedFile.getParentFile();
+		File defdir = new File(parent, "ingest");
+		if (defdir.exists()) return defdir;
+		File[] list = parent.listFiles(new FilenameFilter(){
+			public boolean accept(File dir, String name) {
+				if (name.startsWith("ingest_")) return true;
+				return false;
+			}
+		});
+		if (list.length > 0) return list[0];
+		String name = "ingest_";
+		name += System.getProperty("user.name");
+		name += "_";
+		DateFormat df = new SimpleDateFormat("yyyyMMdd");
+		name += df.format(new Date());
+		return new File(parent, name);
+	}
+	
+	
 	public ActionResult importFile(File selectedFile) throws IOException {
+		currentIngestDir = getCurrentIngestDir(selectedFile);
 		Timer timer = new Timer();
 		String globalThumb = (String)getProperty(REUSABLE_THUMBNAIL);
 		String globalLicense = (String)getProperty(REUSABLE_LICENSE);
@@ -457,8 +483,7 @@ public class IngestFolderCreate extends DefaultImporter {
 
 	void testFile(Stats stats, IngestStatsItems sienum, File selectedFile, String folder, String file) throws CreateException {
 		File parentFile = selectedFile.getParentFile();
-		File ingestDir = new File(parentFile, "ingest");
-		File dir = new File(ingestDir, folder);
+		File dir = new File(currentIngestDir, folder);
 		File f = new File(parentFile, file);
 		File dest = new File(dir, (new File(file)).getName());
 		if (dest.exists()) {
@@ -494,8 +519,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	void prepFile(Stats stats, IngestStatsItems sienum, MODE mode, File selectedFile, String folder, String srcname, String destname)  {
 		try {
 			File parentFile = selectedFile.getParentFile();
-			File ingestDir = new File(parentFile, "ingest");
-			File dir = new File(ingestDir, folder);
+			File dir = new File(currentIngestDir, folder);
 			dir.mkdirs();
 
 			File dest = new File(dir, new File(destname).getName());
