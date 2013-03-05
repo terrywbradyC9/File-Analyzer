@@ -38,6 +38,7 @@ public class IngestValidate extends DefaultFileTest {
 	Pattern pOther = Pattern.compile("^metadata_(.+)\\.xml$");
 	
 	public enum OVERALL_STAT {
+		SKIP,
 		VALID,
 		INVALID,
 		EXTRA
@@ -104,7 +105,7 @@ public class IngestValidate extends DefaultFileTest {
 
 			public void setInfo(DSpaceInfo info) {
 				setVal(DSpaceStatsItems.OverallStat, info.getOverallStat());
-				setVal(DSpaceStatsItems.NumFiles, info.files.length);
+				setVal(DSpaceStatsItems.NumFiles, info.fileCount);
 				setVal(DSpaceStatsItems.ContentsStat, info.contents_stat);
 				setVal(DSpaceStatsItems.ContentFileCount, info.contentsList.size());
 				setVal(DSpaceStatsItems.DublinCoreStat, info.dc_stat);
@@ -143,6 +144,7 @@ public class IngestValidate extends DefaultFileTest {
 		public File contents = null;
 		public File dc = null;
 		public File[] files;
+		public int fileCount = 0;
 		public ArrayList<String> contentsList;
 		public HashMap<String,ArrayList<String>> metadata;
 		
@@ -164,6 +166,7 @@ public class IngestValidate extends DefaultFileTest {
 			metadata = new HashMap<String,ArrayList<String>>();
 			
 			for(File file : files) {
+				if (!file.isDirectory()) fileCount++;
 				if (file.getName().equals("contents")) {
 					contents = file;
 					contents_stat = CONTENTS_STAT.VALID;
@@ -228,6 +231,8 @@ public class IngestValidate extends DefaultFileTest {
 		
 		
 		public OVERALL_STAT getOverallStat() {
+			if (fileCount == 0)
+				return OVERALL_STAT.SKIP;
 			if (dc_stat != DC_STAT.VALID) 
 				return OVERALL_STAT.INVALID;
 			if (other_stat == OTHER_STAT.INVALID) 
