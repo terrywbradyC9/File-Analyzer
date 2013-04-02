@@ -16,6 +16,7 @@ public class DSpaceImporterRegistry extends ImporterRegistry {
 	public DSpaceImporterRegistry(FTDriver dt) {
 		super(dt);
 		add(new IngestFolderCreate(dt));
+		add(new CSVBatcher(dt));
 	}
 	
 

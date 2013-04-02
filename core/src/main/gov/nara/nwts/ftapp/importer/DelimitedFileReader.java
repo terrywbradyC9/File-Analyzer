@@ -3,9 +3,11 @@ package gov.nara.nwts.ftapp.importer;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
@@ -17,8 +19,8 @@ public class DelimitedFileReader {
 	BufferedReader br;
 	String sep;
 	String pline;
-	public DelimitedFileReader(File f, String sep) throws FileNotFoundException {
-		br = new BufferedReader(new FileReader(f));
+	public DelimitedFileReader(File f, String sep) throws FileNotFoundException, UnsupportedEncodingException {
+		br = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
 		this.sep = sep;
 	}
 	
