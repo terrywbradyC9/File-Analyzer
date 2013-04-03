@@ -101,7 +101,7 @@ public class CSVBatcher extends DefaultImporter {
 					stats.setVal(BatcherStatsItems.Count, currec);
 					types.put(outFileName, stats);
 				}
-				outFileName = selectedFile.getName()+"_"+nf.format(outFileCount);
+				outFileName = selectedFile.getName()+"_"+nf.format(outFileCount)+".csv";
 				File outFile = new File(selectedFile.getParent(), outFileName);
 				currec = 0;
 				fw = new FileWriter(outFile);
