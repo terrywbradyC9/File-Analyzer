@@ -109,6 +109,7 @@ public class CSVBatcher extends DefaultImporter {
 				if (header) bw.write(headRow);
 			}
 			bw.write(line);
+			bw.write("\n");
 			rec++;
 			currec++;
 		}
