@@ -6,8 +6,12 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +113,7 @@ class TableSaver extends JDialog {
     }
     
     public void save(File f) throws IOException {
-    	BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+    	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),"UTF-8"));
     	boolean first = true;
 		for(int c=0; c<tm.getColumnCount(); c++){
 			if (checks.get(c).isSelected()){

@@ -95,8 +95,8 @@ public class CSVBatcher extends DefaultImporter {
 		for(String line = br.readLine(); line!=null; line=br.readLine()) {
 			if (rec % batchSize == 0) {
 				outFileCount++;
-				if (fw!=null) {
-					fw.close();
+				if (bw!=null) {
+					bw.close();
 					Stats stats = Generator.INSTANCE.create(outFileName);
 					stats.setVal(BatcherStatsItems.Count, currec);
 					types.put(outFileName, stats);
@@ -113,8 +113,8 @@ public class CSVBatcher extends DefaultImporter {
 			rec++;
 			currec++;
 		}
-		if (fw!=null) {
-			fw.close();
+		if (bw!=null) {
+			bw.close();
 			Stats stats = Generator.INSTANCE.create(outFileName);
 			stats.setVal(BatcherStatsItems.Count, currec);
 			types.put(outFileName, stats);
