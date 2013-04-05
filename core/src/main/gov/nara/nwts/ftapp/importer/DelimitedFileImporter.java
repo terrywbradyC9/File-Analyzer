@@ -21,13 +21,13 @@ import gov.nara.nwts.ftapp.YN;
  *
  */
 public class DelimitedFileImporter extends DefaultImporter {
-	private static enum Separator{
+	public static enum Separator{
 		Comma(","),
 		Tab("\t"),
 		Semicolon(";"),
 		Pipe("|");
 		
-		String separator;
+		public String separator;
 		Separator(String s) {separator = s;}
 	}
 	public static final String DELIM = "Delimiter";
