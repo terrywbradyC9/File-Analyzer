@@ -3,9 +3,10 @@ package edu.georgetown.library.fileAnalyzer.importer;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.NumberFormat;
 import java.util.TreeMap;
 
@@ -88,8 +89,7 @@ public class CSVBatcher extends DefaultImporter {
 		NumberFormat nf = NumberFormat.getIntegerInstance();
 		nf.setMinimumIntegerDigits(4);
 		nf.setGroupingUsed(false);
-		BufferedWriter bw = null;
-		FileWriter fw = null;
+    	BufferedWriter bw = null;
 		String outFileName = "";
 		
 		for(String line = br.readLine(); line!=null; line=br.readLine()) {
@@ -104,8 +104,7 @@ public class CSVBatcher extends DefaultImporter {
 				outFileName = selectedFile.getName()+"_"+nf.format(outFileCount)+".csv";
 				File outFile = new File(selectedFile.getParent(), outFileName);
 				currec = 0;
-				fw = new FileWriter(outFile);
-				bw = new BufferedWriter(fw);
+				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile),"UTF-8"));
 				if (header) bw.write(headRow);
 			}
 			bw.write(line);
