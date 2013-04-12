@@ -188,7 +188,9 @@ public class IngestFolderCreate extends DefaultImporter {
 			column colhead = colHeaderDefs.get(i);
 			if (!colhead.schema.equals(schema)) continue;
 			if (colhead.valid) {
-				addElement(e, colhead.element, colhead.qualifier, col);
+				for(String scol : col.split("\\|\\|")){
+					addElement(e, colhead.element, colhead.qualifier, scol);					
+				}
 			}
 		}
 
