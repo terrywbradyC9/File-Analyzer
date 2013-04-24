@@ -1,3 +1,33 @@
+PURPOSE
+The File Analyzer and Metadata Harvester is designed to automate simple, file-based operations performed by cultural heritage institutions.
+- Example: count files by type
+- Example: test file naming conventions
+
+The application assembles a toolkit of tasks a user can perform
+- Present tasks in a simple User Interface
+- Reduce learning curve when deploying a new task
+- New tasks are easy for a user to locate
+
+The modular code makes it easy to deploy new code and to share code.
+
+APPLICATION DESCRIPTION
+- Desktop Application written in Java
+- Scans a file system and performs an action on files
+- Imports a file, and performs an action on records
+- Presents summary results
+- Results Merging
+- Customizable
+- Easy to add additional rules to the application to implement local business rules
+- Same UI for all tasks
+
+OVERVIEW PRESENTATIONS
+- https://docs.google.com/presentation/d/1Sq2gqGm58DeuzSTigEofGGci_szqo5rwctgqER2HOKo/edit?usp=sharing
+- https://archive.org/details/Code4LibLightningTalksApr2013TerryBrady
+- http://prezi.com/wridwe2h0d4a/automating-dspace-folder-creation/?kw=view-wridwe2h0d4a&rc=ref-16497460
+- http://prezi.com/cigoderbzi2g/dspace-ingest-via-file-analyzer/?kw=view-cigoderbzi2g&rc=ref-16497460
+
+==================================================================================================
+
 This code has been derived from the NARA File Analyzer and Metadata Harvester which is available at 
 https://github.com/usnationalarchives/File-Analyzer.
 
@@ -20,10 +50,6 @@ This code will build 3 flavors of the File Analyzer.
 	This version contains extensions illustrating various capabilities of the File Analyzer.  
 	This version of the file analyzer is a self-extracting jar file that references both the core and dspace file analyzer jar files.
 	Sample data will also be added. 
-
-
-
-
 
 =================================================================================================
 License information is contained below.
