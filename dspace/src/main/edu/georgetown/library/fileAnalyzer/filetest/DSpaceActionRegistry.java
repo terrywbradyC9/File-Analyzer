@@ -16,6 +16,7 @@ public class DSpaceActionRegistry extends ActionRegistry {
 		super(dt, modifyAllowed);
 		add(new IngestInventory(dt));
 		add(new IngestValidate(dt));
+		add(new DSpaceDAT(dt));
 	}
 	
 }
