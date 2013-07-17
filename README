@@ -37,7 +37,7 @@ This code has been derived from the NARA File Analyzer and Metadata Harvester wh
 https://github.com/usnationalarchives/File-Analyzer.
 
 PREREQUISITES
-- JDK 1.6 or higher
+- JDK 1.7 or higher
 - Maven (or you will need to compile the modules manually)
 
 INSTALLATION
