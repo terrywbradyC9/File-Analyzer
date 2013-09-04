@@ -55,7 +55,8 @@ This code will build 3 flavors of the File Analyzer.
 (3) Demo File Analyzer
 	This version contains extensions illustrating various capabilities of the File Analyzer.  
 	This version of the file analyzer is a self-extracting jar file that references both the core and dspace file analyzer jar files.
-	Sample data will also be added. 
+	This version of the application uses features of Apache Tika
+	Sample data will also be added (TBD)
 
 =================================================================================================
 License information is contained below.

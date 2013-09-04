@@ -12,17 +12,12 @@ import gov.nara.nwts.ftapp.importer.ImporterRegistry;
  * @author TBrady
  *
  */
-public class DemoImporterRegistry extends ImporterRegistry {
+public class DemoImporterRegistry extends DSpaceImporterRegistry {
 	
 	private static final long serialVersionUID = 1L;
 
 	public DemoImporterRegistry(FTDriver dt) {
 		super(dt);
-		add(new IngestFolderCreate(dt));
-
-		add(new TabSepToDC(dt));
-		add(new MarcImporter(dt));
-		add(new CreateDateParser(dt));
 	}
 	
 

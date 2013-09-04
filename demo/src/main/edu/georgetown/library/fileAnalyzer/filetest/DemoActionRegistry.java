@@ -7,14 +7,13 @@ import gov.nara.nwts.ftapp.filetest.ActionRegistry;
  * @author TBrady
  *
  */
-public class DemoActionRegistry extends ActionRegistry {
+public class DemoActionRegistry extends DSpaceActionRegistry {
 	
 	private static final long serialVersionUID = 1L;
 
 	public DemoActionRegistry(FTDriver dt, boolean modifyAllowed) {
 		super(dt, modifyAllowed);
-		add(new IngestInventory(dt));
-		add(new IngestValidate(dt));
+		add(new PageCount(dt));
 	}
 	
 }
