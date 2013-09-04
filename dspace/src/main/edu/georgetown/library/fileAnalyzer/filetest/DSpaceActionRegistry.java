@@ -17,6 +17,8 @@ public class DSpaceActionRegistry extends ActionRegistry {
 		add(new IngestInventory(dt));
 		add(new IngestValidate(dt));
 		add(new DSpaceDAT(dt));
+		add(new ProquestToIngest(dt));
+		add(new ProquestQC(dt));
 	}
 	
 }
