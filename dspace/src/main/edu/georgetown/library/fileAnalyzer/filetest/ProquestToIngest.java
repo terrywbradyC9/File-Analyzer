@@ -216,6 +216,9 @@ public class ProquestToIngest extends DefaultFileTest {
 		} catch (IOException e) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, e.getMessage());					
+		} catch (IllegalArgumentException e) {
+			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
+			stats.setVal(ProquestStatsItems.Message, "Error unzipping the file perhaps due to unexpected characters in file name.\nProcess manually.");					
 		}
 		
 		stats.setVal(ProquestStatsItems.Items, zcount);

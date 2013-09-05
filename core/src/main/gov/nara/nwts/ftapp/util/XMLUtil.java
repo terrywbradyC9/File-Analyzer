@@ -12,6 +12,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -19,6 +20,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public class XMLUtil {
 	public static DocumentBuilderFactory dbf;
@@ -74,6 +76,30 @@ public class XMLUtil {
 		}
 		t.transform(new DOMSource(d), sr);
 		fos.close();
+	}
+
+	public static void doTransform(Document d, File f, String xsl) throws TransformerException, IOException {
+		doTransform(d, f, FileAnalyzerURIResolver.INSTANCE, xsl, new HashMap<String,Object>());		
+	}
+	public static void doTransform(Document d, File f, String xsl, HashMap<String,Object> pmap) throws TransformerException, IOException {
+		doTransform(d, f, FileAnalyzerURIResolver.INSTANCE, xsl, pmap);		
+	}
+	public static Node doTransformToDom(Document d, String xsl) throws TransformerException, IOException {
+		return doTransformToDom(d, xsl, new HashMap<String,Object>());
+	}
+	public static Node doTransformToDom(Document d, String xsl, HashMap<String,Object> pmap) throws TransformerException, IOException {
+		TransformerFactory tfres = TransformerFactory.newInstance();
+
+		tfres.setURIResolver(FileAnalyzerURIResolver.INSTANCE);
+
+		Transformer t = tfres.newTransformer(FileAnalyzerURIResolver.INSTANCE.resolve(xsl, ""));
+
+		DOMResult dr = new DOMResult();
+		for(String s:pmap.keySet()) {
+			t.setParameter(s, pmap.get(s));
+		}
+		t.transform(new DOMSource(d), dr);
+		return dr.getNode();
 	}
 
 	public static void doTransform(Document d, File f, URIResolver urir, String xsl) throws TransformerException, IOException {
