@@ -3,6 +3,7 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.PdfFileTestFilter;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -13,6 +14,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -46,15 +49,40 @@ class PageCount extends DefaultFileTest {
 	public static StatsItemConfig details = StatsItemConfig.create(PagesStatsItems.class);
 
 	long counter = 1000000;
+	public static final String KEYPATT = "key-regex";
+	public static final String KEYGROUP = "regex-group-num";
 	public PageCount(FTDriver dt) {
 		super(dt);
+		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  KEYPATT, KEYPATT,
+				"Regular expression for setting a key: '.*(\\d\\d\\d).pdf '.  If not set, the full path name will be used", ""));
+		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  KEYGROUP, KEYGROUP,
+				"Regular expression match group number for key.  Only applicable if a regular expression is set.", "0"));
 	}
 
 	public String toString() {
 		return "Page Count";
 	}
 	public String getKey(File f) {
-		return f.getPath();
+		String key = f.getPath();
+		
+		String patt = getProperty(KEYPATT, "").toString();
+		String group = getProperty(KEYGROUP, "").toString();
+		if (patt.isEmpty()) return key;
+		if (group.isEmpty()) return key;
+		
+		try {
+			Pattern p = Pattern.compile(patt);
+			Matcher m = p.matcher(key);
+			if (m.matches()) {
+				int pos = Integer.parseInt(group);
+				if (pos >= 0 && pos <= m.groupCount()) {
+					return m.group(pos);
+				}
+			}
+		} catch (Exception e) {
+		}
+		
+		return key;
 	}
 	
     public String getShortName(){return "Pg";}

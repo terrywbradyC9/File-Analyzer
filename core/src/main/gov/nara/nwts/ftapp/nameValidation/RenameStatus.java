@@ -6,6 +6,7 @@ package gov.nara.nwts.ftapp.nameValidation;
  *
  */
 public enum RenameStatus {
+	SKIP("Skip", RenamePassFail.PASS),
 	NEXT("Test inconclusive", RenamePassFail.PASS),
 	VALID("Original filename is valid, rename not required", RenamePassFail.PASS),
 	INVALID_MANUAL("Original filename must be manually renamed",RenamePassFail.FAIL),

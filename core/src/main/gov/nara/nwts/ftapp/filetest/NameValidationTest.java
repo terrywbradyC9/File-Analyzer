@@ -185,6 +185,7 @@ abstract public class NameValidationTest extends DefaultFileTest {
 		for(NameValidationPattern nvp: testPatterns) {
 			RenameDetails det = nvp.checkFile(f);
 			if (det.status == RenameStatus.NEXT) continue;
+			if (det.status == RenameStatus.SKIP) return det;
 			File newFile = det.getFile();
 			if (newFile != null) {
 				if (valPatt.checkFile(newFile).status != RenameStatus.VALID) {

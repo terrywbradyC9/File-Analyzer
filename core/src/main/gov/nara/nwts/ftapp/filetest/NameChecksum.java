@@ -27,7 +27,7 @@ public class NameChecksum extends DefaultFileTest {
 	
 	HashMap<String, List<ChecksumStats>> keymap;
 	public static final String ALGORITHM = "Algorithm";
-	private static enum Algorithm {
+	static enum Algorithm {
 		MD5("MD5"),
 		SHA1("SHA-1"),
 		SHA256("SHA-256"),
