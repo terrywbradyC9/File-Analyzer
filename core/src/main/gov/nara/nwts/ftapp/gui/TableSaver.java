@@ -53,6 +53,9 @@ class TableSaver extends JDialog {
     	setLayout(new BorderLayout());
     	JFileChooser jfc = new JFileChooser(){
     		private static final long serialVersionUID = 1L;
+    		public int getDialogType() {
+    			return JFileChooser.SAVE_DIALOG;
+    		}
     		public String getApproveButtonText() {
     			return "Export";
     		}
