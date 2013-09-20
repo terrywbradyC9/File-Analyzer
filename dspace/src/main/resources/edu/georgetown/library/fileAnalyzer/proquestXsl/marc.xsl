@@ -223,7 +223,7 @@
 					<xsl:text><xsl:value-of select="$university-name"/></xsl:text>
 				</marc:subfield>
 				<marc:subfield code="e">
-					<xsl:text>degree grantitng institution</xsl:text>
+					<xsl:text>degree granting institution</xsl:text>
 				</marc:subfield>
 			</marc:datafield>
 			<xsl:if test="$pUrl">

@@ -229,9 +229,13 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 				//Commenting out, unsure why this was suppressed
 				//if (urlCol.contains(i) || accCol.contains(i)) continue;
 				String col = cols.get(i);
+				if (col == null) continue;
+				if (col.trim().isEmpty()) continue;
 				makeElement(root, headers.get(i), col);
 				DSpace2MarcStatsItems dmsi = colMap.get(i);
 				if (dmsi != null) {
+					String s = stats.getVal(dmsi).toString();
+					s = (s == null) ? col : s + col; 
 					stats.setVal(dmsi, col);
 				}
 				
