@@ -157,6 +157,10 @@ public class Stats {
 		return (Long)getVal(eitem, null);
 	}
 
+	public Integer getIntVal(StatsItemEnum eitem) {
+		return (Integer)getVal(eitem, null);
+	}
+
 	public Object getVal(StatsItemEnum eitem, Object def) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {

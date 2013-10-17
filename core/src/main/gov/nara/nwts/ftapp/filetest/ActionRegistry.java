@@ -30,6 +30,7 @@ public class ActionRegistry extends Vector<FileTest> {
 		if (modifyAllowed()) {
 			add(new LowercaseTest(dt, next));
 		}
+		add(new DigitalDerivatives(dt)); 
 	}
 	
 	/**
