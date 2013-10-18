@@ -15,6 +15,8 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
 		add(new PageCount(dt));
 		add(new ImageProperties(dt));
 		add(new YearbookNameValidationTest(dt)); 
+		add(new CreateBag(dt)); 
+		add(new VerifyBag(dt)); 
 	}
 	
 }
