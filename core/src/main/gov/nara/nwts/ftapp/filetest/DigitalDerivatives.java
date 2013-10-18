@@ -1,6 +1,5 @@
 package gov.nara.nwts.ftapp.filetest;
 
-import gov.nara.nwts.ftapp.filetest.DigitalDerivatives.Generator.DerivStats;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.DefaultFileTestFilter;
@@ -150,7 +149,7 @@ class DigitalDerivatives extends DefaultFileTest {
 
     
 	public Object fileTest(File f) {
-		DerivStats s = (DerivStats)getStats(f);
+		Stats s = getStats(f);
 		String suff = f.getName().toLowerCase().substring(s.key.length()); 
 		s.sumVal(DerivStatsItems.Count, 1);
 		
