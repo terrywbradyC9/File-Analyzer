@@ -37,7 +37,7 @@ public class DelimitedFileReader {
 			String tpline = getNextString(pline);
 			cols.add(normalize(tpline));
 			if (pline.length() == tpline.length()) break;
-			pline = pline.substring(tpline.length()+1);
+			pline = pline.substring(tpline.length()+sep.length());
 		}
 		return cols;
 	}
