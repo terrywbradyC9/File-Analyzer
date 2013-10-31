@@ -17,6 +17,17 @@ public class CounterData {
 	public String version = "";
 	public String title = "";
 	
+	public int getMaxRow() {
+		return data.size();
+	}
+	
+	public int getMaxCol(int row) {
+		if (data.size() > row) {
+			return data.get(row).size();
+		}
+		return 0;
+	}
+	
 	public CounterStat getStat() {
 		return fileStat.stat;
 	}
@@ -33,14 +44,15 @@ public class CounterData {
 	public void validate() {
 		ReportType reportType = identifyReportType();
 		if (reportType == null) return;
-		if (fileStat.stat != CounterStat.VALID) return;
+		if (fileStat.stat != CounterStat.VALID && fileStat.stat != CounterStat.UNSUPPORTED_REPORT) return;
 		results.addAll(reportType.validate(this));
 		TreeMap<CounterStat,Integer> resultCount = new TreeMap<CounterStat,Integer>();
 		CounterStat overall = CounterStat.VALID;
 		for(CheckResult cr: results) {
 			overall = (cr.stat.ordinal() > overall.ordinal()) ? cr.stat : overall;
 			Integer x = resultCount.get(cr.stat);
-			resultCount.put(cr.stat, x == null ? 1 : x++);
+			x = (x == null) ? 1 : x.intValue() + 1;
+			resultCount.put(cr.stat, x);
 		}
 		StringBuffer buf = new StringBuffer();
 		for(CounterStat st: resultCount.keySet()) {
@@ -81,6 +93,9 @@ public class CounterData {
 			fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE);
 			return null;
 		} 
+
+		reportType.init(this);
+
 		if (!reportType.isSupported()) {
 			fileStat = CheckResult.createFileStatus(CounterStat.UNSUPPORTED_REPORT);
 		}

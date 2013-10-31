@@ -53,11 +53,12 @@ class CounterValidation extends DefaultFileTest {
 	private static enum CounterStatsItems implements StatsItemEnum {
 		File(StatsItem.makeStringStatsItem("File", 300)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
-		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(250)),
+		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
 		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
 		Version(StatsItem.makeStringStatsItem("Version", 100)),
-		ReportTitle(StatsItem.makeStringStatsItem("Report Title", 150)),
-		Message(StatsItem.makeStringStatsItem("Message", 200)),
+		ReportTitle(StatsItem.makeStringStatsItem("Report/Cell Title", 150)),
+		Message(StatsItem.makeStringStatsItem("Message", 400)),
+		Replacement(StatsItem.makeStringStatsItem("Replacement", 250)),
 		;
 		StatsItem si;
 		CounterStatsItems(StatsItem si) {this.si=si;}
@@ -156,8 +157,9 @@ class CounterValidation extends DefaultFileTest {
 			stat.setVal(CounterStatsItems.Stat, result.stat);
 			stat.setVal(CounterStatsItems.Report, cd.report);
 			stat.setVal(CounterStatsItems.Version, cd.version);							
-			stat.setVal(CounterStatsItems.ReportTitle, cd.title);
+			stat.setVal(CounterStatsItems.ReportTitle, result.cell.getCellname());
 			stat.setVal(CounterStatsItems.Message, result.message);
+			stat.setVal(CounterStatsItems.Replacement, result.newVal == null ? "" : result.newVal);
 		}
 	}
 	

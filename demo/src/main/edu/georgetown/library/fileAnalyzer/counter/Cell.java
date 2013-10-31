@@ -41,17 +41,19 @@ public class Cell {
 	public String getCellname() {
 		if (!valid) return "Invalid Cell Name";
 		String rowstr = ""+(row+1);
-		String colstr = "";
-		double dfact = (col == 0) ? 1 : (Math.log(col) / Math.log(26)) + 1;
-		int fact = (int)dfact;
+		StringBuffer colstr = new StringBuffer();
 		
-		int val = col;
-		for(int pow = fact - 1; pow >= 0; pow--) {
-			int rem = ((val + 1) / (int)Math.pow(26, pow)) - 1;
-			colstr += ((char)('A' + rem));
-			val = val % (int)Math.pow(26, pow);
+		int val = col; //A=0 for last digit
+		int rem = val % 26;
+		
+		colstr.append((char)('A'+rem));
+		
+		for(val = val / 26; val > 0; val = val / 26) {
+			val--;  //A=1 if not last digit
+			rem = val % 26;
+			colstr.append((char)('A'+rem));			
 		}
-		return colstr + rowstr;
+		return colstr.reverse().toString() + rowstr;
 	}
 	
 	public static List<Cell> makeRange(int srow, int scol, int endrow, int endcol) {
@@ -73,11 +75,11 @@ public class Cell {
 		test("A1");
 		test("A2");
 		test("B1");
-		test("B2");
+		test("B10");
 		test("Z1");
-		test("Z2");
+		test("Z99");
 		test("AA1");
-		test("AA2");
+		test("AA1000");
 		test("AZ1");
 		test("AZ2");
 		test("BA1");
@@ -88,5 +90,15 @@ public class Cell {
 		test("ZZ2");
 		test("AAA1");
 		test("AAA2");
+		test("YYY1");
+		test("YYY2");
+		test("YZZ1");
+		test("YZZ2");
+		test("ZYZ1");
+		test("ZYZ2");
+		test("ZZZ1");
+		test("ZZZ2");
+		test("AAAA1");
+		test("AAAA2");
 	}
 }

@@ -3,6 +3,8 @@ package edu.georgetown.library.fileAnalyzer.counter;
 public class CounterCheck {
 	String message = "Cell does not match specifications";
 	CounterStat stat = CounterStat.INVALID;
+	boolean allowNull = false;
+	
 	CheckResult performCheck(Cell cell, String cellval) {
 		return CheckResult.createCellValid(cell);
 	}
@@ -17,5 +19,9 @@ public class CounterCheck {
 		return this;
 	}
 	
+	CounterCheck setAllowNull(boolean b) {
+		allowNull = b;
+		return this;
+	}
 
 }

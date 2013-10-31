@@ -5,7 +5,7 @@ public class CheckResult {
 	public Cell cell;
 	public CounterStat stat;
 	public String message = "";
-	String newVal;
+	public String newVal;
 	
 	CheckResult(Cell cell, CounterStat stat) {
 		this.rec = CounterRec.CELL;
