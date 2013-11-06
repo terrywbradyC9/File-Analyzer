@@ -6,7 +6,7 @@ public class DatabaseReport3 extends ReportType {
 		super(NAME, rev, title);
 	}
 	public DatabaseReport3() {
-		super(NAME, REV.R3, "“Total Searches and Sessions by Month and Service.");
+		super(NAME, REV.R3, "Total Searches and Sessions by Month and Service.");
 	}
 	
 	@Override public void initCustom(CounterData data) {
