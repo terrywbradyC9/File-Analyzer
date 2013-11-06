@@ -29,6 +29,9 @@ class StaticCounterCheck extends CounterCheck {
 		if (val.equalsIgnoreCase(cellval.trim())) {
 			return CheckResult.createCellInvalidCase(cell, message).setNewVal(val);
 		} 
+		if (val.equalsIgnoreCase(cellval.replaceAll("[:\\s]+$", ""))) {
+			return CheckResult.createCellInvalidPunct(cell, message).setNewVal(val);
+		} 
 		
 		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message).setNewVal(val);
 		return res;

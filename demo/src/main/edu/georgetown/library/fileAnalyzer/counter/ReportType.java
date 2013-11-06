@@ -62,18 +62,14 @@ public class ReportType {
 	}
 
 	public static CounterCheck BLANK = new StaticCounterCheck("").setCounterStat(CounterStat.WARNING).setMessage("Extra cells should be blank").setAllowNull(true);
-	public static CounterCheck NONBLANK = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID).setMessage("Cell cannot be blank");
+	public static CounterCheck NONBLANK = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID_BLANK).setMessage("Non-blank value expected");
 	
 	public static String sYYYYMMDD = "\\d\\d\\d\\d-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|[12][0-9]|30|31|32)";
-	public static Pattern pYYYYMMDD = Pattern.compile("^" + sYYYYMMDD + "$");
-	public static Pattern pYYYYMMDDx = Pattern.compile("^(" + sYYYYMMDD + ").*$");
-	public static CounterCheck YYYYMMDD = new PatternCounterCheck(pYYYYMMDD, pYYYYMMDDx, "$1").setCounterStat(CounterStat.INVALID).setMessage("Cell must be in 'YYYY-MM-DD' format");
 	public static Pattern pYYYYMMDD_to_YYYYMMDD = Pattern.compile("^" + sYYYYMMDD + " to " + sYYYYMMDD + "$");
 	public static CounterCheck YYYYMMDD_to_YYYYMMDD = new PatternCounterCheck(pYYYYMMDD_to_YYYYMMDD).setCounterStat(CounterStat.INVALID).setMessage("Cell must be in 'YYYY-MM-DD to YYYY-MM-DD' format");
 
-	public static Pattern pMMMYYYY = Pattern.compile("^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\\d\\d\\d\\d$");
-	//public static CounterCheck MMMYYYY = new PatternCounterCheck(pMMMYYYY).setCounterStat(CounterStat.INVALID).setMessage("Month header must be in Mmm-YYYY format");
 	public static CounterCheck MMMYYYY = new DateCounterCheck("MMM-yyyy", "Month header must be in Mmm-YYYY format").setCounterStat(CounterStat.INVALID);
+	public static CounterCheck YYYYMMDD = new DateCounterCheck("yyyy-MM-dd", "Date must be in YYYY-MM-DD format").setCounterStat(CounterStat.INVALID);
 
 	public static Pattern pINT = Pattern.compile("^(\\d+)$");
 	public static CounterCheck INT = new PatternCounterCheck(pINT).setCounterStat(CounterStat.INVALID).setMessage("Count cell must contain a number");

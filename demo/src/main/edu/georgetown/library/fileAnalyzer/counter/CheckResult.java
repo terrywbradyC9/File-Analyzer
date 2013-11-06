@@ -40,17 +40,23 @@ public class CheckResult {
 	static CheckResult createCellWarning(Cell cell, String message) {
 		return createCellStatus(cell, CounterStat.WARNING).setMessage(message);
 	}
-	static CheckResult createCellFixable(Cell cell, String message, String newVal) {
-		return createCellStatus(cell, CounterStat.WARNING).setMessage(message).setNewVal(newVal);
-	}
 	static CheckResult createCellInvalid(Cell cell, String message) {
 		return createCellStatus(cell, CounterStat.INVALID).setMessage(message);
 	}
 	static CheckResult createCellInvalidCase(Cell cell, String message) {
-		return createCellStatus(cell, CounterStat.INVALID_CASE).setMessage(message);
+		return createCellStatus(cell, CounterStat.WARNING_CASE).setMessage(message);
+	}
+	static CheckResult createCellInvalidPunct(Cell cell, String message) {
+		return createCellStatus(cell, CounterStat.WARNING_PUNCT).setMessage(message);
 	}
 	static CheckResult createCellInvalidTrim(Cell cell, String message) {
-		return createCellStatus(cell, CounterStat.INVALID_TRIM).setMessage(message);
+		return createCellStatus(cell, CounterStat.WARNING_TRIM).setMessage(message);
+	}
+	static CheckResult createCellInvalidDate(Cell cell, String message) {
+		return createCellStatus(cell, CounterStat.WARNING_DATE).setMessage(message);
+	}
+	static CheckResult createCellInvalidSum(Cell cell, String message) {
+		return createCellStatus(cell, CounterStat.INVALID_SUM).setMessage(message);
 	}
 	static CheckResult createCellError(Cell cell, String message) {
 		return createCellStatus(cell, CounterStat.ERROR).setMessage(message);

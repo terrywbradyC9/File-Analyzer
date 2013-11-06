@@ -19,7 +19,7 @@ class SumCounterCheck extends IntCounterCheck {
 		if (cursum == rangesum) {
 			return CheckResult.createCellValid(cell);
 		}
-		return CheckResult.createCellInvalid(cell, message + ". Invalid range sum (expected:" + rangesum + "; current:" + cursum+")").setNewVal(""+rangesum);
+		return CheckResult.createCellInvalidSum(cell, message + ". Invalid range sum (expected:" + rangesum + "; current:" + cursum+")").setNewVal(""+rangesum);
 	}
 	
 	public int getRangeSum(CounterData cd, Cell cell) {

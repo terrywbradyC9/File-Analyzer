@@ -193,7 +193,7 @@ class CounterValidation extends DefaultFileTest {
 			if (result.stat != CounterStat.VALID) {
 				fix = result.newVal == null ? FIXABLE.NO : FIXABLE.YES;
 			}
-			stat.setVal(CounterStatsItems.CellValue, fix);
+			stat.setVal(CounterStatsItems.Fixable, fix);
 		}
 	}
 	

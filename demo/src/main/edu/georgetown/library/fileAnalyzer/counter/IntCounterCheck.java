@@ -27,7 +27,7 @@ class IntCounterCheck extends CounterCheck {
 	@Override
 	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (getIntValue(cellval) == null) {
-			return CheckResult.createCellInvalid(cell, "Cells containing sums should be numeric: [" + cellval + "]");
+			return CheckResult.createCellInvalid(cell, "Cells containing sums should be numeric");
 		}
 		
 		return CheckResult.createCellValid(cell);
