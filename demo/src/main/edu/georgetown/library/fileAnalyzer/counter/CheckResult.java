@@ -46,6 +46,12 @@ public class CheckResult {
 	static CheckResult createCellInvalid(Cell cell, String message) {
 		return createCellStatus(cell, CounterStat.INVALID).setMessage(message);
 	}
+	static CheckResult createCellInvalidCase(Cell cell, String message) {
+		return createCellStatus(cell, CounterStat.INVALID_CASE).setMessage(message);
+	}
+	static CheckResult createCellInvalidTrim(Cell cell, String message) {
+		return createCellStatus(cell, CounterStat.INVALID_TRIM).setMessage(message);
+	}
 	static CheckResult createCellError(Cell cell, String message) {
 		return createCellStatus(cell, CounterStat.ERROR).setMessage(message);
 	}

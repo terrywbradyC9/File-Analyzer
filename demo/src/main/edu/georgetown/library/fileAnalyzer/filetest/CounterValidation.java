@@ -5,6 +5,8 @@ import edu.georgetown.library.fileAnalyzer.counter.CounterData;
 import edu.georgetown.library.fileAnalyzer.counter.CounterRec;
 import edu.georgetown.library.fileAnalyzer.counter.CounterStat;
 import edu.georgetown.library.fileAnalyzer.counter.JournalReport1;
+import edu.georgetown.library.fileAnalyzer.counter.JournalReport1R4;
+import edu.georgetown.library.fileAnalyzer.counter.REV;
 import edu.georgetown.library.fileAnalyzer.counter.ReportType;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
@@ -48,16 +50,20 @@ class CounterValidation extends DefaultFileTest {
 		Separator(String s) {separator = s;}
 	}
 	public static final String DELIM = "Delimiter";
-	
+	public static enum FIXABLE {
+		NA,YES,NO;
+	}
 	
 	private static enum CounterStatsItems implements StatsItemEnum {
 		File(StatsItem.makeStringStatsItem("File", 300)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
 		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
+		Fixable(StatsItem.makeEnumStatsItem(FIXABLE.class, "Fixable").setWidth(40)),
 		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
-		Version(StatsItem.makeStringStatsItem("Version", 100)),
+		Version(StatsItem.makeEnumStatsItem(REV.class, "Rev").setWidth(40)),
 		ReportTitle(StatsItem.makeStringStatsItem("Report/Cell Title", 150)),
 		Message(StatsItem.makeStringStatsItem("Message", 400)),
+		CellValue(StatsItem.makeStringStatsItem("Cell Value", 250)),
 		Replacement(StatsItem.makeStringStatsItem("Replacement", 250)),
 		;
 		StatsItem si;
@@ -89,10 +95,11 @@ class CounterValidation extends DefaultFileTest {
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
 				"Delimiter character separating fields - if not default", Separator.values(), Separator.Comma));
 		new JournalReport1();
-		new ReportType("Database Report 1");
-		new ReportType("Database Report 3");
-		new ReportType("Book Report 1");
-		new ReportType("Book Report 2");
+		new JournalReport1R4();
+		new ReportType("Database Report 1", REV.R3);
+		new ReportType("Database Report 3", REV.R3);
+		new ReportType("Book Report 1", REV.R3);
+		new ReportType("Book Report 2", REV.R3);
 	}
 	public String toString() {
 		return "Counter Compliance";
@@ -100,6 +107,8 @@ class CounterValidation extends DefaultFileTest {
 	public String getKey(File f) {
 		return f.getName();
 	}
+	
+	
 	public static String getKey(File f, String cellname) {
 		return f.getName() + " [" + cellname + "]";
 	}
@@ -129,16 +138,26 @@ class CounterValidation extends DefaultFileTest {
 			}
 			CounterData cd = new CounterData(data);
 			cd.validate();
-			setCellStats(f, cd);
-			s.setVal(CounterStatsItems.Stat, cd.getStat());
-			s.setVal(CounterStatsItems.Report, cd.report);
-			s.setVal(CounterStatsItems.Version, cd.version);							
-			s.setVal(CounterStatsItems.ReportTitle, cd.title);
-			s.setVal(CounterStatsItems.Message, cd.getMessage());
+			
+			if (cd.rpt == null) {
+				s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
+				s.setVal(CounterStatsItems.Message, "Report Type could not be identified");
+			} else {
+				setCellStats(f, cd);
+				
+				s.setVal(CounterStatsItems.Stat, cd.getStat());
+				s.setVal(CounterStatsItems.Report, cd.rpt.name);
+				s.setVal(CounterStatsItems.Version, cd.rpt.rev);							
+				s.setVal(CounterStatsItems.ReportTitle, cd.title);
+				s.setVal(CounterStatsItems.Message, cd.getMessage());				
+			}			
 		} catch (InvalidFormatException e) {
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
 			s.setVal(CounterStatsItems.Message, e.toString());
 		} catch (IOException e) {
+			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
+			s.setVal(CounterStatsItems.Message, e.toString());
+		} catch (org.apache.poi.hssf.OldExcelFormatException e) {
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
 			s.setVal(CounterStatsItems.Message, e.toString());
 		} catch (Exception e) {
@@ -152,14 +171,29 @@ class CounterValidation extends DefaultFileTest {
 	
 	void setCellStats(File f, CounterData cd) {
 		for(CheckResult result: cd.results) {
-			Stats stat = Generator.INSTANCE.create(f, result.cell.getCellname());
+			if (result.stat == CounterStat.VALID) continue;
+			Stats stat = Generator.INSTANCE.create(f, result.cell.getCellSort());
 			this.dt.types.put(stat.key, stat);
 			stat.setVal(CounterStatsItems.Stat, result.stat);
-			stat.setVal(CounterStatsItems.Report, cd.report);
-			stat.setVal(CounterStatsItems.Version, cd.version);							
+			stat.setVal(CounterStatsItems.Report, cd.rpt.name);
+			stat.setVal(CounterStatsItems.Version, cd.rpt.rev);							
 			stat.setVal(CounterStatsItems.ReportTitle, result.cell.getCellname());
 			stat.setVal(CounterStatsItems.Message, result.message);
+			
 			stat.setVal(CounterStatsItems.Replacement, result.newVal == null ? "" : result.newVal);
+			
+			String cellval = "";
+			if (result.cell != null) {
+				String s = cd.getCellValue(result.cell);
+				cellval = (s == null) ? "" : s;
+			}
+			stat.setVal(CounterStatsItems.CellValue, cellval);
+			
+			FIXABLE fix = FIXABLE.NA;
+			if (result.stat != CounterStat.VALID) {
+				fix = result.newVal == null ? FIXABLE.NO : FIXABLE.YES;
+			}
+			stat.setVal(CounterStatsItems.CellValue, fix);
 		}
 	}
 	

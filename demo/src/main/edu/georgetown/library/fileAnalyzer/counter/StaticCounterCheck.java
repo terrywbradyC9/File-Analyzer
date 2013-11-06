@@ -7,7 +7,7 @@ class StaticCounterCheck extends CounterCheck {
 		this.message = "Expected value: " + val;
 	}
 	@Override
-	CheckResult performCheck(Cell cell, String cellval) {
+	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (cellval == null) {
 			if (allowNull) {
 				return CheckResult.createCellValid(cell);			
@@ -20,14 +20,17 @@ class StaticCounterCheck extends CounterCheck {
 			return CheckResult.createCellValid(cell);
 		} 
 		
-		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message+": "+cellval);
 		if (val.equalsIgnoreCase(cellval)) {
-			res.setMessage("Case Mismatch. " + message);
+			return CheckResult.createCellInvalidCase(cell, message).setNewVal(val);
+		} 
+		if (val.equals(cellval.trim())) {
+			return CheckResult.createCellInvalidTrim(cell, message).setNewVal(val);
+		} 
+		if (val.equalsIgnoreCase(cellval.trim())) {
+			return CheckResult.createCellInvalidCase(cell, message).setNewVal(val);
 		} 
 		
-		if (stat == CounterStat.FIXABLE) {
-			res.setNewVal(val);
-		}
+		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message).setNewVal(val);
 		return res;
 	}
 	

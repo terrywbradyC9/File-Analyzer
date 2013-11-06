@@ -5,7 +5,7 @@ public class CounterCheck {
 	CounterStat stat = CounterStat.INVALID;
 	boolean allowNull = false;
 	
-	CheckResult performCheck(Cell cell, String cellval) {
+	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		return CheckResult.createCellValid(cell);
 	}
 	

@@ -1,5 +1,6 @@
 package edu.georgetown.library.fileAnalyzer.counter;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -54,6 +55,16 @@ public class Cell {
 			colstr.append((char)('A'+rem));			
 		}
 		return colstr.reverse().toString() + rowstr;
+	}
+
+	public static final NumberFormat nf = NumberFormat.getIntegerInstance();
+	static {
+		nf.setMinimumIntegerDigits(6);
+		nf.setGroupingUsed(false);
+	}
+	
+	public String getCellSort() {
+		return nf.format(row) + "," + nf.format(col);
 	}
 	
 	public static List<Cell> makeRange(int srow, int scol, int endrow, int endcol) {

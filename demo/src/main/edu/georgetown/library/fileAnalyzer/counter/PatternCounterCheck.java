@@ -16,7 +16,7 @@ class PatternCounterCheck extends CounterCheck {
 		this.fixmatch = fixmatch;
 	}
 	@Override
-	CheckResult performCheck(Cell cell, String cellval) {
+	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		Matcher m = patt.matcher(cellval);
 		if (m.matches()) {
 			return CheckResult.createCellValid(cell);
@@ -27,13 +27,13 @@ class PatternCounterCheck extends CounterCheck {
 			String newVal = m.replaceAll(rep);
 			m = patt.matcher(newVal);
 			if (m.matches()) {
-				return CheckResult.createCellStatus(cell, CounterStat.FIXABLE).setMessage(message).setNewVal(newVal);
+				return CheckResult.createCellStatus(cell, CounterStat.WARNING).setMessage(message).setNewVal(newVal);
 			} else {
-				return CheckResult.createCellInvalid(cell, message + ": " + cellval);
+				return CheckResult.createCellInvalid(cell, message);
 			}
 		}
 
-		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message + ": " + cellval);
+		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message);
 		return res;
 	}
 

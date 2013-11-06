@@ -23,7 +23,7 @@ public class CellCheck {
 	List<CheckResult> performCheck(CounterData cd) {
 		ArrayList<CheckResult> results = new ArrayList<CheckResult>();
 		for(Cell cell: cells) {
-			results.add(check.performCheck(cell, cd.getCellValue(cell)));
+			results.add(check.performCheck(cd, cell, cd.getCellValue(cell)));
 		}
 		return results;
 	}

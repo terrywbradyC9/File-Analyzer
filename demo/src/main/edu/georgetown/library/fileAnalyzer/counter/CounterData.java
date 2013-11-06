@@ -13,8 +13,9 @@ public class CounterData {
 	
 	public CheckResult fileStat = CheckResult.createFileStatus(CounterStat.VALID);
 
-	public String report = "";
-	public String version = "";
+	String report = "";
+	String version = "";
+	public RPT rpt;
 	public String title = "";
 	
 	public int getMaxRow() {
@@ -23,7 +24,40 @@ public class CounterData {
 	
 	public int getMaxCol(int row) {
 		if (data.size() > row) {
-			return data.get(row).size();
+			return data.get(row).size()-1;
+		}
+		return 0;
+	}
+	
+	public int getLastCol(int row) {
+		if (data.size() > row) {
+			Vector<String> drow = data.get(row);
+			return getLastCol(row, drow.size() - 1);
+		}
+		return 0;
+	}
+
+	public int getLastCol(int row, int mcol) {
+		if (data.size() > row) {
+			Vector<String> drow = data.get(row);
+			if (mcol > drow.size()-1) mcol = drow.size() - 1;
+			for(int c=mcol; c>=0; c--) {
+				String s = drow.get(c);
+				if (s == null) continue;
+				if (!s.isEmpty()) return c;
+			}
+		}
+		return 0;
+	}
+
+	public int getLastRow() {
+		for(int r=data.size()-1; r>=0; r--) {
+			Vector<String> row = data.get(r);
+			if (row == null) continue;
+			for(String s: row) {
+				if (s == null) continue;
+				if (!s.isEmpty()) return r;
+			}
 		}
 		return 0;
 	}
@@ -47,7 +81,7 @@ public class CounterData {
 		if (fileStat.stat != CounterStat.VALID && fileStat.stat != CounterStat.UNSUPPORTED_REPORT) return;
 		results.addAll(reportType.validate(this));
 		TreeMap<CounterStat,Integer> resultCount = new TreeMap<CounterStat,Integer>();
-		CounterStat overall = CounterStat.VALID;
+		CounterStat overall = fileStat.stat;
 		for(CheckResult cr: results) {
 			overall = (cr.stat.ordinal() > overall.ordinal()) ? cr.stat : overall;
 			Integer x = resultCount.get(cr.stat);
@@ -75,7 +109,13 @@ public class CounterData {
 		Matcher m = pRptType.matcher(A1);
 		if (m.matches()) {
 			report = m.group(1).trim();
-			version = m.group(2);							
+			version = m.group(2);	
+			rpt = RPT.createRPT(report, version);
+			if (rpt == null) {
+				fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE).setMessage("Unrecognized version: "+version);
+				return null;				
+			}
+			
 			title = m.group(4);
 			
 			if (!m.group(4).isEmpty()) {
@@ -83,12 +123,14 @@ public class CounterData {
 			}
 		} else {
 			report = A1;
+			fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE).setMessage("No version specified");
+			return null;
 		}
 
 		String B1 = getCellValue(Cell.at("B1"));
 		title += B1;
 		
-		ReportType reportType = ReportType.reportTypes.get(report);
+		ReportType reportType = ReportType.reportTypes.get(rpt);
 		if (reportType == null) {
 			fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE);
 			return null;
@@ -102,7 +144,7 @@ public class CounterData {
 		return reportType;
 	}
 	
-	String getCellValue(Cell cell) {
+	public String getCellValue(Cell cell) {
 		if (cell.row >= data.size() || cell.row < 0) return null;
 		if (cell.col >= data.get(cell.row).size() || cell.col < 0) return null;
 		return data.get(cell.row).get(cell.col);
