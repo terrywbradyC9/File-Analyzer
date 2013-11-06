@@ -13,8 +13,8 @@ public class CounterData {
 	
 	public CheckResult fileStat = CheckResult.createFileStatus(CounterStat.VALID);
 
-	String report = "";
-	String version = "";
+	public String report = "";
+	public String version = "";
 	public RPT rpt;
 	public String title = "";
 	
@@ -116,11 +116,7 @@ public class CounterData {
 				return null;				
 			}
 			
-			title = m.group(4);
-			
-			if (!m.group(4).isEmpty()) {
-				fileStat = CheckResult.createFileStatus(CounterStat.INVALID).setMessage("Extra data in cell A1. ");
-			}
+			title = m.group(4);			
 		} else {
 			report = A1;
 			fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE).setMessage("No version specified");
@@ -130,7 +126,7 @@ public class CounterData {
 		String B1 = getCellValue(Cell.at("B1"));
 		title += B1;
 		
-		ReportType reportType = ReportType.reportTypes.get(rpt);
+		ReportType reportType = rpt.reportType;
 		if (reportType == null) {
 			fileStat = CheckResult.createFileStatus(CounterStat.UNKNOWN_REPORT_TYPE);
 			return null;

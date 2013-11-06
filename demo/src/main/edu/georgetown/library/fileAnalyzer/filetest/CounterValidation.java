@@ -7,6 +7,7 @@ import edu.georgetown.library.fileAnalyzer.counter.CounterStat;
 import edu.georgetown.library.fileAnalyzer.counter.JournalReport1;
 import edu.georgetown.library.fileAnalyzer.counter.JournalReport1R4;
 import edu.georgetown.library.fileAnalyzer.counter.REV;
+import edu.georgetown.library.fileAnalyzer.counter.RPT;
 import edu.georgetown.library.fileAnalyzer.counter.ReportType;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
@@ -55,10 +56,11 @@ class CounterValidation extends DefaultFileTest {
 	}
 	
 	private static enum CounterStatsItems implements StatsItemEnum {
-		File(StatsItem.makeStringStatsItem("File", 300)),
+		File(StatsItem.makeStringStatsItem("File [cell row, cell col]", 300)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
 		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
 		Fixable(StatsItem.makeEnumStatsItem(FIXABLE.class, "Fixable").setWidth(40)),
+		Rpt(StatsItem.makeEnumStatsItem(RPT.class, "RPT")),
 		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
 		Version(StatsItem.makeEnumStatsItem(REV.class, "Rev").setWidth(40)),
 		ReportTitle(StatsItem.makeStringStatsItem("Report/Cell Title", 150)),
@@ -139,15 +141,18 @@ class CounterValidation extends DefaultFileTest {
 			CounterData cd = new CounterData(data);
 			cd.validate();
 			
+			if (cd.report != null) s.setVal(CounterStatsItems.Report, cd.report);
+			if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
+
 			if (cd.rpt == null) {
-				s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
+				s.setVal(CounterStatsItems.Rpt, RPT.UNKNOWN);
+				s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_REPORT);
 				s.setVal(CounterStatsItems.Message, "Report Type could not be identified");
 			} else {
 				setCellStats(f, cd);
 				
+				s.setVal(CounterStatsItems.Rpt, cd.rpt);
 				s.setVal(CounterStatsItems.Stat, cd.getStat());
-				s.setVal(CounterStatsItems.Report, cd.rpt.name);
-				s.setVal(CounterStatsItems.Version, cd.rpt.rev);							
 				s.setVal(CounterStatsItems.ReportTitle, cd.title);
 				s.setVal(CounterStatsItems.Message, cd.getMessage());				
 			}			
@@ -175,6 +180,7 @@ class CounterValidation extends DefaultFileTest {
 			Stats stat = Generator.INSTANCE.create(f, result.cell.getCellSort());
 			this.dt.types.put(stat.key, stat);
 			stat.setVal(CounterStatsItems.Stat, result.stat);
+			stat.setVal(CounterStatsItems.Rpt, cd.rpt);
 			stat.setVal(CounterStatsItems.Report, cd.rpt.name);
 			stat.setVal(CounterStatsItems.Version, cd.rpt.rev);							
 			stat.setVal(CounterStatsItems.ReportTitle, result.cell.getCellname());

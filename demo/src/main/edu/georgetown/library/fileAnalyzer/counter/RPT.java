@@ -1,50 +1,35 @@
 package edu.georgetown.library.fileAnalyzer.counter;
 
-public class RPT implements Comparable<RPT> {
-
+public enum RPT {
+	UNKNOWN("",REV.NA, new ReportType("", REV.NA)),
+	JR1_R3(JournalReport1.NAME, REV.R3, new JournalReport1()),
+	JR1_R4(JournalReport1.NAME, REV.R4, new JournalReport1R4()),
+	DR1_R3(DatabaseReport1.NAME, REV.R3, new DatabaseReport1()),
+	DR1_R4(DatabaseReport1.NAME, REV.R4, new DatabaseReport1R4()),
+	DR3_R3(DatabaseReport3.NAME, REV.R3, new DatabaseReport3()),
+	;
+	
 	public String name;
 	public REV rev;
-	String key;
+	public ReportType reportType;
 	
-	RPT(String name, REV rev) {
+	RPT(String name, REV rev, ReportType reportType) {
 		this.name = name;
 		this.rev = rev;
-		this.key = name + " " + rev.name();
+		this.reportType = reportType;
 	}
-	
-    @Override  
-    public int compareTo(RPT other)  
-    {  
-        return key.compareTo(other.key);  
-    }  
-      
-    @Override  
-    public boolean equals(Object other)  
-    {  
-        return (other != null) && (getClass() == other.getClass()) &&   
-            key.equals(((RPT)other).key);  
-    }  
-      
-    @Override  
-    public int hashCode()  
-    {  
-        return key.hashCode();  
-    }  
-      
-    @Override  
-    public String toString()  
-    {  
-        return key;  
-    }  
-    
-	static RPT createRPT(String name, String version) {
-		for(REV rev: REV.values()) {
-			if (rev.name().equals(version)) {
-				return new RPT(name, rev);
-			}
+
+	static RPT createRPT(String name, REV rev) {
+		for(RPT rpt: RPT.values()) {
+			if (rpt.name.equals(name) && rpt.rev == rev) return rpt;
 		}
 		return null;
 	}
-	
 
+	static RPT createRPT(String name, String rev) {
+		for(RPT rpt: RPT.values()) {
+			if (rpt.name.equals(name) && rpt.rev.name().equals(rev)) return rpt;
+		}
+		return null;
+	}
 }

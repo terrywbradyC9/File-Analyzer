@@ -17,6 +17,9 @@ class PatternCounterCheck extends CounterCheck {
 	}
 	@Override
 	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+		if (patt == null || cellval == null) {
+			return CheckResult.createCellInvalid(cell, message);			
+		}
 		Matcher m = patt.matcher(cellval);
 		if (m.matches()) {
 			return CheckResult.createCellValid(cell);
