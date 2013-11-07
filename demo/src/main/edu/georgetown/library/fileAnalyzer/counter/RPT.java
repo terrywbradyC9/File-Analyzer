@@ -1,5 +1,32 @@
 package edu.georgetown.library.fileAnalyzer.counter;
 
+/**
+ * R3: http://www.projectcounter.org/r3/Release3D9.pdf
+ * R4: http://www.projectcounter.org/r4/COPR4.pdf
+ * JournalReport1
+ * JournalReport1a 
+ * JournalReport1GOA (R4)
+ * JournalReport2
+ * JournalReport3
+ * JournalReport4
+ * JournalReport5
+ * DatabaseReport1
+ * DatabaseReport2
+ * DatabaseReport3 (R3)
+ * PlatformReport1 (R4)
+ * BookReport1
+ * BookReport2
+ * BookReport3
+ * BookReport4
+ * BookReport5
+ * MultimediaReport1
+ * ConsortiumReport1
+ * ConsortiumReport2
+ * ConsortiumReport3
+ * 
+ * @author twb27
+ *
+ */
 public enum RPT {
 	UNKNOWN("",REV.NA, new ReportType("", REV.NA)),
 	JR1_R3(JournalReport1.NAME, REV.R3, new JournalReport1()),
