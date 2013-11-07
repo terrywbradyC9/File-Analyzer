@@ -24,6 +24,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Vector;
 
@@ -56,14 +57,15 @@ class CounterValidation extends DefaultFileTest {
 	}
 	
 	private static enum CounterStatsItems implements StatsItemEnum {
-		File(StatsItem.makeStringStatsItem("File [cell row, cell col]", 300)),
+		File_Cell(StatsItem.makeStringStatsItem("File [cell row, cell col]", 300)),
+		Filename(StatsItem.makeStringStatsItem("File", 150)),
+		Cell(StatsItem.makeStringStatsItem("Cell", 50)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
 		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
 		Fixable(StatsItem.makeEnumStatsItem(FIXABLE.class, "Fixable").setWidth(40)),
 		Rpt(StatsItem.makeEnumStatsItem(RPT.class, "RPT")),
 		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
 		Version(StatsItem.makeEnumStatsItem(REV.class, "Rev").setWidth(40)),
-		ReportTitle(StatsItem.makeStringStatsItem("Report/Cell Title", 150)),
 		Message(StatsItem.makeStringStatsItem("Message", 400)),
 		CellValue(StatsItem.makeStringStatsItem("Cell Value", 250)),
 		Replacement(StatsItem.makeStringStatsItem("Replacement", 250)),
@@ -92,16 +94,13 @@ class CounterValidation extends DefaultFileTest {
 	public static StatsItemConfig details = StatsItemConfig.create(CounterStatsItems.class);
 
 	long counter = 1000000;
+	
+	Vector<String> files = new Vector<String>();
+	
 	public CounterValidation(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
 				"Delimiter character separating fields - if not default", Separator.values(), Separator.Comma));
-		new JournalReport1();
-		new JournalReport1R4();
-		new ReportType("Database Report 1", REV.R3);
-		new ReportType("Database Report 3", REV.R3);
-		new ReportType("Book Report 1", REV.R3);
-		new ReportType("Book Report 2", REV.R3);
 	}
 	public String toString() {
 		return "Counter Compliance";
@@ -143,6 +142,8 @@ class CounterValidation extends DefaultFileTest {
 			
 			if (cd.report != null) s.setVal(CounterStatsItems.Report, cd.report);
 			if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
+			s.setVal(CounterStatsItems.Filename, f.getName());			
+			files.add(f.getName());
 
 			if (cd.rpt == null) {
 				s.setVal(CounterStatsItems.Rpt, RPT.UNKNOWN);
@@ -153,7 +154,7 @@ class CounterValidation extends DefaultFileTest {
 				
 				s.setVal(CounterStatsItems.Rpt, cd.rpt);
 				s.setVal(CounterStatsItems.Stat, cd.getStat());
-				s.setVal(CounterStatsItems.ReportTitle, cd.title);
+				s.setVal(CounterStatsItems.CellValue, cd.title);
 				s.setVal(CounterStatsItems.Message, cd.getMessage());				
 			}			
 		} catch (InvalidFormatException e) {
@@ -183,7 +184,8 @@ class CounterValidation extends DefaultFileTest {
 			stat.setVal(CounterStatsItems.Rpt, cd.rpt);
 			stat.setVal(CounterStatsItems.Report, cd.rpt.name);
 			stat.setVal(CounterStatsItems.Version, cd.rpt.rev);							
-			stat.setVal(CounterStatsItems.ReportTitle, result.cell.getCellname());
+			stat.setVal(CounterStatsItems.Filename, f.getName());							
+			stat.setVal(CounterStatsItems.Cell, result.cell.getCellname());
 			stat.setVal(CounterStatsItems.Message, result.message);
 			
 			stat.setVal(CounterStatsItems.Replacement, result.newVal == null ? "" : result.newVal);
@@ -206,24 +208,41 @@ class CounterValidation extends DefaultFileTest {
 	
 	Vector<Vector<String>> readExcel(File f) throws InvalidFormatException, IOException {		
 		Vector<Vector<String>> data = new Vector<Vector<String>>();
-		Workbook w = WorkbookFactory.create(f);
-		if (w.getNumberOfSheets() > 1) throw new InvalidFormatException("Workbook has more than one worksheet");
-		if (w.getNumberOfSheets() != 1) throw new InvalidFormatException("Workbook does not have a worksheet");
-		Sheet sheet = w.getSheetAt(0);
-		for(int r=0; r<sheet.getPhysicalNumberOfRows(); r++) {
-			Vector<String> row = new Vector<String>();
-			data.add(row);
-			Row srow = sheet.getRow(r);
-			for(int c=0; c<srow.getLastCellNum(); c++) {
-				Cell cell = srow.getCell(c); 
-				row.add(cell == null ? null : cell.toString());
+
+		FileInputStream fs = new FileInputStream(f);
+		try {
+			Workbook w = WorkbookFactory.create(fs);
+			if (w.getNumberOfSheets() > 1) throw new InvalidFormatException("Workbook has more than one worksheet");
+			if (w.getNumberOfSheets() != 1) throw new InvalidFormatException("Workbook does not have a worksheet");
+			Sheet sheet = w.getSheetAt(0);
+			for(int r=0; r<sheet.getPhysicalNumberOfRows(); r++) {
+				Vector<String> row = new Vector<String>();
+				data.add(row);
+				Row srow = sheet.getRow(r);
+				for(int c=0; c<srow.getLastCellNum(); c++) {
+					Cell cell = srow.getCell(c); 
+					row.add(cell == null ? null : cell.toString());
+				}
 			}
+		} catch (InvalidFormatException e) {
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			fs.close();
 		}
 		return data;
 	}
 	
 	
 	
+	public void refineResults() {
+		getStatsDetails().get(CounterStatsItems.Filename.ordinal()).values = files.toArray();
+	}
+	
+	public void init() {
+		files.clear();
+	}
 	
     public Stats createStats(String key){ 
     	return Generator.INSTANCE.create(key);
