@@ -1,12 +1,12 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
-class IntCounterCheck extends CounterCheck {
+public class IntCounterCheck extends CounterCheck {
 	String val;
-	IntCounterCheck(String message) {
+	public IntCounterCheck(String message) {
 		this.message = message;
 	}
 
-	Integer getIntValue(String cellval) {
+	public Integer getIntValue(String cellval) {
 		cellval = (cellval == null) ? "" : cellval.replaceAll("\\.\\d+$", "");
 		try {
 			return Integer.parseInt(cellval);
@@ -15,7 +15,7 @@ class IntCounterCheck extends CounterCheck {
 		}
 	}
 	
-	Integer getIntValue(String cellval, int def) {
+	public Integer getIntValue(String cellval, int def) {
 		cellval = (cellval == null) ? "" : cellval.replaceAll("\\.\\d+$", "");
 		try {
 			return Integer.parseInt(cellval);
@@ -25,7 +25,7 @@ class IntCounterCheck extends CounterCheck {
 	}
 	
 	@Override
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (getIntValue(cellval) == null) {
 			return CheckResult.createCellInvalid(cell, "Cells should be numeric");
 		}

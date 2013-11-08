@@ -1,4 +1,8 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counterReport;
+
+import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.StaticCounterCheck;
 
 public class DatabaseReport1R4 extends DatabaseReport1 {
 	public static final String NAME = "Database Report 1";
@@ -18,7 +22,7 @@ public class DatabaseReport1R4 extends DatabaseReport1 {
 		checkFields(data, getDataRow(), getTotalCol(data)-1, FIELDS);		
 	}
 	
-	boolean isSupported() {
+	public boolean isSupported() {
 		return true;
 	}
 	public int getHeadRow() {return 7;}

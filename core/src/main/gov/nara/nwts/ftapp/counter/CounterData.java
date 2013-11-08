@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -89,7 +89,11 @@ public class CounterData {
 			resultCount.put(cr.stat, x);
 		}
 		StringBuffer buf = new StringBuffer();
+		Vector<CounterStat> cstats = new Vector<CounterStat>();
 		for(CounterStat st: resultCount.keySet()) {
+			cstats.add(0, st);
+		}
+		for(CounterStat st: cstats) {
 			buf.append(st.name());
 			buf.append(": ");
 			buf.append(resultCount.get(st));

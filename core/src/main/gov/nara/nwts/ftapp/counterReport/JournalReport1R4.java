@@ -1,4 +1,9 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counterReport;
+
+import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.ReportType;
+import gov.nara.nwts.ftapp.counter.StaticCounterCheck;
 
 public class JournalReport1R4 extends JournalReport1 {
 	public JournalReport1R4() {

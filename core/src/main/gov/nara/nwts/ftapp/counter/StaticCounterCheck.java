@@ -1,13 +1,13 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
-class StaticCounterCheck extends CounterCheck {
+public class StaticCounterCheck extends CounterCheck {
 	String val;
-	StaticCounterCheck(String val) {
+	public StaticCounterCheck(String val) {
 		this.val = val;
 		this.message = "Expected value: " + val;
 	}
 	@Override
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (cellval == null) {
 			if (allowNull) {
 				return CheckResult.createCellValid(cell);			

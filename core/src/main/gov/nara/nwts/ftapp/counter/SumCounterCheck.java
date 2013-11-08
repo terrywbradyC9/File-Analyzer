@@ -1,14 +1,14 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 class SumCounterCheck extends IntCounterCheck {
 	String val;
 
-	SumCounterCheck(String message) {
+	public SumCounterCheck(String message) {
 		super(message);
 	}
 
 	@Override
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		CheckResult res = super.performCheck(cd, cell, cellval);
 		if (res.stat != CounterStat.VALID) return res;
 		

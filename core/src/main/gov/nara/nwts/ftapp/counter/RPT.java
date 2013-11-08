@@ -1,4 +1,10 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
+
+import gov.nara.nwts.ftapp.counterReport.DatabaseReport1;
+import gov.nara.nwts.ftapp.counterReport.DatabaseReport1R4;
+import gov.nara.nwts.ftapp.counterReport.DatabaseReport3;
+import gov.nara.nwts.ftapp.counterReport.JournalReport1;
+import gov.nara.nwts.ftapp.counterReport.JournalReport1R4;
 
 /**
  * R3: http://www.projectcounter.org/r3/Release3D9.pdf

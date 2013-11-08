@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,16 +7,16 @@ class PatternCounterCheck extends CounterCheck {
 	Pattern patt;
 	Pattern fixmatch;
 	String rep;
-	PatternCounterCheck(Pattern patt) {
+	public PatternCounterCheck(Pattern patt) {
 		this.patt = patt;
 	}
-	PatternCounterCheck(Pattern patt, Pattern fixmatch, String rep) {
+	public PatternCounterCheck(Pattern patt, Pattern fixmatch, String rep) {
 		this.patt = patt;
 		this.rep = rep;
 		this.fixmatch = fixmatch;
 	}
 	@Override
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (patt == null || cellval == null) {
 			return CheckResult.createCellInvalid(cell, message);			
 		}

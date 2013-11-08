@@ -1,10 +1,10 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
-class ColSumCounterCheck extends SumCounterCheck {
+public class ColSumCounterCheck extends SumCounterCheck {
 	String val;
 	int sr;
 	int er;
-	ColSumCounterCheck(int sr, int er, String message) {
+	public ColSumCounterCheck(int sr, int er, String message) {
 		super(message);
 		this.sr = sr;
 		this.er = er;

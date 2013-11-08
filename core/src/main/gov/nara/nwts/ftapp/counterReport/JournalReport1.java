@@ -1,4 +1,12 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counterReport;
+
+import gov.nara.nwts.ftapp.counter.ColSumCounterCheck;
+import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.IntCounterCheck;
+import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.ReportType;
+import gov.nara.nwts.ftapp.counter.RowSumCounterCheck;
+import gov.nara.nwts.ftapp.counter.StaticCounterCheck;
 
 public class JournalReport1 extends ReportType {
 	public static final String NAME = "Journal Report 1";
@@ -40,7 +48,7 @@ public class JournalReport1 extends ReportType {
 		checkGrid(data);
 	}
 	
-	boolean isSupported() {
+	public boolean isSupported() {
 		return true;
 	}
 	
@@ -50,10 +58,10 @@ public class JournalReport1 extends ReportType {
 	
 	public int getFirstDataCol() {return 5;}
 	public int getLastCol(CounterData data) {return data.getLastCol(getHeadRow());}
-	public int getLastDataCol(CounterData data) {return getLastCol(data) - 3;}
+	public int getLastDataCol(CounterData data) {return Math.max(0, getLastCol(data) - 3);}
 	public int getLastDataColWithVal(CounterData data) {return data.getLastCol(getDataRow(), data.getLastCol(getDataRow()) - 3);}
-	public int getTotalCol(CounterData data) {return getLastCol(data) - 2;}
-	public int getHtmlTotalCol(CounterData data) {return getLastCol(data) - 1;}
+	public int getTotalCol(CounterData data) {return Math.max(0, getLastCol(data) - 2);}
+	public int getHtmlTotalCol(CounterData data) {return Math.max(0, getLastCol(data) - 1);}
 	public int getPdfTotalCol(CounterData data) {return getLastCol(data);}
 	
 	public void checkGrid(CounterData data) {

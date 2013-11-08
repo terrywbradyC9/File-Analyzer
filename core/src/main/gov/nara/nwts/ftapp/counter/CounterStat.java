@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 public enum CounterStat {
 	VALID,   //Cell fonforms to rule

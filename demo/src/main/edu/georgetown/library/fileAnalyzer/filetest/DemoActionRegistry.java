@@ -1,6 +1,8 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.filetest.CounterValidation;
+import gov.nara.nwts.ftapp.filetest.FileTest;
 /** 
  * Initialize the File Analzyer with generic image processing rules (but not NARA specific business rules)
  * @author TBrady
@@ -17,7 +19,16 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
 		add(new YearbookNameValidationTest(dt)); 
 		add(new CreateBag(dt)); 
 		add(new VerifyBag(dt)); 
-		add(new CounterValidation(dt)); 
+		remove(CounterValidation.class);
+		add(new CounterValidationXls(dt)); 
 	}
 	
+	public void remove(Class<?> c) {
+		for(FileTest ft: this) {
+			if (ft.getClass().isInstance(c)) {
+				this.remove(ft);
+				break;
+			}
+		}		
+	}
 }

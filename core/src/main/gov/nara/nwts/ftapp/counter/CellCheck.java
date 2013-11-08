@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,11 @@ public class CellCheck {
 	List<CheckResult> performCheck(CounterData cd) {
 		ArrayList<CheckResult> results = new ArrayList<CheckResult>();
 		for(Cell cell: cells) {
-			results.add(check.performCheck(cd, cell, cd.getCellValue(cell)));
+			CheckResult res = check.performCheck(cd, cell, cd.getCellValue(cell)); 
+			results.add(res);
+			if (res.stat.ordinal() >= CounterStat.ERROR.ordinal()) {
+				break;
+			}
 		}
 		return results;
 	}

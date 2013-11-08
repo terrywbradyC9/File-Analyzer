@@ -5,9 +5,9 @@ package gov.nara.nwts.ftapp.filter;
  * @author TBrady
  *
  */
-public class CounterFilter extends DefaultFileTestFilter {
+public class CounterFilterXls extends DefaultFileTestFilter {
 	public String getSuffix() {
-		return ".*\\.(csv|txt)$";
+		return ".*\\.(xls|xlsx|csv|txt)$";
 	}
 	public boolean isReSuffix() {
 		return true;

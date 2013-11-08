@@ -1,12 +1,12 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 public class IntOptCounterCheck extends IntCounterCheck {
 
-	IntOptCounterCheck(String message) {
+	public IntOptCounterCheck(String message) {
 		super(message);
 	}
 
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (cellval.isEmpty()) return CheckResult.createCellValid(cell);
 		return super.performCheck(cd, cell, cellval);
 	}

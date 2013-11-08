@@ -1,19 +1,15 @@
-package edu.georgetown.library.fileAnalyzer.filetest;
+package gov.nara.nwts.ftapp.filetest;
 
-import edu.georgetown.library.fileAnalyzer.counter.CheckResult;
-import edu.georgetown.library.fileAnalyzer.counter.CounterData;
-import edu.georgetown.library.fileAnalyzer.counter.CounterRec;
-import edu.georgetown.library.fileAnalyzer.counter.CounterStat;
-import edu.georgetown.library.fileAnalyzer.counter.JournalReport1;
-import edu.georgetown.library.fileAnalyzer.counter.JournalReport1R4;
-import edu.georgetown.library.fileAnalyzer.counter.REV;
-import edu.georgetown.library.fileAnalyzer.counter.RPT;
-import edu.georgetown.library.fileAnalyzer.counter.ReportType;
+import gov.nara.nwts.ftapp.counter.CheckResult;
+import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.CounterRec;
+import gov.nara.nwts.ftapp.counter.CounterStat;
+import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.RPT;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.CSVFilter;
 import gov.nara.nwts.ftapp.filter.CounterFilter;
-import gov.nara.nwts.ftapp.filter.ExcelFilter;
 import gov.nara.nwts.ftapp.filter.TxtFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
@@ -24,23 +20,16 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
  * @author TBrady
  *
  */
-class CounterValidation extends DefaultFileTest { 
+public class CounterValidation extends DefaultFileTest { 
 	public static enum Separator{
 		DefaultForType(""),
 		Comma(","),
@@ -56,8 +45,8 @@ class CounterValidation extends DefaultFileTest {
 		NA,YES,NO;
 	}
 	
-	private static enum CounterStatsItems implements StatsItemEnum {
-		File_Cell(StatsItem.makeStringStatsItem("File [cell row, cell col]", 300)),
+	public static enum CounterStatsItems implements StatsItemEnum {
+		File_Cell(StatsItem.makeStringStatsItem("File [cell row, cell col]", 100)),
 		Filename(StatsItem.makeStringStatsItem("File", 150)),
 		Cell(StatsItem.makeStringStatsItem("Cell", 50)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
@@ -103,7 +92,7 @@ class CounterValidation extends DefaultFileTest {
 				"Delimiter character separating fields - if not default", Separator.values(), Separator.Comma));
 	}
 	public String toString() {
-		return "Counter Compliance";
+		return "Counter Compliance - CSV";
 	}
 	public String getKey(File f) {
 		return f.getName();
@@ -119,51 +108,22 @@ class CounterValidation extends DefaultFileTest {
 
     public String getSeparator(File f, String ext) {
 		Separator sep = (Separator)this.getProperty(DELIM, Separator.DefaultForType);
-    	if (sep != Separator.DefaultForType) return sep.toString();
+    	if (sep != Separator.DefaultForType) return sep.separator;
     	if (ext.equals("CSV")) return ",";
     	if (ext.equals("TXT")) return "\t";
     	return "\t";
     }
     
-	public Object fileTest(File f) {
-		Stats s = getStats(f);
+    public Vector<Vector<String>> getDataFromFile(File f, Stats s) {
 		String ext = getExt(f);
 		String sep = getSeparator(f, ext);
-		
-		Vector<Vector<String>> data = new Vector<Vector<String>>();
 		try {
+			Vector<Vector<String>> data = new Vector<Vector<String>>();
 			if (ext.equals("CSV") || ext.endsWith("TXT")) {
 				data = DelimitedFileReader.parseFile(f, sep);
-			} else {
-				data = readExcel(f);
 			}
-			CounterData cd = new CounterData(data);
-			cd.validate();
-			
-			if (cd.report != null) s.setVal(CounterStatsItems.Report, cd.report);
-			if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
-			s.setVal(CounterStatsItems.Filename, f.getName());			
-			files.add(f.getName());
-
-			if (cd.rpt == null) {
-				s.setVal(CounterStatsItems.Rpt, RPT.UNKNOWN);
-				s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_REPORT);
-				s.setVal(CounterStatsItems.Message, "Report Type could not be identified");
-			} else {
-				setCellStats(f, cd);
-				
-				s.setVal(CounterStatsItems.Rpt, cd.rpt);
-				s.setVal(CounterStatsItems.Stat, cd.getStat());
-				s.setVal(CounterStatsItems.CellValue, cd.title);
-				s.setVal(CounterStatsItems.Message, cd.getMessage());				
-			}			
-		} catch (InvalidFormatException e) {
-			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
-			s.setVal(CounterStatsItems.Message, e.toString());
+			return data;
 		} catch (IOException e) {
-			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
-			s.setVal(CounterStatsItems.Message, e.toString());
-		} catch (org.apache.poi.hssf.OldExcelFormatException e) {
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
 			s.setVal(CounterStatsItems.Message, e.toString());
 		} catch (Exception e) {
@@ -171,6 +131,36 @@ class CounterValidation extends DefaultFileTest {
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_FILE);
 			s.setVal(CounterStatsItems.Message, e.toString());
 		}
+		return null;
+    }
+    
+    
+	public Object fileTest(File f) {
+		Stats s = getStats(f);
+		
+		Vector<Vector<String>> data = getDataFromFile(f, s);
+		if (data == null) return s.getVal(CounterStatsItems.Stat);
+			
+		CounterData cd = new CounterData(data);
+		cd.validate();
+		
+		if (cd.report != null) s.setVal(CounterStatsItems.Report, cd.report);
+		if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
+		s.setVal(CounterStatsItems.Filename, f.getName());			
+		files.add(f.getName());
+
+		if (cd.rpt == null) {
+			s.setVal(CounterStatsItems.Rpt, RPT.UNKNOWN);
+			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_REPORT);
+			s.setVal(CounterStatsItems.Message, "Report Type could not be identified");
+		} else {
+			setCellStats(f, cd);
+			
+			s.setVal(CounterStatsItems.Rpt, cd.rpt);
+			s.setVal(CounterStatsItems.Stat, cd.getStat());
+			s.setVal(CounterStatsItems.CellValue, cd.title);
+			s.setVal(CounterStatsItems.Message, cd.getMessage());				
+		}			
 		
 		return s.getVal(CounterStatsItems.Stat);
 	}
@@ -205,37 +195,7 @@ class CounterValidation extends DefaultFileTest {
 		}
 	}
 	
-	
-	Vector<Vector<String>> readExcel(File f) throws InvalidFormatException, IOException {		
-		Vector<Vector<String>> data = new Vector<Vector<String>>();
 
-		FileInputStream fs = new FileInputStream(f);
-		try {
-			Workbook w = WorkbookFactory.create(fs);
-			if (w.getNumberOfSheets() > 1) throw new InvalidFormatException("Workbook has more than one worksheet");
-			if (w.getNumberOfSheets() != 1) throw new InvalidFormatException("Workbook does not have a worksheet");
-			Sheet sheet = w.getSheetAt(0);
-			for(int r=0; r<sheet.getPhysicalNumberOfRows(); r++) {
-				Vector<String> row = new Vector<String>();
-				data.add(row);
-				Row srow = sheet.getRow(r);
-				for(int c=0; c<srow.getLastCellNum(); c++) {
-					Cell cell = srow.getCell(c); 
-					row.add(cell == null ? null : cell.toString());
-				}
-			}
-		} catch (InvalidFormatException e) {
-			throw e;
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			fs.close();
-		}
-		return data;
-	}
-	
-	
-	
 	public void refineResults() {
 		getStatsDetails().get(CounterStatsItems.Filename.ordinal()).values = files.toArray();
 	}
@@ -258,7 +218,6 @@ class CounterValidation extends DefaultFileTest {
 	public void initFilters() {
 		filters.add(new CounterFilter());
 		filters.add(new CSVFilter());
-		filters.add(new ExcelFilter());
 		filters.add(new TxtFilter());
 	}
 	

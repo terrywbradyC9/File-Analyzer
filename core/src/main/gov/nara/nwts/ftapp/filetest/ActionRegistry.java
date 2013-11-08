@@ -32,6 +32,7 @@ public class ActionRegistry extends Vector<FileTest> {
 			add(new LowercaseTest(dt, next));
 		}
 		add(new DigitalDerivatives(dt)); 
+		add(new CounterValidation(dt)); 
 	}
 	
 	/**

@@ -1,4 +1,10 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counterReport;
+
+import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.CounterStat;
+import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.ReportType;
+import gov.nara.nwts.ftapp.counter.StaticCounterCheck;
 
 public class DatabaseReport3 extends ReportType {
 	public static final String NAME = "Database Report 3";
@@ -10,15 +16,15 @@ public class DatabaseReport3 extends ReportType {
 	}
 	
 	@Override public void initCustom(CounterData data) {
+		addCheck(getHeadRow(), getLastCol(data), new StaticCounterCheck("YTD Total").setCounterStat(CounterStat.ERROR));	
 		addCheck("B5", new StaticCounterCheck("Platform"));
 		addCheck("C5", ReportType.BLANK);
 		
 		checkFields(data, getDataRow(), getFirstDataCol()-1, DatabaseReport1.FIELDS);
 		this.checkColHeader(data);
-		addCheck(getHeadRow(), getLastCol(data), new StaticCounterCheck("YTD Total"));	
 	}
 	
-	boolean isSupported() {
+	public boolean isSupported() {
 		return true;
 	}
 	public int getHeadRow() {return 4;}

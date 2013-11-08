@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ class DateCounterCheck extends CounterCheck {
 		def2df.set2DigitYearStart(y2000);
 	}
 	
-	DateCounterCheck(String fmtDisp, String fmtParse, String message) {
+	public DateCounterCheck(String fmtDisp, String fmtParse, String message) {
 		this.fmtDisp = fmtDisp;
 		this.fmtParse = fmtParse;
 		this.message = message;
@@ -28,11 +28,10 @@ class DateCounterCheck extends CounterCheck {
 		this.dfDisp = new SimpleDateFormat(fmtDisp);
 	}
 	
-	DateCounterCheck(String fmtDisp, String message) {
+	public DateCounterCheck(String fmtDisp, String message) {
 		this(fmtDisp, fmtDisp, message);
 	}
-
-	Date getDate(String cellval, SimpleDateFormat cdf) {
+	public Date getDate(String cellval, SimpleDateFormat cdf) {
 		Date date = null;
 		try {
 			date = cdf.parse(cellval);
@@ -41,7 +40,7 @@ class DateCounterCheck extends CounterCheck {
 		return date;
 	}
 
-	Date getDate(String cellval) {
+	public Date getDate(String cellval) {
 		Date date = getDate(cellval, dfParse);
 		if (date == null) {
 			date = getDate(cellval, defdf);
@@ -53,7 +52,7 @@ class DateCounterCheck extends CounterCheck {
 	}
 
 	@Override
-	CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
+	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (cellval == null) {
 			return CheckResult.createCellInvalid(cell, message + ". Null cell value");
 		}

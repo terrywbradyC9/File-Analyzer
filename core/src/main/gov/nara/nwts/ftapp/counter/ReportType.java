@@ -1,4 +1,4 @@
-package edu.georgetown.library.fileAnalyzer.counter;
+package gov.nara.nwts.ftapp.counter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,25 +37,31 @@ public class ReportType {
 		addCheckStandard();
 	}
 	
-	void addCheck(String cell, CounterCheck ccheck) {
+	protected void addCheck(String cell, CounterCheck ccheck) {
 		checks.add(new CellCheck(ccheck, new Cell(cell)));
 	}
 
-	void addCheck(int row, int col, CounterCheck ccheck) {
+	protected void addCheck(int row, int col, CounterCheck ccheck) {
 		checks.add(new CellCheck(ccheck, new Cell(row, col)));
 	}
 
-	void addCheckRange(CounterCheck ccheck, int srow, int scol, int endrow, int endcol) {
+	protected void addCheckRange(CounterCheck ccheck, int srow, int scol, int endrow, int endcol) {
 		checks.add(new CellCheck(ccheck, Cell.makeRange(srow, scol, endrow, endcol)));
 	}
 	
-	boolean isSupported() {
+	public boolean isSupported() {
 		return false;
 	}
 	List<CheckResult> validate(CounterData cd) {
 		ArrayList<CheckResult> results = new ArrayList<CheckResult>();
 		for(CellCheck check: checks) {
 			results.addAll(check.performCheck(cd));
+			if (results.size() > 0) {
+				CheckResult last = results.get(results.size()-1); 
+				if (last.stat.ordinal() >= CounterStat.ERROR.ordinal()){
+					break;
+				}
+			}
 		}
 		return results;
 	}
