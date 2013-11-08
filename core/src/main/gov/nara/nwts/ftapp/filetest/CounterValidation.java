@@ -5,13 +5,16 @@ import gov.nara.nwts.ftapp.counter.CounterData;
 import gov.nara.nwts.ftapp.counter.CounterRec;
 import gov.nara.nwts.ftapp.counter.CounterStat;
 import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.CSVFilter;
 import gov.nara.nwts.ftapp.filter.CounterFilter;
 import gov.nara.nwts.ftapp.filter.TxtFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
+import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -30,7 +33,7 @@ import java.util.Vector;
  * @author TBrady
  *
  */
-public class CounterValidation extends DefaultFileTest { 
+public class CounterValidation extends DefaultFileTest implements Importer { 
 	public static enum Separator{
 		DefaultForType(""),
 		Comma(","),
@@ -221,6 +224,19 @@ public class CounterValidation extends DefaultFileTest {
 		filters.add(new CounterFilter());
 		filters.add(new CSVFilter());
 		filters.add(new TxtFilter());
+	}
+	@Override
+	public ActionResult importFile(File selectedFile) throws IOException {
+		Timer timer = new Timer();
+		dt.types.clear();
+		init();
+		fileTest(selectedFile);
+		refineResults();
+		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, dt.types, true, timer.getDuration());
+	}
+	@Override
+	public boolean allowForceKey() {
+		return false;
 	}
 	
 	

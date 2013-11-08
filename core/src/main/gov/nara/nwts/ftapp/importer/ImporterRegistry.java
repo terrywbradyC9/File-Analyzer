@@ -1,6 +1,8 @@
 package gov.nara.nwts.ftapp.importer;
 
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.filetest.CounterValidation;
+import gov.nara.nwts.ftapp.filetest.FileTest;
 
 import java.util.Vector;
 
@@ -17,7 +19,16 @@ public class ImporterRegistry extends Vector<Importer> {
 		add(new DelimitedFileImporter(dt));
 		add(new Parser(dt));
 		add(new CountKey(dt));
+		add(new CounterValidation(dt));
 	}
 	
+	public void removeImporter(Class<?> c) {
+		for(Importer ft: this) {
+			if (c.isInstance(ft)) {
+				this.remove(ft);
+				break;
+			}
+		}		
+	}
 
 }
