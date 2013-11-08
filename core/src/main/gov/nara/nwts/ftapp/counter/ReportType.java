@@ -140,7 +140,8 @@ public abstract class ReportType {
 	}
 	abstract public String[] getCols();
 	public static String[] TCOLS = {"YTD Total"};
-	public String[] getTotalCols() {return TCOLS;}
+	public static String[] TCOLSR4 = {"Reporting Period Total"};
+	public String[] getTotalCols() {return (rev == REV.R4) ? TCOLSR4 : TCOLS;}
 
 	public int getTotalCol(CounterData data) {
 		return hasTotalColFirst() ? getCols().length : getLastCol(data) - getTotalCols().length + 1;

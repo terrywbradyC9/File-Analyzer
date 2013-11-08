@@ -86,6 +86,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	public static StatsItemConfig details = StatsItemConfig.create(CounterStatsItems.class);
 
 	long counter = 1000000;
+	boolean showValid = false;
 	
 	Vector<String> files = new Vector<String>();
 	Set<String> reportName = new HashSet<String>();
@@ -172,7 +173,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	
 	void setCellStats(File f, CounterData cd) {
 		for(CheckResult result: cd.results) {
-			if (result.stat == CounterStat.VALID) continue;
+			if (result.stat == CounterStat.VALID && !showValid) continue;
 			Stats stat = Generator.INSTANCE.create(f, result.cell.getCellSort());
 			this.dt.types.put(stat.key, stat);
 			stat.setVal(CounterStatsItems.Stat, result.stat);
@@ -203,6 +204,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	public void refineResults() {
 		getStatsDetails().get(CounterStatsItems.Filename.ordinal()).values = files.toArray();
 		getStatsDetails().get(CounterStatsItems.Report.ordinal()).values = reportName.toArray();
+		showValid = false;
 	}
 	
 	public void init() {
@@ -227,6 +229,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	}
 	@Override
 	public ActionResult importFile(File selectedFile) throws IOException {
+		showValid = true;
 		Timer timer = new Timer();
 		dt.types.clear();
 		init();

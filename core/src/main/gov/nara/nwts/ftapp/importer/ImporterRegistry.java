@@ -2,7 +2,6 @@ package gov.nara.nwts.ftapp.importer;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.CounterValidation;
-import gov.nara.nwts.ftapp.filetest.FileTest;
 
 import java.util.Vector;
 

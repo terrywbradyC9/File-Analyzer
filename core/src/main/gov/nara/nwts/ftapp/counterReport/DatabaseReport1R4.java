@@ -12,8 +12,6 @@ public class DatabaseReport1R4 extends DatabaseReport1 {
 	public static final String[] FIELDS = {"Regular Searches", "Searches-federated and automated", "Result Clicks", "Record Views"};
 	public static String[] COLS = {"Database","Publisher","Platform","User Activity"};
 	public String[] getCols() {return COLS;}
-	public static String[] TCOLS = {"Reporting Period Total"};
-	public String[] getTotalCols() {return TCOLS;}
 
 	@Override public void initCustom(CounterData data) {
 		checkColHeader(data);
