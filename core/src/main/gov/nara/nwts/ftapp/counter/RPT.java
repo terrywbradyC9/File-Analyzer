@@ -1,10 +1,12 @@
 package gov.nara.nwts.ftapp.counter;
 
+import gov.nara.nwts.ftapp.counterReport.BookReport2;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport1;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport1R4;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport3;
 import gov.nara.nwts.ftapp.counterReport.JournalReport1;
 import gov.nara.nwts.ftapp.counterReport.JournalReport1R4;
+import gov.nara.nwts.ftapp.counterReport.UnknownReport;
 
 /**
  * R3: http://www.projectcounter.org/r3/Release3D9.pdf
@@ -41,12 +43,13 @@ import gov.nara.nwts.ftapp.counterReport.JournalReport1R4;
  *
  */
 public enum RPT {
-	UNKNOWN("",REV.NA, new ReportType("", REV.NA)),
-	JR1_R3(JournalReport1.NAME, REV.R3, new JournalReport1()),
-	JR1_R4(JournalReport1.NAME, REV.R4, new JournalReport1R4()),
+	UNKNOWN("",REV.NA, new UnknownReport()),
+	JR1_R3(JournalReport1.NAME,  REV.R3, new JournalReport1()),
+	JR1_R4(JournalReport1.NAME,  REV.R4, new JournalReport1R4()),
 	DR1_R3(DatabaseReport1.NAME, REV.R3, new DatabaseReport1()),
 	DR1_R4(DatabaseReport1.NAME, REV.R4, new DatabaseReport1R4()),
 	DR3_R3(DatabaseReport3.NAME, REV.R3, new DatabaseReport3()),
+	BR2_R1(BookReport2.NAME,     REV.R1, new BookReport2()),
 	;
 	
 	public String name;

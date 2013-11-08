@@ -2,7 +2,6 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.CounterValidation;
-import gov.nara.nwts.ftapp.filetest.FileTest;
 /** 
  * Initialize the File Analzyer with generic image processing rules (but not NARA specific business rules)
  * @author TBrady

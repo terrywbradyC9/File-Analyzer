@@ -5,7 +5,6 @@ import gov.nara.nwts.ftapp.counter.CounterData;
 import gov.nara.nwts.ftapp.counter.CounterRec;
 import gov.nara.nwts.ftapp.counter.CounterStat;
 import gov.nara.nwts.ftapp.counter.REV;
-import gov.nara.nwts.ftapp.counter.RPT;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.CSVFilter;
@@ -21,6 +20,8 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 
@@ -52,7 +53,6 @@ public class CounterValidation extends DefaultFileTest {
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
 		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
 		Fixable(StatsItem.makeEnumStatsItem(FIXABLE.class, "Fixable").setWidth(40)),
-		Rpt(StatsItem.makeEnumStatsItem(RPT.class, "RPT")),
 		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
 		Version(StatsItem.makeEnumStatsItem(REV.class, "Rev").setWidth(40)),
 		Message(StatsItem.makeStringStatsItem("Message", 400)),
@@ -85,7 +85,8 @@ public class CounterValidation extends DefaultFileTest {
 	long counter = 1000000;
 	
 	Vector<String> files = new Vector<String>();
-	
+	Set<String> reportName = new HashSet<String>();
+
 	public CounterValidation(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
@@ -144,19 +145,20 @@ public class CounterValidation extends DefaultFileTest {
 		CounterData cd = new CounterData(data);
 		cd.validate();
 		
-		if (cd.report != null) s.setVal(CounterStatsItems.Report, cd.report);
+		if (cd.report != null) {
+			s.setVal(CounterStatsItems.Report, cd.report);
+			reportName.add(cd.report);
+		}
 		if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
 		s.setVal(CounterStatsItems.Filename, f.getName());			
 		files.add(f.getName());
 
 		if (cd.rpt == null) {
-			s.setVal(CounterStatsItems.Rpt, RPT.UNKNOWN);
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_REPORT);
 			s.setVal(CounterStatsItems.Message, "Report Type could not be identified");
 		} else {
 			setCellStats(f, cd);
 			
-			s.setVal(CounterStatsItems.Rpt, cd.rpt);
 			s.setVal(CounterStatsItems.Stat, cd.getStat());
 			s.setVal(CounterStatsItems.CellValue, cd.title);
 			s.setVal(CounterStatsItems.Message, cd.getMessage());				
@@ -171,7 +173,6 @@ public class CounterValidation extends DefaultFileTest {
 			Stats stat = Generator.INSTANCE.create(f, result.cell.getCellSort());
 			this.dt.types.put(stat.key, stat);
 			stat.setVal(CounterStatsItems.Stat, result.stat);
-			stat.setVal(CounterStatsItems.Rpt, cd.rpt);
 			stat.setVal(CounterStatsItems.Report, cd.rpt.name);
 			stat.setVal(CounterStatsItems.Version, cd.rpt.rev);							
 			stat.setVal(CounterStatsItems.Filename, f.getName());							
@@ -198,6 +199,7 @@ public class CounterValidation extends DefaultFileTest {
 
 	public void refineResults() {
 		getStatsDetails().get(CounterStatsItems.Filename.ordinal()).values = files.toArray();
+		getStatsDetails().get(CounterStatsItems.Report.ordinal()).values = reportName.toArray();
 	}
 	
 	public void init() {

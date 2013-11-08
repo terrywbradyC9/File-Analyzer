@@ -4,28 +4,29 @@ import gov.nara.nwts.ftapp.counter.CounterData;
 import gov.nara.nwts.ftapp.counter.REV;
 import gov.nara.nwts.ftapp.counter.ReportType;
 
-public class DatabaseReport1 extends ReportType {
-	public static final String NAME = "Database Report 1";
-	public DatabaseReport1(REV rev, String title) {
+public class BookReport2 extends ReportType {
+	public static final String NAME = "Book Report 2";
+	public BookReport2(REV rev, String title) {
 		super(NAME, rev, title);
 	}
-	public DatabaseReport1() {
-		super(NAME, REV.R3, "Total Searches and Sessions by Month and Database");
+	public BookReport2() {
+		super(NAME, REV.R1, "Number of Successful Section Requests by Month and Title");
 	}
 	
 	public static String[] FIELDS = {"Total searches run","Searches-federated and automated","Total sessions","Sessions-federated and automated"};
-	public static String[] COLS = {"","Publisher","Platform",""};
+	public static String[] COLS = {"","Publisher","Platform","ISBN","ISSN"};
 	public String[] getCols() {return COLS;}
 	
 	@Override public void initCustom(CounterData data) {
-		checkFields(data, getDataRow(), getFirstDataCol()-1, FIELDS);
-		this.checkColHeader(data);
+		checkColHeader(data);
+		checkGrid(data);
 	}
 	
 	public boolean isSupported() {
 		return true;
 	}
 	public boolean hasTotalRow() {
-		return false;
+		return true;
 	}
+
 }

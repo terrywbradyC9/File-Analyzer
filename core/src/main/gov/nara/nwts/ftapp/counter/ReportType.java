@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class ReportType {
+public abstract class ReportType {
 	
 	ArrayList<CellCheck> checks = new ArrayList<CellCheck>();
 	
@@ -34,7 +34,7 @@ public class ReportType {
 		if (title != null) {
 			addCheck("B1",new StaticCounterCheck(title).setCounterStat(CounterStat.WARNING));
 		}
-		addCheckStandard();
+		addCheckStandard(data);
 	}
 	
 	protected void addCheck(String cell, CounterCheck ccheck) {
@@ -83,12 +83,24 @@ public class ReportType {
 		}		
 	}
 	
-	public void addCheckStandard() {
-		if (rev == REV.R3) {
+	public void checkGrid(CounterData data) {
+		addCheckRange(new ColSumCounterCheck(getDataRow(), data.getLastRow(), "Cell should be total of Col"), getTotalRow(), getFirstDataCol(), getTotalRow(), getLastDataColWithVal(data)); 
+		addCheckRange(new ColSumCounterCheck(getDataRow(), data.getLastRow(), "Cell should be total of Col"), getTotalRow(), getTotalCol(data), getTotalRow(), getTotalCol(data) +  getTotalCols().length - 1); 
+
+		addCheckRange(new IntCounterCheck("Monthly stat must be a number"), getDataRow(), getFirstDataCol(), data.getLastRow(), getLastDataColWithVal(data)); //Month counts
+		addCheckRange(ReportType.BLANK, getDataRow(), getLastDataColWithVal(data) + 1, data.getLastRow(), getLastDataCol(data)); //Month counts
+
+		addCheckRange(new RowSumCounterCheck(getFirstDataCol(), getLastDataCol(data), "Cell should be total of data cols"), getDataRow(), getTotalCol(data), data.getLastRow(), getTotalCol(data)); 
+		if (getTotalCols().length > 1) {
+			addCheckRange(new IntCounterCheck("Total must be a number"), getDataRow(), getTotalCol(data) + 1, data.getLastRow(), getTotalCol(data) + getTotalCols().length - 1); 			
+		}
+	}
+
+	public void addCheckStandard(CounterData data) {
+		if (rev == REV.R3 || rev == REV.R1) {
 			addCheck("A2", ReportType.NONBLANK);
 			addCheck("A3", new StaticCounterCheck("Date run:"));
 			addCheck("A4", ReportType.YYYYMMDD);
-			addCheck("A5", ReportType.BLANK);
 		} else if (rev == REV.R4) {
 			addCheck("A2", ReportType.NONBLANK);
 			//Institutional Identifier, A3 may be blank
@@ -97,22 +109,51 @@ public class ReportType {
 			addCheck("A6", new StaticCounterCheck("Date run"));
 			addCheck("A7", ReportType.YYYYMMDD);			
 		}
+		
+		for(int col=0; col<getCols().length; col++) {
+			addCheck(getHeadRow(), col, new StaticCounterCheck(getCols()[col]));						
+		}
+		for(int col=0; col<getTotalCols().length; col++) {
+			addCheck(getHeadRow(), getTotalCol(data) + col, new StaticCounterCheck(getTotalCols()[col]).setCounterStat(CounterStat.ERROR));						
+		}
 	}
 
+	abstract public boolean hasTotalRow();
 	public int getHeadRow() {
-		return 0;
+		if (rev == REV.R3 || rev == REV.R1) return 4;
+		if (rev == REV.R4) return 7;
+		return 4;
+	}
+	public int getTotalRow() {
+		return hasTotalRow() ? getHeadRow() + 1 : 0;
+	}
+	
+	public int getDataRow() {
+		return hasTotalRow() ? getHeadRow() + 2 : getHeadRow() + 1;
+	}
+
+	public boolean hasTotalColFirst() {
+		 return (rev == REV.R4);
 	}
 	public int getFirstDataCol() {
-		return 0;
+		return getCols().length + (hasTotalColFirst() ? getTotalCols().length : 0);
 	}
+	abstract public String[] getCols();
+	public static String[] TCOLS = {"YTD Total"};
+	public String[] getTotalCols() {return TCOLS;}
+
+	public int getTotalCol(CounterData data) {
+		return hasTotalColFirst() ? getCols().length : getLastCol(data) - getTotalCols().length + 1;
+	}
+	public int getLastCol(CounterData data) {
+		return data.getLastCol(getHeadRow());
+	}
+	//override if summary cols at the end
 	public int getLastDataCol(CounterData data) {
-		return 0;
+		return Math.max(0, data.getLastCol(getHeadRow()) - (hasTotalColFirst() ? 0 : getTotalCols().length));
 	}
 	public int getLastDataColWithVal(CounterData data) {
-		return 0;
-	}
-	public int getTotalCol(CounterData data) {
-		return 0;
+		return data.getLastCol(getDataRow(), getLastDataCol(data));
 	}
 
 	public static CounterCheck BLANK = new StaticCounterCheck("").setCounterStat(CounterStat.WARNING).setMessage("Blank cell expected").setAllowNull(true);
