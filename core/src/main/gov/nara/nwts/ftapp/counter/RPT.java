@@ -14,6 +14,7 @@ import gov.nara.nwts.ftapp.counterReport.JournalReport1R4;
  * JournalReport1GOA (R4)
  * JournalReport2
  * JournalReport3
+ * JournalReport3Mobile
  * JournalReport4
  * JournalReport5
  * DatabaseReport1
@@ -26,6 +27,12 @@ import gov.nara.nwts.ftapp.counterReport.JournalReport1R4;
  * BookReport4
  * BookReport5
  * MultimediaReport1
+ * MultimediaReport2
+ * TitleReport1
+ * TitleReport2
+ * TitleReport3
+ * TitleReport3Mobile
+ * 
  * ConsortiumReport1
  * ConsortiumReport2
  * ConsortiumReport3

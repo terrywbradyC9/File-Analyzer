@@ -45,5 +45,13 @@ public class ActionRegistry extends Vector<FileTest> {
 	public boolean modifyAllowed() {
 		return modifyAllowed;
 	}
+	public void removeFT(Class<?> c) {
+		for(FileTest ft: this) {
+			if (c.isInstance(ft)) {
+				this.remove(ft);
+				break;
+			}
+		}		
+	}
 	
 }

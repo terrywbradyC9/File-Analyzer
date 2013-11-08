@@ -19,16 +19,8 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
 		add(new YearbookNameValidationTest(dt)); 
 		add(new CreateBag(dt)); 
 		add(new VerifyBag(dt)); 
-		remove(CounterValidation.class);
+		removeFT(CounterValidation.class);
 		add(new CounterValidationXls(dt)); 
 	}
 	
-	public void remove(Class<?> c) {
-		for(FileTest ft: this) {
-			if (ft.getClass().isInstance(c)) {
-				this.remove(ft);
-				break;
-			}
-		}		
-	}
 }
