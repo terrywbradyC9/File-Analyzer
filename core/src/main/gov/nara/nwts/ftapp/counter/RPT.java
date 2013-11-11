@@ -2,6 +2,7 @@ package gov.nara.nwts.ftapp.counter;
 
 import gov.nara.nwts.ftapp.counterReport.BookReport1R4;
 import gov.nara.nwts.ftapp.counterReport.BookReport2;
+import gov.nara.nwts.ftapp.counterReport.BookReport2R4;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport1;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport1R4;
 import gov.nara.nwts.ftapp.counterReport.DatabaseReport3;
@@ -52,6 +53,7 @@ public enum RPT {
 	DR3_R3(DatabaseReport3.NAME, REV.R3, new DatabaseReport3()),
 	BR2_R1(BookReport2.NAME,     REV.R1, new BookReport2()),
 	BR1_R4(BookReport1R4.NAME,   REV.R4, new BookReport1R4()),
+	BR2_R4(BookReport2R4.NAME,   REV.R4, new BookReport2R4()),
 	;
 	
 	public String name;
