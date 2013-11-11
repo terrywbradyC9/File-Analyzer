@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Vector;
@@ -23,7 +24,12 @@ public class DelimitedFileReader {
 		br = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
 		this.sep = sep;
 	}
-	
+
+	public DelimitedFileReader(InputStream is, String sep) throws FileNotFoundException, UnsupportedEncodingException {
+		br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		this.sep = sep;
+	}
+
 	public Vector<String> getRow() throws IOException {
 		pline = br.readLine();
 		if (pline == null) {
@@ -75,6 +81,19 @@ public class DelimitedFileReader {
 	}
 	public static Vector<Vector<String>> parseFile(File f, String sep, boolean skipFirstLine) throws IOException{
 		DelimitedFileReader dfr = new DelimitedFileReader(f, sep);
+		Vector<Vector<String>> rows = new Vector<Vector<String>>();
+		Vector<String> hrow = new Vector<String>();
+		if (skipFirstLine) hrow = dfr.getRow();
+		if (hrow != null) {
+			for(Vector<String> row = dfr.getRow(); row!=null; row = dfr.getRow()){
+				rows.add(row);
+			}			
+		}
+		return rows;
+	}
+	
+	public static Vector<Vector<String>> parseStream(InputStream is, String sep, boolean skipFirstLine) throws IOException{
+		DelimitedFileReader dfr = new DelimitedFileReader(is, sep);
 		Vector<Vector<String>> rows = new Vector<Vector<String>>();
 		Vector<String> hrow = new Vector<String>();
 		if (skipFirstLine) hrow = dfr.getRow();

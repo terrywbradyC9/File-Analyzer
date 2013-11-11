@@ -13,6 +13,11 @@ public class FileAnalyzerURIResolver implements URIResolver {
 		if (is == null) is = FileAnalyzerURIResolver.class.getClassLoader().getResourceAsStream("resources" + href);
 		return new StreamSource(is);
 	}		
+	public InputStream getInputStream(String href, String base)	throws TransformerException {
+		InputStream is = FileAnalyzerURIResolver.class.getClassLoader().getResourceAsStream(href);
+		if (is == null) is = FileAnalyzerURIResolver.class.getClassLoader().getResourceAsStream("resources/" + href);
+		return is;
+	}		
 	public static FileAnalyzerURIResolver INSTANCE = new FileAnalyzerURIResolver();
 
 }
