@@ -169,7 +169,7 @@ public class Stats {
 		return def;
 	}
 	 
-	public <T extends Enum<T> & StatsItemEnum> void init(StatsItemConfig config) {
+	public void init(StatsItemConfig config) {
 		boolean first = true;
 		vals.clear();
 		for(StatsItem item: config) {
