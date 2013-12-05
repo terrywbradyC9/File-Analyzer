@@ -21,9 +21,8 @@ public class ActionRegistry extends Vector<FileTest> {
 		add(new ListDirectories(dt));
 		add(new NameMatch(dt));
 		add(new BaseNameMatch(dt));
-		add(new NameMD5Checksum(dt));
-		add(new NameSha1Checksum(dt));
-		add(new NameSha256Checksum(dt));
+		add(new NameChecksum(dt));
+		add(new ReadChecksum(dt));
 		add(new DirMatch(dt));
 		add(new DirTypeNameMatch(dt));
 		add(new RandomFileTest(dt));
@@ -32,6 +31,8 @@ public class ActionRegistry extends Vector<FileTest> {
 		if (modifyAllowed()) {
 			add(new LowercaseTest(dt, next));
 		}
+		add(new DigitalDerivatives(dt)); 
+		add(new CounterValidation(dt)); 
 	}
 	
 	/**
@@ -43,6 +44,14 @@ public class ActionRegistry extends Vector<FileTest> {
 	 */
 	public boolean modifyAllowed() {
 		return modifyAllowed;
+	}
+	public void removeFT(Class<?> c) {
+		for(FileTest ft: this) {
+			if (c.isInstance(ft)) {
+				this.remove(ft);
+				break;
+			}
+		}		
 	}
 	
 }

@@ -2,28 +2,42 @@ package edu.georgetown.library.fileAnalyzer.importer;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.transform.TransformerException;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import edu.georgetown.library.fileAnalyzer.filetest.IngestInventory.InventoryStatsItems;
 
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.YN;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
-import gov.nara.nwts.ftapp.importer.DelimitedFileImporter;
+import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
+import gov.nara.nwts.ftapp.util.FileUtil;
 import gov.nara.nwts.ftapp.util.XMLUtil;
 
 /**
@@ -32,9 +46,18 @@ import gov.nara.nwts.ftapp.util.XMLUtil;
  */
 public class IngestFolderCreate extends DefaultImporter {
 	private static enum IngestStatsItems implements StatsItemEnum {
-		LineNo(StatsItem.makeStringStatsItem("Line No").setExport(false)),
-		Status(StatsItem.makeEnumStatsItem(status.class, "Status")),
-		Message(StatsItem.makeStringStatsItem("Message").setExport(false))
+		LineNo(StatsItem.makeStringStatsItem("Line No").setExport(false).setWidth(60)),
+		Folder(StatsItem.makeStringStatsItem("Folder")),
+		Status(StatsItem.makeEnumStatsItem(status.class, "Status").setWidth(60)),
+		InputMetadata(StatsItem.makeEnumStatsItem(InputMetaStats.class, "Input Metadata")),
+		ItemFileStats(StatsItem.makeEnumStatsItem(FileStats.class,"Item File Status").setWidth(120)),
+		ThumbFileStats(StatsItem.makeEnumStatsItem(FileStats.class, "Thumb File Status").setWidth(120)),
+		LicenseFileStats(StatsItem.makeEnumStatsItem(FileStats.class, "License File Status").setWidth(120)),
+		ContentsFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Contents File Status").setWidth(120)),
+		DublinCoreFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Dublin Core File Status").setWidth(120)),
+		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
+		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Other Metadata File Status").setWidth(120)),
+		Message(StatsItem.makeStringStatsItem("Message", 300).setExport(false))
 		;
 		
 		StatsItem si;
@@ -54,6 +77,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		String element;
 		String qualifier;
 		String name;
+		String schema = "dc";
 		
 		column(int inputCol, String header) {
 			this(inputCol, header, false);
@@ -65,42 +89,28 @@ public class IngestFolderCreate extends DefaultImporter {
 			String[] parts = header.split("\\.");
 			if ((parts.length < 2) || (parts.length > 3)) {
 				valid = false;
-			} else if (parts[0].equals("dc")) {
+			} else  {
 				valid = true;
+				schema = parts[0];
 				element = parts[1];
 				if (parts.length > 2) {
 					qualifier = parts[2];
 				} else {
 					qualifier = "none";
 				}
-			} else {
-				valid = false;
-			}
+			} 
 		}
 		
 	}
 	
-	class createStatus {
-		status stat;
-		String message;
-		
-		createStatus(status stat, String message) {
-			this.stat = stat;
-			this.message = message;
-		}
-		
-		createStatus append(createStatus cs) {
-			if (cs.stat.ordinal() > status.PASS.ordinal()) {
-				return cs;
-			}
-			
-			String s = this.message;
-			if (s.equals("")) {
-				s = cs.message;
-			} else {
-				s = s + ".  " + cs.message;
-			}
-			return new createStatus(cs.stat, s);
+	private static enum FileStats {NA, NOT_FOUND, ERROR, ALREADY_EXISTS, MOVED_TO_INGEST, COPIED_TO_INGEST;}
+	private static enum MetaStats {NA, ERROR, CREATED, OVERWRITTEN;}
+	private static enum InputMetaStats {NA, MISSING, FORMAT_ERROR, DUPLICATE, OK;}
+	class CreateException extends Exception {
+		private static final long serialVersionUID = 5042987495219000857L;
+
+		CreateException(String s) {
+			super(s);
 		}
 	}
 	
@@ -112,14 +122,32 @@ public class IngestFolderCreate extends DefaultImporter {
 		return details;
 	}
 	
-	public enum status {INIT,PASS,WARN,FAIL}
+	private enum status {INIT,PASS,WARN,FAIL}
+	
 	NumberFormat nf;
+	
+	public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
+	public static final String REUSABLE_LICENSE = "Reusable License";
+	public static final String P_AUTONAME = "Add User and Date to Ingest Folder";
+	public static enum FIXED {
+		FOLDER(0), ITEM(1), THUMB(2), LICENSE(3);
+		int index;
+		FIXED(int i) {index = i;}
+	}
 	
 	public IngestFolderCreate(FTDriver dt) {
 		super(dt);
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(8);
 		nf.setGroupingUsed(false);
+
+		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_THUMBNAIL, "thumb",
+				"Relative path to thumbnail file to be used for all items w/o thumbnail (optional)", ""));
+		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_LICENSE, "license",
+				"Relative path to license file to be used for all items w/o license (optional)", ""));
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(), P_AUTONAME, "autoname",
+				"Append user name, date and time to ingest folder name", YN.values(), YN.Y));
+
 	}
 
 	public String toString() {
@@ -131,75 +159,118 @@ public class IngestFolderCreate extends DefaultImporter {
 				"File Structure\n"+
 				"\t1) Folder Name - A unique folder will be created for each item to be ingested.  Names must be unique\n"+
 				"\t2) Item file name - required, a file with that name must exist relative to the imported spreadsheet\n"+
-				"\t3) Thumbnail file name - optional, file must exist is present\n"+
+				"\t3) Thumbnail file name - optional, file must exist if present\n"+
+				"\t4) License file name - optional, file must exist if present\n"+
 				"\tAddition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
 				"A title (dc.title) and a properly formatted creation date (dc.date.created) must be present somewhere in the set of additional columns.";
 	}
 	public String getShortName() {
 		return "Ingest Folder";
 	}
-
-	public createStatus createItem(File selectedFile, Vector<String> cols) {
+	
+	public void createMetadataFile(File dir, Stats stats, Vector<String> cols, String schema) {
+		String filename = "dublin_core.xml";
+		IngestStatsItems index = IngestStatsItems.DublinCoreFileStats;
+		
+		if (!schema.equals("dc")) {
+			filename = "metadata_" + schema + ".xml";
+			index = IngestStatsItems.OtherMetadataFileStats;
+			stats.appendVal(IngestStatsItems.OtherSchemas, schema);
+		} 
+		
 		Document d = XMLUtil.db.newDocument();
 		Element e = d.createElement("dublin_core");
-		e.setAttribute("schema", "dc");
+		e.setAttribute("schema", schema);
 		d.appendChild(e);
 		for(int i=0; i<cols.size(); i++) {
 			String col = cols.get(i);
-			if (col == "") continue;
+			if (col.isEmpty()) continue;
 			column colhead = colHeaderDefs.get(i);
+			if (!colhead.schema.equals(schema)) continue;
 			if (colhead.valid) {
-				addElement(e, colhead.element, colhead.qualifier, col);
+				for(String scol : col.split("\\|\\|")){
+					addElement(e, colhead.element, colhead.qualifier, scol);					
+				}
 			}
 		}
 
-		details = StatsItemConfig.create(IngestStatsItems.class); 
-		for(column col: colHeaderDefs) {
-			if (col.valid || col.fixed) {
-				details.addStatsItem(col.inputCol, StatsItem.makeStringStatsItem(col.name, 150));
-			}
+		File f = new File(dir, filename);
+		if (f.exists()) {
+			stats.setVal(index, MetaStats.OVERWRITTEN);
+		} else {
+			stats.setVal(index, MetaStats.CREATED);
 		}
 
-		StringBuffer buf = new StringBuffer();
-		File dir = new File(new File(selectedFile.getParentFile(), "ingest"), cols.get(0));
+		try {
+			XMLUtil.doSerialize(d, f);
+		} catch (TransformerException e2) {
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+			stats.setVal(index, MetaStats.ERROR);
+			stats.setVal(IngestStatsItems.Message, e2.getMessage());
+		} catch (IOException e2) {
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+			stats.setVal(index, MetaStats.ERROR);
+			stats.setVal(IngestStatsItems.Message, e2.getMessage());
+		}
+		
+	}
+
+	public void createItem(Stats stats, File selectedFile, Vector<String> cols) {
+		File dir = new File(currentIngestDir, cols.get(0));
 		dir.mkdirs();
-		File f = new File(dir, "dublin_core.xml");
-		if (f.exists()) {
-			buf.append("dublin_core.xml overwritten. ");
-		} else {
-			buf.append("dublin_core.xml created. ");			
+		
+		HashSet<String> schemas = new HashSet<String>();
+		for(int i=0; i<cols.size(); i++) {
+			String col = cols.get(i);
+			if (col.isEmpty()) continue;
+			column colhead = colHeaderDefs.get(i);
+			String schema = colhead.schema;
+			schemas.add(schema);
 		}
-		XMLUtil.serialize(d, f);
 
-		f = new File(dir, "contents");
+		for(String schema: schemas){
+			createMetadataFile(dir, stats, cols, schema);
+		}
+		
+		File f = new File(dir, "contents");
 		if (f.exists()) {
-			buf.append("contents overwritten");
+			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.OVERWRITTEN);
 		} else {
-			buf.append("contents created");			
+			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.CREATED);
 		}
 		
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			String val = (new File(cols.get(1))).getName();
+			String name = (String)stats.getKeyVal(details.getByKey(FIXED.ITEM.index), "");
+			String val = (new File(name)).getName();
 			bw.write(val);
 			bw.write("\t");
 			bw.write("bundle:ORIGINAL");
 			bw.write("\n");
 			
-			val = (new File(cols.get(2))).getName();
+			name = (String)stats.getKeyVal(details.getByKey(FIXED.THUMB.index), "");
+			val = (new File(name)).getName();
 			if (!val.isEmpty()) {
 				bw.write(val);
 				bw.write("\t");
 				bw.write("bundle:THUMBNAIL");
 				bw.write("\n");				
 			}
+			name = (String)stats.getKeyVal(details.getByKey(FIXED.LICENSE.index), "");
+			val = (new File(name)).getName();
+			if (!val.isEmpty()) {
+				bw.write(val);
+				bw.write("\t");
+				bw.write("bundle:LICENSE");
+				bw.write("\n");				
+			}
 			bw.close();
 			
 		} catch (IOException e1) {
-			return new createStatus(status.FAIL, e1.getMessage());
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.ERROR);
+			stats.setVal(IngestStatsItems.Message, e1.getMessage());
 		}
-		
-		return new createStatus(status.PASS, buf.toString());
 	}
 	
 	
@@ -230,30 +301,63 @@ public class IngestFolderCreate extends DefaultImporter {
 		return getColumnValue(vals, name, null) != null;
 	}
 
+	private File currentIngestDir;
+	public File getCurrentIngestDir(File selectedFile){
+		File parent = selectedFile.getParentFile();
+		File defdir = new File(parent, "ingest");
+		if (defdir.exists()) return defdir;
+		if (this.getProperty(P_AUTONAME) == YN.N) return defdir;
+		File[] list = parent.listFiles(new FilenameFilter(){
+			public boolean accept(File dir, String name) {
+				if (name.startsWith("ingest_")) return true;
+				return false;
+			}
+		});
+		if (list.length > 0) return list[0];
+		String name = "ingest_";
+		name += System.getProperty("user.name");
+		name += "_";
+		DateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		name += df.format(new Date());
+		return new File(parent, name);
+	}
+	
+	
 	public ActionResult importFile(File selectedFile) throws IOException {
+		currentIngestDir = getCurrentIngestDir(selectedFile);
 		Timer timer = new Timer();
+		String globalThumb = (String)getProperty(REUSABLE_THUMBNAIL);
+		String globalLicense = (String)getProperty(REUSABLE_LICENSE);
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		int rowKey = 0;
-		Vector<Vector<String>> data = DelimitedFileImporter.parseFile(selectedFile, "\t");
+		Vector<Vector<String>> data = DelimitedFileReader.parseFile(selectedFile, "\t");
 		folders = new HashMap<String,Integer>();
 		colHeaderDefs = new Vector<column>();
 		colByName = new HashMap<String, column>();
 		Vector<String> colheads = data.get(0);
 		
-		addColumn(new column(0, "Item Folder", true));
-		addColumn(new column(1, "Item File", true));
-		addColumn(new column(2, "Item Thumbnail", true));
+		addColumn(new column(FIXED.FOLDER.index, InventoryStatsItems.Key.si().header, true));
+		addColumn(new column(FIXED.ITEM.index, InventoryStatsItems.File.si().header, true));
+		addColumn(new column(FIXED.THUMB.index, InventoryStatsItems.ThumbFile.si().header, true));
+		addColumn(new column(FIXED.LICENSE.index, InventoryStatsItems.LicenseFile.si().header, true));
 		
-		for(int i=3; i< colheads.size(); i++) {
+		for(int i=colHeaderDefs.size(); i< colheads.size(); i++) {
 			String colh = colheads.get(i);
 			addColumn(new column(i, colh));
 		}
 		
+		details = StatsItemConfig.create(IngestStatsItems.class); 
+		for(column col: colHeaderDefs) {
+			if (col.valid || col.fixed) {
+				details.addStatsItem(col.inputCol, StatsItem.makeStringStatsItem(col.name, 250));
+			}
+		}
+
 		for(int r=1; r<data.size(); r++) {
 			Vector<String> cols = data.get(r);
 			String key = nf.format(rowKey++);
 			Stats stats = Generator.INSTANCE.create(key);
-			importRow(selectedFile, cols, stats);
+			importRow(selectedFile, cols, stats, globalThumb, globalLicense);
 			
 			types.put(key, stats);
 		}
@@ -261,139 +365,206 @@ public class IngestFolderCreate extends DefaultImporter {
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), getDetails(), types, true, timer.getDuration());
 	}
 
-	public void importRow(File selectedFile, Vector<String> cols,Stats stats) {
-		createStatus cs = new createStatus(status.INIT, "");
-		stats.setVal(IngestStatsItems.Status, cs.stat);
-		stats.setVal(IngestStatsItems.Message, cs.message);
-		
-		if (cols.size() == colHeaderDefs.size()) {
+	public void importRow(File selectedFile, Vector<String> cols,Stats stats, String globalThumb, String globalLicense) {
+		StringBuffer buf = new StringBuffer();
+		try {
+			if (cols.size() != colHeaderDefs.size()) {
+				throw new CreateException(cols.size()+" columns found : "+colHeaderDefs.size() + " columns expected");
+			}
 			String folder = "";
 			String file = "";
 			String thumb = "";
-			
+			String license = "";
+				
 			for(int i=0; i<cols.size(); i++){
 				column colhead = colHeaderDefs.get(i);
 				String val = cols.get(i);
 				if ((colhead.fixed || colhead.valid)) {
 					stats.setKeyVal(details.getByKey(i), val);
 				}
-				
-				if ((colhead.fixed) && (cs.stat == status.INIT)) {
-					if ((i == 0)) {
-						if (val.equals("")) cs = new createStatus(status.FAIL, "Item folder name is required");
+					
+				if (colhead.fixed) {
+					if (i == FIXED.FOLDER.index) {
+						if (val.equals("")) {
+							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
+							throw new CreateException("Item folder name is required");
+						}
 						folder = val;
-						
+						stats.setVal(IngestStatsItems.Folder, folder);
+							
 						Integer x = folders.get(folder);
 						if (x == null) {
 							folders.put(folder, 1);								
 						} else {
 							folders.put(folder, x++);
-							cs = new createStatus(status.FAIL, "Item folder name [" + folder + "] is a duplicate of another folder");
+							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.DUPLICATE);
+							throw new CreateException("Item folder name [" + folder + "] is a duplicate of another folder");
 						}
-					}
-					if ((i == 1)) {
-						if (val.equals("")) cs = new createStatus(status.FAIL, "Item file name is required");
+					} else	if (i == FIXED.ITEM.index) {
+						if (val.isEmpty()) {
+							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
+							throw new CreateException("Item file name is required");
+						}
 						file = val;
-					}
-					if ((i == 2)) {
+					} else if (i == FIXED.THUMB.index) {
 						thumb = val;
 						if (thumb.isEmpty()) {
+							if (!globalThumb.isEmpty()) {
+								stats.setKeyVal(details.getByKey(i), file + ".jpg");								
+							} 
 						} else if (!thumb.equals(file+".jpg")){
-							cs = new createStatus(status.FAIL, "DSpace requires thumbnail to be named [" + file + ".jpg]");							
+							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.FORMAT_ERROR);
+							throw new CreateException("DSpace requires thumbnail to be named [" + file + ".jpg]");							
+						}
+					} else if (i == FIXED.LICENSE.index) {
+						license = val;
+						if (license.isEmpty() && !globalLicense.isEmpty()) {
+							stats.setKeyVal(details.getByKey(i), globalLicense);
 						}
 					}
 				}
 			}				
-			
-			
-			if (cs.stat == status.INIT) {
-				cs = testFile(selectedFile, folder, file);
-			}
-			
-			if (cs.stat == status.INIT) {
-				if (!thumb.equals("")) cs = cs.append(testFile(selectedFile, folder, thumb));
-			}
-
-			if (cs.stat == status.INIT) {
-				if (!hasColumnValue(cols, "dc.title")) {
-					cs = new createStatus(status.FAIL, "Item must have element [dc.title]");
-				} else if (!hasColumnValue(cols, "dc.date.created")) {
-					cs = new createStatus(status.FAIL, "Item must have element [dc.date.created]");
-				} else {
-					for(column col: colHeaderDefs) {
-						if (col.valid && col.element.equals("date")) {
-							String val = getColumnValue(cols, col.name, "");
-							if (!testDate(val)) {
-								cs = new createStatus(status.FAIL, col.name +" [" + val + "] must start with either YYYY-MM-DD, YYYY-MM, YYYY or 'No Date'.");
-							}
+				
+			if (!hasColumnValue(cols, "dc.title")) {
+				stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
+				throw new CreateException("Item must have element [dc.title]");
+			} else if (!hasColumnValue(cols, "dc.date.created")) {
+				stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
+				throw new CreateException("Item must have element [dc.date.created]");
+			} else {
+				for(column col: colHeaderDefs) {
+					if (col.valid && col.element.equals("date")) {
+						String val = getColumnValue(cols, col.name, "");
+						if (!testDate(val)) {
+							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.FORMAT_ERROR);
+							throw new CreateException(col.name +" [" + val + "] must start with either YYYY-MM-DD, YYYY-MM, YYYY or 'No Date'.");
 						}
 					}
 				}
-				
-			}
-			
-			if (cs.stat == status.INIT) {
-				cs = cs.append(prepFile(selectedFile, folder, file));
-				if (!thumb.equals("")) cs = cs.append(prepFile(selectedFile, folder, thumb));
-			}
+			} 
+			stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.OK);				
 
-			if (cs.stat == status.INIT) {
-				cs = cs.append(createItem(selectedFile, cols));
+			testFile(stats, IngestStatsItems.ItemFileStats, selectedFile, folder, file);
+			if (!thumb.isEmpty()) {
+				testFile(stats, IngestStatsItems.ThumbFileStats, selectedFile, folder, thumb);
+			}
+			if (!license.isEmpty()) {
+				testFile(stats, IngestStatsItems.LicenseFileStats, selectedFile, folder, license);
+			}
+			if (stats.getVal(IngestStatsItems.Status) == status.FAIL) {
+				return;
 			}
 			
-			stats.setVal(IngestStatsItems.Status, cs.stat);
-			stats.setVal(IngestStatsItems.Message, cs.message);					
-		} else {
+			prepFile(stats, IngestStatsItems.ItemFileStats, MODE.MOVE, selectedFile, folder, file);
+			
+			if (!thumb.isEmpty()) {
+				prepFile(stats, IngestStatsItems.ThumbFileStats, MODE.MOVE, selectedFile, folder, thumb);
+			} else if (!globalThumb.isEmpty()) {
+				prepFile(stats, IngestStatsItems.ThumbFileStats, MODE.COPY, selectedFile, folder, globalThumb, file + ".jpg");
+			} 
+
+			if (!license.isEmpty()) {
+				prepFile(stats, IngestStatsItems.LicenseFileStats, MODE.MOVE, selectedFile, folder, license);
+			} else if (!globalLicense.isEmpty()) {
+				prepFile(stats, IngestStatsItems.LicenseFileStats, MODE.COPY, selectedFile, folder, globalLicense);
+			}
+			createItem(stats, selectedFile, cols);
+			
+			if (stats.getVal(IngestStatsItems.Status) != status.FAIL) {
+				stats.setVal(IngestStatsItems.Status, status.PASS);				
+			}
+			
+			stats.setVal(IngestStatsItems.Message, buf.toString());					
+		} catch(CreateException e) {
 			stats.setVal(IngestStatsItems.Status, status.FAIL);
-			stats.setVal(IngestStatsItems.Message, ""+cols.size()+" : "+colHeaderDefs.size());
+			stats.setVal(IngestStatsItems.Message, e.getMessage());
 		}
-		
-    	
     }
 	
 	
+
 	public boolean testDate(String s) {
 		Pattern p = Pattern.compile("^(No Date|\\d\\d\\d\\d-\\d\\d-\\d\\d|\\d\\d\\d\\d-\\d\\d|\\d\\d\\d\\d)( .*)?$");
 		Matcher m = p.matcher(s);
 		return m.matches();
 	}
 
-	createStatus testFile(File selectedFile, String folder, String file) {
+	void testFile(Stats stats, IngestStatsItems sienum, File selectedFile, String folder, String file) throws CreateException {
 		File parentFile = selectedFile.getParentFile();
-		File ingestDir = new File(parentFile, "ingest");
-		File dir = new File(ingestDir, folder);
+		File dir = new File(currentIngestDir, folder);
 		File f = new File(parentFile, file);
 		File dest = new File(dir, (new File(file)).getName());
 		if (dest.exists()) {
-			return new createStatus(status.INIT, "");
+			stats.setVal(sienum, FileStats.ALREADY_EXISTS);
 		} else if (f.exists()) {
-			return new createStatus(status.INIT, "");
-		} 
-		return new createStatus(status.FAIL, "File ["+file+"] does not exist");
+			stats.setVal(sienum, FileStats.NA);
+		} else {
+			stats.setVal(sienum, FileStats.NOT_FOUND);
+			stats.setVal(IngestStatsItems.Message, "File ["+file+"] does not exist");
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+		}
 	}
 	
-	createStatus prepFile(File selectedFile, String folder, String file) {
-		createStatus cs = new createStatus(status.INIT, "");
+	private File getSourceFile(File selectedFile, String file) throws CreateException {
 		File parentFile = selectedFile.getParentFile();
-		File ingestDir = new File(parentFile, "ingest");
-		File dir = new File(ingestDir, folder);
-		dir.mkdirs();
 		File f = new File(parentFile, file);
 		File f2 = new File(parentFile.getAbsolutePath() + "\\" + file);
-		File dest = new File(dir, (new File(file)).getName());
-		if (dest.exists()) {
-			return cs;
-		} else if (f.exists()) {
-			f.renameTo(dest);
-		} else if (f2.exists()) {
-			f2.renameTo(dest);
-		}
 		
-		if (dest.exists()) {
-			cs = new createStatus(status.INIT, "File moved to [" + folder + "] dir");
-		} else {
-			cs = new createStatus(status.FAIL, "File ["+file+"] does not exist");
+		if (f.exists()) {
+			return f;
+		} else if (f2.exists()) {
+			return f2;
 		}
-		return cs;
+		throw new CreateException("Required file ["+file + "] not found.");
 	}
+	
+	private static enum MODE {MOVE,COPY;}
+
+	void prepFile(Stats stats, IngestStatsItems sienum, MODE mode, File selectedFile, String folder, String srcname) throws CreateException {
+		prepFile(stats, sienum, mode, selectedFile, folder, srcname, srcname);
+	}
+	
+	void prepFile(Stats stats, IngestStatsItems sienum, MODE mode, File selectedFile, String folder, String srcname, String destname)  {
+		try {
+			File dir = new File(currentIngestDir, folder);
+			dir.mkdirs();
+
+			File dest = new File(dir, new File(destname).getName());
+			if (dest.exists()) {
+				stats.setVal(sienum, FileStats.ALREADY_EXISTS);
+				return;
+			} 
+			
+			File source = getSourceFile(selectedFile, srcname);
+			if (mode == MODE.MOVE) {
+				source.renameTo(dest);
+				stats.setVal(sienum, FileStats.MOVED_TO_INGEST);
+			} else if (mode == MODE.COPY) {
+				FileUtil.copyFile(source, dest);
+				stats.setVal(sienum, FileStats.COPIED_TO_INGEST);
+			}
+
+			if (!dest.exists()) {
+				stats.setVal(IngestStatsItems.Message, "File ["+dest+"] does not exist in ingest folder");
+				stats.setVal(sienum, FileStats.ERROR);
+			}
+		} catch (CreateException e) {
+			stats.setVal(IngestStatsItems.Message, e.getMessage());
+			stats.setVal(sienum, FileStats.NOT_FOUND);
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+		} catch (SecurityException e) {
+			stats.setVal(IngestStatsItems.Message, "Cannot create ingest dir");
+			stats.setVal(sienum, FileStats.ERROR);
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+		} catch (FileNotFoundException e) {
+			stats.setVal(IngestStatsItems.Message, "File ["+srcname+"] does not exist");
+			stats.setVal(sienum, FileStats.ERROR);
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+		} catch (IOException e) {
+			stats.setVal(IngestStatsItems.Message, "File ["+srcname+"] cannot be copied");
+			stats.setVal(sienum, FileStats.ERROR);
+			stats.setVal(IngestStatsItems.Status, status.FAIL);
+		}
+	}
+
 }

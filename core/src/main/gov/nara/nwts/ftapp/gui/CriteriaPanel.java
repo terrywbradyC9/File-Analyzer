@@ -174,6 +174,7 @@ class CriteriaPanel extends MyPanel {
 		//description.setBorder(BorderFactory.createEmptyBorder());
 		description.setEditable(false);
 		description.setLineWrap(true);
+		description.setWrapStyleWord(true);
 		description.setBackground(parent.frame.getBackground());
 		description.setFont(description.getFont().deriveFont(Font.ITALIC));
 		descp.add(new JScrollPane(description), BorderLayout.CENTER);

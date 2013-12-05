@@ -1,6 +1,6 @@
 package gov.nara.nwts.ftapp.ftprop;
 
-import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.FTDriver;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -15,26 +15,26 @@ import javax.swing.event.DocumentListener;
 
 public class FTPropString extends DefaultFTProp {
 	JTextField tf;
-	public FTPropString(FileTest ft, String name, String shortname, String description, Object def) {
-		super(ft, name, shortname, description, def);
+	public FTPropString(FTDriver ft, String prefix, String name, String shortname, String description, Object def) {
+		super(ft, prefix, name, shortname, description, def);
 		init();
 		tf = new JTextField(this.def.toString());
 		tf.getDocument().addDocumentListener(new DocumentListener(){
 			public void changedUpdate(DocumentEvent arg0) {
-				if (FTPropString.this.ft.getFTDriver().hasPreferences()) {
-					FTPropString.this.ft.getFTDriver().getPreferences().put(getPrefString(), tf.getText());
+				if (FTPropString.this.ft.hasPreferences()) {
+					FTPropString.this.ft.setPreference(getPrefString(), tf.getText());
 				}
 			}
 
 			public void insertUpdate(DocumentEvent arg0) {
-				if (FTPropString.this.ft.getFTDriver().hasPreferences()) {
-					FTPropString.this.ft.getFTDriver().getPreferences().put(getPrefString(), tf.getText());
+				if (FTPropString.this.ft.hasPreferences()) {
+					FTPropString.this.ft.setPreference(getPrefString(), tf.getText());
 				}
 			}
 
 			public void removeUpdate(DocumentEvent arg0) {
-				if (FTPropString.this.ft.getFTDriver().hasPreferences()) {
-					FTPropString.this.ft.getFTDriver().getPreferences().put(getPrefString(), tf.getText());
+				if (FTPropString.this.ft.hasPreferences()) {
+					FTPropString.this.ft.setPreference(getPrefString(), tf.getText());
 				}
 			}
 		});

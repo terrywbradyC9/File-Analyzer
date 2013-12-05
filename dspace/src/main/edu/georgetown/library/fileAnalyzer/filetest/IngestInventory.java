@@ -8,6 +8,7 @@ import edu.georgetown.library.fileAnalyzer.filter.GUImageFileTestFilter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.filter.DefaultFileTestFilter;
 import gov.nara.nwts.ftapp.filter.Jp2FileTestFilter;
 import gov.nara.nwts.ftapp.filter.JpegFileTestFilter;
 import gov.nara.nwts.ftapp.filter.PdfFileTestFilter;
@@ -22,10 +23,11 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 public class IngestInventory extends DefaultFileTest {
 
-	private static enum InventoryStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Key")),
-		File(StatsItem.makeStringStatsItem("File")),
-		ThumbFile(StatsItem.makeStringStatsItem("Thumb File"))
+	public static enum InventoryStatsItems implements StatsItemEnum {
+		Key(StatsItem.makeStringStatsItem("Key/Folder Name")),
+		File(StatsItem.makeStringStatsItem("Item File")),
+		ThumbFile(StatsItem.makeStringStatsItem("Thumb File")),
+		LicenseFile(StatsItem.makeStringStatsItem("License File"))
 		;
 		
 		StatsItem si;
@@ -72,30 +74,30 @@ public class IngestInventory extends DefaultFileTest {
 			"dc.relation.isreplacedby", "dc.relation.uri", "dc.rights",
 			"dc.rights.uri", "dc.source", "dc.source.uri", "dc.subject",
 			"dc.subject.ddc", "dc.subject.lcc", "dc.subject.lcsh",
-			"dc.subject.mesh", "dc.title", "dc.title.alternative", "dc.type" };
+			"dc.subject.mesh", "dc.title", "dc.title.alternative", "dc.type"};
+	
+	public String[] getMETA() {return META;}
+	
 
 	NumberFormat nf;
+	public static final int COUNT = 8;
 	public IngestInventory(FTDriver dt) {
 		super(dt);
 		nf = NumberFormat.getNumberInstance();
 		nf.setMinimumIntegerDigits(5);
 		nf.setGroupingUsed(false);
-		this.ftprops.add(new FTPropEnum(this, "metadata 1", "m1",
-				"field to be populated for each item found", META, "dc.title"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 2", "m2",
-				"field to be populated for each item found", META, "dc.date.creator"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 3", "m3",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 4", "m4",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 5", "m5",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 6", "m6",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 7", "m7",
-				"field to be populated for each item found", META, "NA"));
-		this.ftprops.add(new FTPropEnum(this, "metadata 8", "m8",
-				"field to be populated for each item found", META, "NA"));
+		for(int i=1; i<=1; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", getMETA(), "dc.title"));			
+		}
+		for(int i=2; i<=2; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", getMETA(), "dc.date.created"));			
+		}
+		for(int i=3; i<=COUNT; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(),  "metadata "+i, "m"+i,
+					"field to be populated for each item found", getMETA(), "NA"));			
+		}
 	}
 
 	public String getDescription() {
@@ -136,6 +138,7 @@ public class IngestInventory extends DefaultFileTest {
     		if (prop.getValue().equals("NA")) continue;
     		details.addStatsItem(prop.getValue(), StatsItem.makeStringStatsItem(prop.getValue().toString()));
     	}
+    	count = 0;
     }
     
     public boolean isTestable(File f) {
@@ -153,6 +156,7 @@ public class IngestInventory extends DefaultFileTest {
 		filters.add(new TiffFileTestFilter());
 		filters.add(new JpegFileTestFilter());
 		filters.add(new Jp2FileTestFilter());
+		filters.add(new DefaultFileTestFilter());
 	}
 
     public Stats createStats(String key){

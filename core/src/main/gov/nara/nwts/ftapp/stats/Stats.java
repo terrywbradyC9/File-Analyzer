@@ -50,6 +50,14 @@ public class Stats {
 		}		
 	}
 	
+	public Object getKeyVal(StatsItem si, Object val) {
+		if (si == null) return val;
+		int index = si.getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
+			return vals.get(index);
+		}		
+		return val;
+	}
 	public void setVal(StatsItemEnum eitem, Object val) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {
@@ -120,7 +128,23 @@ public class Stats {
 			}
 		}
 	}
-	 
+
+	public void appendKeyVal(StatsItem si, Object val) {
+		if (si == null) return;
+		int index = si.getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
+			Object obj = vals.get(index);
+			if (obj == null) {
+				vals.set(index,val);				
+			} else if (obj instanceof String) {
+				String s = (String)obj;
+				s += val;
+				vals.set(index, s);
+			}
+		}
+	}
+
+	
 	public Vector<Object> getVals() {
 		return vals;
 	}
@@ -133,6 +157,10 @@ public class Stats {
 		return (Long)getVal(eitem, null);
 	}
 
+	public Integer getIntVal(StatsItemEnum eitem) {
+		return (Integer)getVal(eitem, null);
+	}
+
 	public Object getVal(StatsItemEnum eitem, Object def) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {
@@ -141,7 +169,7 @@ public class Stats {
 		return def;
 	}
 	 
-	public <T extends Enum<T> & StatsItemEnum> void init(StatsItemConfig config) {
+	public void init(StatsItemConfig config) {
 		boolean first = true;
 		vals.clear();
 		for(StatsItem item: config) {

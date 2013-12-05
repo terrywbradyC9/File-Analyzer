@@ -16,22 +16,20 @@ import java.util.regex.Pattern;
  */
 public class DirAnalysis{
 
-	public static RenameDetails analyze(File dir, Pattern p, int group, Pattern pIgnore){
-		return analyze(dir,p,group,pIgnore,true);
-	}
-	public static RenameDetails analyze(File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore){
+	public static RenameDetails analyze(File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore, boolean startAtOne){
 		ArrayList<String> names = new ArrayList<String>();
 		for(String s: dir.list()){
 			names.add(s);
 		}
-		return analyze(names, dir,p,group,pIgnore,rptIgnore);
-	}
-	public static RenameDetails recursiveAnalyze(File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore){
-		ArrayList<String> names = new ArrayList<String>();
-		gatherFileNames(names, dir);
-		return analyze(names, dir,p,group,pIgnore,rptIgnore);
+		return analyze(names, dir,p,group,pIgnore,rptIgnore, startAtOne);
 	}
 	
+	public static RenameDetails recursiveAnalyze(File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore, boolean startAtOne){
+		ArrayList<String> names = new ArrayList<String>();
+		gatherFileNames(names, dir);
+		return analyze(names, dir,p,group,pIgnore,rptIgnore, startAtOne);
+	}
+
 	public static void gatherFileNames(List<String>names, File f) {
 		if (f.isDirectory()) {
 			for(File cf: f.listFiles()){
@@ -42,7 +40,7 @@ public class DirAnalysis{
 		}
 	}
 	
-	public static RenameDetails analyze(List<String> names, File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore){
+	public static RenameDetails analyze(List<String> names, File dir, Pattern p, int group, Pattern pIgnore, boolean rptIgnore, boolean startAtOne){
 		TreeMap<Integer,Integer> seq = new TreeMap<Integer,Integer>();
 		StringBuffer buf = new StringBuffer();
 		buf.append(names.size());
@@ -67,7 +65,9 @@ public class DirAnalysis{
 				try {
 					int cur = Integer.parseInt(s);
 					Integer x = seq.get(cur);
-					if (x == null) x = 0;
+					if (x == null) {
+						x = 0;
+					}
 					//handle dup?
 					seq.put(cur,x++);
 				} catch(NumberFormatException e) {

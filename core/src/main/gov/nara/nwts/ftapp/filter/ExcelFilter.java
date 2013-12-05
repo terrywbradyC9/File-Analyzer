@@ -6,8 +6,11 @@ package gov.nara.nwts.ftapp.filter;
  *
  */
 public class ExcelFilter extends DefaultFileTestFilter {
-	public String getSuffix() { 
-		return ".xls";
+	public String getSuffix() {
+		return ".*\\.(xls|xlsx)$";
+	}
+	public boolean isReSuffix() {
+		return true;
 	}
     public String getName(){return "Excel";}
 

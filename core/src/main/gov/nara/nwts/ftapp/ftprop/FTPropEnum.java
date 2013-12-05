@@ -3,7 +3,7 @@ package gov.nara.nwts.ftapp.ftprop;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import gov.nara.nwts.ftapp.filetest.FileTest;
+import gov.nara.nwts.ftapp.FTDriver;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -17,8 +17,8 @@ import javax.swing.JComponent;
 public class FTPropEnum extends DefaultFTProp {
 	JComboBox combo;
 
-	public FTPropEnum(FileTest ft, String name, String shortname, String description, Object[]vals, Object def) {
-		super(ft, name, shortname, description, def);
+	public FTPropEnum(FTDriver ft, String prefix, String name, String shortname, String description, Object[]vals, Object def) {
+		super(ft, prefix, name, shortname, description, def);
 		init(vals);
 		combo = new JComboBox();
 		initCombo(vals);
@@ -26,8 +26,8 @@ public class FTPropEnum extends DefaultFTProp {
 			public void itemStateChanged(ItemEvent arg0) {
 				Object obj = combo.getSelectedItem();
 				if (obj == null) return;
-				if (FTPropEnum.this.ft.getFTDriver().hasPreferences()){
-					FTPropEnum.this.ft.getFTDriver().getPreferences().put(getPrefString(), combo.getSelectedItem().toString());				
+				if (FTPropEnum.this.ft.hasPreferences()){
+					FTPropEnum.this.ft.setPreference(getPrefString(), combo.getSelectedItem().toString());				
 				}
 			}
 		});

@@ -1,15 +1,20 @@
 package gov.nara.nwts.ftapp.gui;
 
+import gov.nara.nwts.ftapp.importer.DelimitedFileImporter.Separator;
+
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -32,7 +37,8 @@ class TableSaver extends JDialog {
 	JTable jt;
 	JPanel colPanel;
 	ArrayList<JCheckBox> checks;
-
+	JComboBox delim;
+	
 	DirectoryTable parent;
     TableSaver(DirectoryTable parent, DefaultTableModel tm, JTable jt, String fname) {
     	this(parent, tm, jt, fname, new ArrayList<String>());
@@ -47,6 +53,9 @@ class TableSaver extends JDialog {
     	setLayout(new BorderLayout());
     	JFileChooser jfc = new JFileChooser(){
     		private static final long serialVersionUID = 1L;
+    		public int getDialogType() {
+    			return JFileChooser.SAVE_DIALOG;
+    		}
     		public String getApproveButtonText() {
     			return "Export";
     		}
@@ -90,19 +99,28 @@ class TableSaver extends JDialog {
    			colPanel.add(cb);
    			checks.add(cb);
    		}
+   		delim = new JComboBox(Separator.values());
+   		delim.setBorder(BorderFactory.createTitledBorder("Column Delimiter"));
+   		delim.setSelectedItem(Separator.Tab);
+   		add(delim, BorderLayout.SOUTH);
+   		
     	pack();
     	setVisible(true);
     }
     
+    public String getSeparator() {
+    	return ((Separator)delim.getSelectedItem()).separator;
+    }
+    
     public void save(File f) throws IOException {
-    	BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+    	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f),"UTF-8"));
     	boolean first = true;
 		for(int c=0; c<tm.getColumnCount(); c++){
 			if (checks.get(c).isSelected()){
 				if (first) {
 					first = false;
 				} else {
-					bw.write("\t");				
+					bw.write(getSeparator());				
 				}
 				bw.write('"');
 				if (jt.getColumnModel().getColumn(c).getHeaderValue() != null){
@@ -124,7 +142,7 @@ class TableSaver extends JDialog {
     				if (first) {
     					first = false;
     				} else {
-    					bw.write("\t");				
+    					bw.write(getSeparator());				
     				}
     				bw.write('"');
     				if (tm.getValueAt(r, c) != null){

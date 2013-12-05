@@ -3,6 +3,8 @@ package gov.nara.nwts.ftapp.importer;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -24,8 +26,16 @@ import java.util.regex.Pattern;
  *
  */
 public class Parser extends DefaultImporter {
-	public enum status {PASS,FAIL}
-	
+	public static enum status {PASS,FAIL}
+	public static enum Fields {
+		NA(0),F1(1),F2(2),F3(3),F4(4),F5(5),F6(6),F7(7),F8(8),F9(9),F10(10);
+		int index;
+		Fields(int i) {index = i;}
+		public String toString() {
+			if (this == NA) return "Not Applicable";
+			return "Regex Field "+ index;
+		}
+	} 
 	public static enum ParserStatsItems implements StatsItemEnum {
 		Row(StatsItem.makeStringStatsItem("Row",60)),
 		PassFail(StatsItem.makeEnumStatsItem(status.class, "Pass/Fail").setInitVal(status.PASS)),
@@ -39,20 +49,21 @@ public class Parser extends DefaultImporter {
 	public static StatsItemConfig details = StatsItemConfig.create(ParserStatsItems.class);
 	Pattern p;
 	int cols;
-	StatsItemConfig mydetails;
-	
 	public StatsItemConfig getDetails() {
 		return details;
 	}
-	public Pattern getPattern() {
-		return Pattern.compile("^(.*)$");
-	}
-
+	public static final String REGEX = "Regular Expression";
+	public static final int FIELDS = 10;
+	public static final String FIELD_PRE = "Optional Output ";
+	public static final String getOptField(int i) {return FIELD_PRE + i;}
 	public Parser(FTDriver dt) {
 		super(dt);
-		mydetails = getDetails();
-		cols = mydetails.size() - 1;
-		p = getPattern();
+		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), REGEX, "regex",
+				"Regular expression to test against each line of the file", "^(.*)$"));
+		for(int i=1; i<=FIELDS; i++) {
+			this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), getOptField(i), "f"+i,
+					getOptField(i), Fields.values(), Fields.NA));
+		}
 	}
 	
 	public Matcher test(String line) {
@@ -73,21 +84,35 @@ public class Parser extends DefaultImporter {
 		return "";
 	}
 
+	public Fields getFieldForCol(int i) {
+		Fields f = (Fields)getProperty(getOptField(i));
+		if (f == null) return Fields.NA;
+		return f;
+	}
 	public void setVals(Matcher m, Stats stats, String line) {
 		if (m.matches()) {
 			for(int i=1;i<=cols;i++) {
-				stats.setKeyVal(details.getByKey(i), getVal(m,i));
+				stats.setKeyVal(details.getByKey(i), getVal(m,getFieldForCol(i).index));
 			}
 		} else {
 			stats.setVal(ParserStatsItems.PassFail, status.FAIL);
 			for(int i=1;i<=cols;i++) {
-				stats.setKeyVal(details.getByKey(i), getDefVal(m,i,line));
+				stats.setKeyVal(details.getByKey(i), getDefVal(m,getFieldForCol(i).index,line));
 			}
 		}
 		
 	}
 
 	public ActionResult importFile(File selectedFile) throws IOException {
+		String patt = (String)this.getProperty(REGEX);
+		details = StatsItemConfig.create(ParserStatsItems.class);
+		for(int i=1; i<=FIELDS; i++) {
+			Fields f = (Fields)this.getProperty(getOptField(i));
+			if (f == Fields.NA) continue;
+			details.addStatsItem(i, StatsItem.makeStringStatsItem(f.toString()));
+			cols++;
+		}
+		p = Pattern.compile(patt);
 		Timer timer = new Timer();
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
 		try {
@@ -98,26 +123,28 @@ public class Parser extends DefaultImporter {
 				Stats stats = Stats.Generator.INSTANCE.create(Parser.details, key);
 				types.put(key, stats);
 				Matcher m = test(line);
+				stats.setVal(ParserStatsItems.Data, line);
 				setVals(m, stats, line);
 			}
 			br.close();
-			return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), mydetails, types, true, timer.getDuration());
+			return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), mydetails, types, false, timer.getDuration());
+		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, false, timer.getDuration());
 	}
 
 	public String toString() {
-		return "Parser";
+		return "Regular Expression Parser";
 	}
 	public String getDescription() {
-		return "This rule will parse each line of a file and add it to the results table.";
+		return "This rule will parse each line of a file and add it to the results table.\n" +
+				"This rule requires an understanding of regular expressions.";
 	}
 	public String getShortName() {
-		return "Parse";
+		return "Regex";
 	}
 
 }

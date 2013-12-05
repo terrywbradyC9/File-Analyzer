@@ -27,5 +27,9 @@ class LowercaseTest extends NameValidationTest {
 		});
 	}
 
+	public String getDescription() {
+		return "This test will check that all files are named with only lowercase characters."
+				+  getNameValidationDisclaimer(); 
+	}
 
 }
