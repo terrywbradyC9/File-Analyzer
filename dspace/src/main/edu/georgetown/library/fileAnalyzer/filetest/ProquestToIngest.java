@@ -55,6 +55,7 @@ public class ProquestToIngest extends DefaultFileTest {
 		XmlStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "XML Status", OVERALL_STAT.INIT).setWidth(40)),
 		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",80)),
 		EmbargoCustom(StatsItem.makeStringStatsItem("Embargo Custom",80)),
+		ThirdPartySearch(StatsItem.makeEnumStatsItem(YN.class, "3rd Party Search",YN.N)),
 		Title(StatsItem.makeStringStatsItem("Title",350)),
 		Message(StatsItem.makeStringStatsItem("Status Note", 300)),
 		;
@@ -187,6 +188,17 @@ public class ProquestToIngest extends DefaultFileTest {
 									}
 								}
 							}
+						}
+						if (d.getDocumentElement().hasAttribute("third_party_search")) {
+							String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
+							if (tpsearch.equals("Y")) {
+								stats.setVal(ProquestStatsItems.ThirdPartySearch, YN.Y);
+							}
+						}
+						
+						if (stats.getVal(ProquestStatsItems.ThirdPartySearch) != YN.Y) {
+							stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);
+							stats.setVal(ProquestStatsItems.Message, "Restrict from 3rd Party Search");												
 						}
 					} catch (SAXException e) {
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.FAIL);
