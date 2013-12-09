@@ -2,6 +2,7 @@ package gov.nara.nwts.ftapp.counterReport;
 
 import gov.nara.nwts.ftapp.counter.CounterData;
 import gov.nara.nwts.ftapp.counter.REV;
+import gov.nara.nwts.ftapp.counter.ReportType;
 
 public class DatabaseReport1R4 extends DatabaseReport1 {
 	public static final String NAME = "Database Report 1";
@@ -16,6 +17,8 @@ public class DatabaseReport1R4 extends DatabaseReport1 {
 	@Override public void initCustom(CounterData data) {
 		checkColHeader(data);
 		checkFields(data, getDataRow(), getTotalCol(data)-1, FIELDS);		
+
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat
 	}
 	
 	public boolean isSupported() {

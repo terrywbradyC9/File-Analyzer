@@ -11,6 +11,8 @@ public enum CounterStat {
 	INVALID_SUM, //Invalid sum found
 	INVALID, //Cell does not conform to rule
 	ERROR,   //Processing error interpreting rule
+	JSTOR, //Common JSTOR format errors
+	SHIFT_2_COL, //Common error, need to shift data table by 2 COL
 	UNSUPPORTED_REPORT,   //Code not yet implemented for this report type
 	UNKNOWN_REPORT_TYPE,  //Report type does not match know types
 	UNSUPPORTED_FILE,     //File cannot be broken into cells for processing

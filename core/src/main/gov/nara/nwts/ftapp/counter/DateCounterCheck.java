@@ -12,6 +12,7 @@ class DateCounterCheck extends CounterCheck {
 	SimpleDateFormat dfParse;
 	SimpleDateFormat dfDisp;
 	static SimpleDateFormat defdf = new SimpleDateFormat("MM/dd/yyyy");
+	static SimpleDateFormat def1df = new SimpleDateFormat("dd-MMM-yyyy");
 	static SimpleDateFormat def2df = new SimpleDateFormat("yy-MMM");
 	static Date y2000 =  new GregorianCalendar(2000,1,1).getTime();
 	static {
@@ -44,6 +45,9 @@ class DateCounterCheck extends CounterCheck {
 		Date date = getDate(cellval, dfParse);
 		if (date == null) {
 			date = getDate(cellval, defdf);
+		}
+		if (date == null) {
+			date = getDate(cellval, def1df);
 		}
 		if (date == null) {
 			date = getDate(cellval, def2df);

@@ -24,13 +24,9 @@ public class JournalReport1R4 extends JournalReport1 {
 		addCheck("F9", ReportType.BLANK);
 		addCheck("G9", ReportType.BLANK);
 
-		addCheckRange(ReportType.NONBLANK, getDataRow(), 0, data.getLastRow(), 0); //journal
-		addCheckRange(ReportType.NONBLANK, getDataRow(), 1, data.getLastRow(), 1); //pub
-		addCheckRange(ReportType.NONBLANK, getDataRow(), 2, data.getLastRow(), 2); //plat
-		//addCheckRange(ReportType.NONBLANK, getDataRow(), 3, data.getLastRow(), 3); 
-		//addCheckRange(ReportType.NONBLANK, getDataRow(), 4, data.getLastRow(), 4); 
-		//addCheckRange(ReportType.NONBLANK, getDataRow(), 5, data.getLastRow(), 5); 
-		//addCheckRange(ReportType.NONBLANK, getDataRow(), 6, data.getLastRow(), 6); 
+		addCheckRange(ReportType.NB_JOURNAL, getDataRow(), 0, data.getLastRow(), 0); //journal
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //plat
+		addCheckRange(ReportType.ISSN, getDataRow(), 5, data.getLastRow(), 6); 
 
 		checkColHeader(data);
 		checkGrid(data);

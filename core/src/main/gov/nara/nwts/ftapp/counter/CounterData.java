@@ -74,11 +74,93 @@ public class CounterData {
 		this.data = data;
 	}
 	
+
+	public void prepFileJStor() {
+		if (data.size() > 3) {
+			String A1 = getCellValue(Cell.at("A1"));
+			String A2 = getCellValue(Cell.at("A2"));
+			String A3 = getCellValue(Cell.at("A3"));
+			
+			//Eliminate JSTOR Leader
+			if (A1.equals("Counter Report") && A2.isEmpty() && A3.startsWith("Create time")) {
+				data.remove(0);
+				data.remove(0);
+				data.remove(0);
+				fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove first 3 lines. ");
+			}			
+		}
+		
+		String Last1 = getCellValue(Cell.at(data.size()-1, 0));
+		if (Last1 != null) {
+			if (Last1.startsWith("©")) {
+				data.remove(data.size() - 1);
+				
+				if (fileStat.stat == CounterStat.JSTOR) {
+					fileStat.message = fileStat.message + "JSTOR: Remove blank line before header. ";
+				} else {
+					fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove blank line before header. ");
+				}
+			}			
+		}
+		
+		//handle JSTOR empty row
+		int r = 0;
+		for(Vector<String>row: data) {
+			boolean isBlank = true;
+			for(String c: row) {
+				if (c == null) continue;
+				if (c.isEmpty()) continue;
+				isBlank = false;
+				break;
+			}
+			
+			if (isBlank) {
+				if ((r==4) || (r==8)) {
+					data.remove(r);
+					if (fileStat.stat == CounterStat.JSTOR) {
+						fileStat.message = fileStat.message + "JSTOR: Remove trailing copyright. ";
+					} else {
+						fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove trailing copyright. ");
+					}
+					break;					
+				}
+			}
+			r++;
+		}
+	}
+	
+	public void shiftCols(ReportType reportType) {
+		Vector<String> header = data.get(reportType.getHeadRow());
+		boolean bMatch = true;
+		boolean bMatch2 = true;
+		int col = 0;
+		for(String c: reportType.getCols()) {
+			String s = (col < header.size()) ? header.get(col) : null;
+			String s2 = (col+2 < header.size()) ? header.get(col+2) : null;
+			if (!c.equals(s)) bMatch = false;
+			if (!c.equals(s2)) bMatch2 = false;
+			col++;
+		}
+		if (bMatch) return;
+		if (!bMatch2) return;
+		
+		fileStat = CheckResult.createFileStatus(CounterStat.SHIFT_2_COL).setMessage("SHIFT: The first 2 cols of data header and rows must be removed");
+		
+		int r=0;
+		for(Vector<String> row : data) {
+			if (r >= reportType.getHeadRow()) {
+				row.remove(0);
+				row.remove(0);
+			}
+			r++;
+		}
+	}
 	
 	public void validate() {
+		prepFileJStor();
 		ReportType reportType = identifyReportType();
 		if (reportType == null) return;
-		if (fileStat.stat != CounterStat.VALID && fileStat.stat != CounterStat.UNSUPPORTED_REPORT) return;
+		if (fileStat.stat != CounterStat.VALID && fileStat.stat != CounterStat.UNSUPPORTED_REPORT && fileStat.stat != CounterStat.SHIFT_2_COL) return;
 		results.addAll(reportType.validate(this));
 		TreeMap<CounterStat,Integer> resultCount = new TreeMap<CounterStat,Integer>();
 		CounterStat overall = fileStat.stat;
@@ -136,6 +218,7 @@ public class CounterData {
 			return null;
 		} 
 
+		shiftCols(reportType);
 		reportType.init(this);
 
 		if (!reportType.isSupported()) {

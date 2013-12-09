@@ -21,6 +21,10 @@ public class BookReport2R4 extends ReportType {
 		addCheck("B3", ReportType.NONBLANK);
 		checkColHeader(data);
 		checkGrid(data);
+
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat
+		addCheckRange(ReportType.ISBN, getDataRow(), 5, data.getLastRow(), 5); 
+		addCheckRange(ReportType.ISSN, getDataRow(), 6, data.getLastRow(), 6); 
 	}
 	
 	public boolean isSupported() {
