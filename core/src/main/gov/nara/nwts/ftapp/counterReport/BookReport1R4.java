@@ -19,6 +19,10 @@ public class BookReport1R4 extends ReportType {
 		addCheck("A9", new StaticCounterCheck("Total for all titles"));
 		checkColHeader(data);
 		checkGrid(data);
+
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat
+		addCheckRange(ReportType.ISBN, getDataRow(), 5, data.getLastRow(), 5); 
+		addCheckRange(ReportType.ISSN, getDataRow(), 6, data.getLastRow(), 6); 
 	}
 	
 	public boolean isSupported() {

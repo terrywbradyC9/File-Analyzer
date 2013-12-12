@@ -16,6 +16,10 @@ public class BookReport2 extends ReportType {
 	@Override public void initCustom(CounterData data) {
 		checkColHeader(data);
 		checkGrid(data);
+
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat
+		addCheckRange(ReportType.ISBN, getDataRow(), 3, data.getLastRow(), 3); 
+		addCheckRange(ReportType.ISSN, getDataRow(), 4, data.getLastRow(), 4); 
 	}
 	
 	public boolean isSupported() {

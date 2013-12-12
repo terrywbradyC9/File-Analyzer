@@ -6,6 +6,7 @@ public class CheckResult {
 	public CounterStat stat;
 	public String message = "";
 	public String newVal;
+	public boolean ignoreVal;
 	
 	CheckResult(Cell cell, CounterStat stat) {
 		this.rec = CounterRec.CELL;
@@ -25,6 +26,11 @@ public class CheckResult {
 	
 	CheckResult setNewVal(String newVal) {
 		this.newVal = newVal;
+		return this;
+	}
+	
+	CheckResult setIgnoreVal(boolean b) {
+		ignoreVal = b;
 		return this;
 	}
 	

@@ -13,7 +13,9 @@ import gov.nara.nwts.ftapp.filter.CSVFilter;
 import gov.nara.nwts.ftapp.filter.CounterFilter;
 import gov.nara.nwts.ftapp.filter.TxtFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
+import gov.nara.nwts.ftapp.importer.DelimitedFileWriter;
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
@@ -91,10 +93,13 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	Vector<String> files = new Vector<String>();
 	Set<String> reportName = new HashSet<String>();
 
+	public static final String FIXSUFF = "fix-suffix";
 	public CounterValidation(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), DELIM, "delim",
 				"Delimiter character separating fields - if not default", Separator.values(), Separator.Comma));
+		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  FIXSUFF, FIXSUFF,
+				"Suffix to add to fix files, leave blank for not fix file generation", ""));
 	}
 	public String toString() {
 		return "Counter Compliance - CSV";
@@ -139,6 +144,12 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 		return null;
     }
     
+    @Override public boolean isTestable(File f) {
+    	String suff = getProperty(FIXSUFF,"").toString().toLowerCase();
+    	if (suff.isEmpty()) return true;
+    	if (f.getName().toLowerCase().endsWith(suff)) return false;
+    	return true;
+    }
     
 	public Object fileTest(File f) {
 		Stats s = getStats(f);
@@ -164,6 +175,9 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 			setCellStats(f, cd);
 			
 			s.setVal(CounterStatsItems.Stat, cd.getStat());
+			if (cd.getStat() != CounterStat.VALID) {
+				s.setVal(CounterStatsItems.Fixable, cd.isFixable() ? FIXABLE.YES : FIXABLE.NO);
+			}
 			s.setVal(CounterStatsItems.CellValue, cd.title);
 			s.setVal(CounterStatsItems.Message, cd.getMessage());				
 		}			
@@ -193,10 +207,26 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 			stat.setVal(CounterStatsItems.CellValue, cellval);
 			
 			FIXABLE fix = FIXABLE.NA;
-			if (result.stat != CounterStat.VALID) {
-				fix = result.newVal == null ? FIXABLE.NO : FIXABLE.YES;
+			if (result.stat == CounterStat.VALID) {
+			} else if (result.stat.ordinal() >= CounterStat.ERROR.ordinal()) {
+				fix = FIXABLE.NO;
+			} else {
+				if (result.ignoreVal == false) {
+					fix = result.newVal == null ? FIXABLE.NO : FIXABLE.YES;
+				}
 			}
 			stat.setVal(CounterStatsItems.Fixable, fix);
+		}
+		
+		if (!getProperty(FIXSUFF,"").toString().isEmpty()) {
+			if (cd.isFixable()) {
+				File fixf = new File(f.getParentFile(), f.getName() + getProperty(FIXSUFF,""));
+				try {
+					DelimitedFileWriter.writeCsv(fixf, cd.getFix(false));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}			
 		}
 	}
 	

@@ -20,6 +20,8 @@ public class DatabaseReport1 extends ReportType {
 	@Override public void initCustom(CounterData data) {
 		checkFields(data, getDataRow(), getFirstDataCol()-1, FIELDS);
 		this.checkColHeader(data);
+
+		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat
 	}
 	
 	public boolean isSupported() {

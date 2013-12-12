@@ -39,6 +39,10 @@ public class Cell {
 		return new Cell(cellname);
 	}
 	
+	static Cell at(int row, int col) {
+		return new Cell(row, col);
+	}
+	
 	public String getCellname() {
 		if (!valid) return "Invalid Cell Name";
 		String rowstr = ""+(row+1);
