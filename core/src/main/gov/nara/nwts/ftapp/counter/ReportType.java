@@ -162,7 +162,7 @@ public abstract class ReportType {
 	public static CounterCheck NB_JOURNAL = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID_BLANK).setMessage("Non-blank Journal expected");
 	public static CounterCheck NB_PLATFORM = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID_BLANK).setMessage("Non-blank Platform expected");
 	
-	public static CounterCheck ISSN = new PatternCounterCheck(Pattern.compile("^(\\d{4,4}-?\\d{3,3}[\\dX])?$")).setCounterStat(CounterStat.WARNING).setMessage("Invalid ISSN");
+	public static CounterCheck ISSN = new PatternCounterCheck(Pattern.compile("^(\\d{4,4}-?\\d{3,3}[\\dX])?$")).setCounterStat(CounterStat.WARNING).setMessage("Invalid ISSN").setIgnoreVal(true);
 	public static CounterCheck ISBN = new PatternCounterCheck(Pattern.compile("^(((\\d-?){3,3})?(\\d-?){9,9}\\d)?$")).setCounterStat(CounterStat.WARNING).setMessage("Invalid ISBN");
 
 	public static String sYYYYMMDD = "\\d\\d\\d\\d-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|[12][0-9]|30|31|32)";

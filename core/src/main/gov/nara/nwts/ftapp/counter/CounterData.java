@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public class CounterData {
     Pattern pRptType = Pattern.compile("^(.*?)\\(([^\\)]+)\\)( - )?(.*?)$");
 	Vector<Vector<String>> data;
+	private Vector<Vector<String>> fix;
 	public ArrayList<CheckResult> results = new ArrayList<CheckResult>();
 	
 	public CheckResult fileStat = CheckResult.createFileStatus(CounterStat.VALID);
@@ -17,6 +18,23 @@ public class CounterData {
 	public String version = "";
 	public RPT rpt;
 	public String title = "";
+	boolean allFixable = true;
+	
+	public Vector<Vector<String>> getFix(boolean force) {
+		if (fix == null || force) {
+			fix = new Vector<Vector<String>>();
+			for(Vector<String> row: data) {
+				Vector<String> newRow = new Vector<String>();
+				fix.add(newRow);
+				for(String col: row) {
+					newRow.add(col);
+				}
+			}
+		}
+		return fix;
+	}
+	
+	public boolean hasFix() {return fix != null;}
 	
 	public int getMaxRow() {
 		return data.size();
@@ -64,6 +82,11 @@ public class CounterData {
 	
 	public CounterStat getStat() {
 		return fileStat.stat;
+	}
+	
+	public boolean isFixable() {
+		if (!hasFix()) return false;
+		return allFixable;
 	}
 	
 	public String getMessage() {
@@ -127,6 +150,9 @@ public class CounterData {
 			}
 			r++;
 		}
+		if (fileStat.stat == CounterStat.JSTOR) {
+			getFix(true);
+		}
 	}
 	
 	public void shiftCols(ReportType reportType) {
@@ -154,13 +180,23 @@ public class CounterData {
 			}
 			r++;
 		}
+		
+		getFix(true);
 	}
 	
 	public void validate() {
 		prepFileJStor();
 		ReportType reportType = identifyReportType();
 		if (reportType == null) return;
-		if (fileStat.stat != CounterStat.VALID && fileStat.stat != CounterStat.UNSUPPORTED_REPORT && fileStat.stat != CounterStat.SHIFT_2_COL) return;
+		
+		if (fileStat.stat == CounterStat.VALID) {
+		} else if (fileStat.stat == CounterStat.UNSUPPORTED_REPORT) {
+		} else if (fileStat.stat == CounterStat.JSTOR) {
+		} else if (fileStat.stat == CounterStat.SHIFT_2_COL) {
+		} else {
+			return;
+		}
+		
 		results.addAll(reportType.validate(this));
 		TreeMap<CounterStat,Integer> resultCount = new TreeMap<CounterStat,Integer>();
 		CounterStat overall = fileStat.stat;
@@ -182,6 +218,17 @@ public class CounterData {
 			buf.append(" cells; ");
 		}
 		fileStat = CheckResult.createFileStatus(overall).setMessage(buf.toString());
+		for(CheckResult cr: results) {
+			if (cr.stat == CounterStat.VALID) continue;
+			if (cr.stat.ordinal() >= CounterStat.ERROR.ordinal()) {
+				allFixable = false;
+				break;
+			}
+			if (cr.newVal == null && cr.ignoreVal == false) {
+				allFixable = false;
+				break;
+			}
+		}
 	}
 	
 
@@ -231,5 +278,10 @@ public class CounterData {
 		if (cell.row >= data.size() || cell.row < 0) return null;
 		if (cell.col >= data.get(cell.row).size() || cell.col < 0) return null;
 		return data.get(cell.row).get(cell.col);
+	}
+	public static void setCellValue(Vector<Vector<String>> xdata, Cell cell, String val) {
+		if (cell.row >= xdata.size() || cell.row < 0) return;
+		if (cell.col >= xdata.get(cell.row).size() || cell.col < 0) return;
+		xdata.get(cell.row).set(cell.col, val);
 	}
 }

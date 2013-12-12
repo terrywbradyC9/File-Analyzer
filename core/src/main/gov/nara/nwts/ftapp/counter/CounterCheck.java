@@ -4,6 +4,7 @@ public class CounterCheck {
 	String message = "Cell does not match specifications";
 	CounterStat stat = CounterStat.INVALID;
 	boolean allowNull = false;
+	boolean ignoreVal = false;
 	
 	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		return CheckResult.createCellValid(cell);
@@ -24,4 +25,8 @@ public class CounterCheck {
 		return this;
 	}
 
+	public CounterCheck setIgnoreVal(boolean b) {
+		this.ignoreVal = b;
+		return this;
+	}
 }

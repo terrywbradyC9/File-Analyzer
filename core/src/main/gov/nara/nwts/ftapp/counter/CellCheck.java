@@ -25,6 +25,17 @@ public class CellCheck {
 		for(Cell cell: cells) {
 			CheckResult res = check.performCheck(cd, cell, cd.getCellValue(cell)); 
 			results.add(res);
+			
+			if (res.stat != CounterStat.VALID) {
+				if (res.newVal != null) {
+					CounterData.setCellValue(cd.getFix(false), res.cell, res.newVal);
+				} else {
+					if (check.ignoreVal) {
+						res.setIgnoreVal(true);
+					}
+				}
+			}
+			
 			if (res.stat.ordinal() >= CounterStat.ERROR.ordinal()) {
 				break;
 			}
