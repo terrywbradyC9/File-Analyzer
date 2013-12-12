@@ -115,7 +115,7 @@ public class CounterData {
 		
 		String Last1 = getCellValue(Cell.at(data.size()-1, 0));
 		if (Last1 != null) {
-			if (Last1.startsWith("©")) {
+			if (Last1.startsWith(""+0x00A9)) {
 				data.remove(data.size() - 1);
 				
 				if (fileStat.stat == CounterStat.JSTOR) {
