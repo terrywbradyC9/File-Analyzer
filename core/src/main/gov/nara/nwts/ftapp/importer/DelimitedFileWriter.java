@@ -30,13 +30,16 @@ public class DelimitedFileWriter {
 		this.sep = sep;
 	}
 
+	public void writeField(String s) throws IOException {
+		writeField(s, false);
+	}
 	public void writeField(String s, boolean isLast) throws IOException {
 		if (s==null) s= "";
 		if (s.contains(sep)) {
 			s = '"' + s.replaceAll("\"", "\"\"") + '"';
 		}
 		bw.write(s);
-		if (!isLast) bw.write(sep);
+		bw.write(isLast ? "\n" : sep);
 	}
 	public void writeRow(Vector<String> row) throws IOException {
 		int i=0;
@@ -44,7 +47,6 @@ public class DelimitedFileWriter {
 			i++;
 			writeField(s, i == row.size());
 		}
-		bw.write("\n");
 	}
 	public void writeData(Vector<Vector<String>> data) throws IOException {
 		for(Vector<String> row: data) writeRow(row);
@@ -59,4 +61,12 @@ public class DelimitedFileWriter {
     public static void writeCsv(File f, Vector<Vector<String>> data) throws IOException {
     	writeFile(f, ",", data);
     }
+
+	public void close() {
+		try {
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
