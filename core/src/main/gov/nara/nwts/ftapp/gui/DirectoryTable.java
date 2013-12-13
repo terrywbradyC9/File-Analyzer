@@ -2,6 +2,8 @@ package gov.nara.nwts.ftapp.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -23,8 +25,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 import gov.nara.nwts.ftapp.filetest.ActionRegistry;
 import gov.nara.nwts.ftapp.FTDriver;
@@ -62,6 +66,7 @@ public class DirectoryTable extends FTDriver {
 
 	
 	JFrame frame;
+	public JFrame getFrame() {return frame;}
 	ActionRegistry actionRegistry;
 	ImporterRegistry importerRegistry;
 	JLabel countLabel;
@@ -189,10 +194,7 @@ public class DirectoryTable extends FTDriver {
 		List<FTProp> myprops = fileTest.getPropertyList();
 		criteriaPanel.propFilter.setEnabledAt(2, false);
 		for(FTProp myprop: myprops) {
-			JComponent c = myprop.getEditor();
-			c.setBorder(BorderFactory.createTitledBorder(myprop.getName()));
-			c.setToolTipText(myprop.describe());
-			b.add(c);
+			b.add(DirectoryTable.getPropPanel(criteriaPanel, myprop));
 			criteriaPanel.propFilter.setEnabledAt(2, true);
 		}
 		//criteriaPanel.propPanel.repaint();
@@ -439,4 +441,26 @@ public class DirectoryTable extends FTDriver {
 	}
 	public void reportSave(File f) {	
 	}
+	
+	static JPanel getPropPanel(JPanel parent, FTProp myprop) {
+		JPanel pp = new JPanel(new BorderLayout());
+		
+		String desc = myprop.describe();
+		if (desc == null) desc = "";
+		if (!desc.isEmpty()) {
+			JTextArea description = new JTextArea(myprop.describe());
+			description.setMargin(new Insets(1,1,1,1));
+			description.setEditable(false);
+			description.setLineWrap(true);
+			description.setWrapStyleWord(true);
+			description.setBackground(parent.getBackground());
+			description.setFont(description.getFont().deriveFont(Font.ITALIC));
+			pp.add(description, BorderLayout.NORTH);			
+		}
+		JComponent c = myprop.getEditor();
+		pp.add(c, BorderLayout.CENTER);
+		pp.setBorder(BorderFactory.createTitledBorder(myprop.getName()));
+		return pp;
+	}
+
 }

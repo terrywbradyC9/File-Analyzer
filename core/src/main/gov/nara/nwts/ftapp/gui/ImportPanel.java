@@ -25,7 +25,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -71,10 +70,7 @@ class ImportPanel extends MyPanel {
 		List<FTProp> myprops = i.getPropertyList();
 		dptab.setEnabledAt(1, false);
 		for(FTProp myprop: myprops) {
-			JComponent c = myprop.getEditor();
-			c.setBorder(BorderFactory.createTitledBorder(myprop.getName()));
-			c.setToolTipText(myprop.describe());
-			b.add(c);
+			b.add(DirectoryTable.getPropPanel(propPanel, myprop));
 			dptab.setEnabledAt(1, true);
 		}
 	}
