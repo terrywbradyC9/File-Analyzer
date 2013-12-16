@@ -4,6 +4,8 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.gui.FileSelectChooser;
 
 import javax.swing.JComponent;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  * File Test Property object for string values
@@ -17,8 +19,7 @@ public class FTPropFile extends DefaultFTProp {
 		super(ft, prefix, name, shortname, description, def);
 		init();
 		
-		chooser = new FileSelectChooser(ft.getFrame(), name, def.toString());
-		/* 
+		chooser = new FileSelectChooser(ft.getFrame(), name, this.def.toString());
 		chooser.tf.getDocument().addDocumentListener(new DocumentListener(){
 			public void changedUpdate(DocumentEvent arg0) {
 				if (FTPropFile.this.ft.hasPreferences()) {
@@ -37,8 +38,8 @@ public class FTPropFile extends DefaultFTProp {
 					FTPropFile.this.ft.setPreference(getPrefString(), chooser.tf.getText());
 				}
 			}
+
 		});
-		*/
 	}
 
 	public JComponent getEditor() {

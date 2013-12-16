@@ -18,7 +18,7 @@ public class FTPropString extends DefaultFTProp {
 	public FTPropString(FTDriver ft, String prefix, String name, String shortname, String description, Object def) {
 		super(ft, prefix, name, shortname, description, def);
 		init();
-		tf = new JTextField(this.def.toString());
+		createTextField();
 		tf.getDocument().addDocumentListener(new DocumentListener(){
 			public void changedUpdate(DocumentEvent arg0) {
 				if (FTPropString.this.ft.hasPreferences()) {
@@ -40,6 +40,10 @@ public class FTPropString extends DefaultFTProp {
 		});
 	}
 
+	public void createTextField() {
+		tf = new JTextField(this.def.toString());		
+	}
+	
 	public JComponent getEditor() {
 		return tf;
 	}
