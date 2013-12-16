@@ -272,6 +272,5 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 		return false;
 	}
 	
-	
-	
+
 }
