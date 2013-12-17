@@ -208,7 +208,7 @@ public class CounterData {
 			x = (x == null) ? 1 : x.intValue() + 1;
 			resultCount.put(cr.stat, x);
 		}
-		StringBuffer buf = new StringBuffer();
+		StringBuffer buf = new StringBuffer(fileStat.message);
 		Vector<CounterStat> cstats = new Vector<CounterStat>();
 		for(CounterStat st: resultCount.keySet()) {
 			cstats.add(0, st);
@@ -220,8 +220,7 @@ public class CounterData {
 			buf.append(" cells; ");
 		}
 		
-		
-		fileStat.message = fileStat.message + buf.toString();
+		fileStat = CheckResult.createFileStatus(overall).setMessage(buf.toString());
 		for(CheckResult cr: results) {
 			if (cr.stat == CounterStat.VALID) continue;
 			if (cr.stat.ordinal() >= CounterStat.ERROR.ordinal()) {

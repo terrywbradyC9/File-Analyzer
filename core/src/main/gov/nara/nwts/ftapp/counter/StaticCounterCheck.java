@@ -1,11 +1,20 @@
 package gov.nara.nwts.ftapp.counter;
 
+import java.util.regex.Pattern;
+
 public class StaticCounterCheck extends CounterCheck {
 	String val;
+	Pattern noReplace;
 	public StaticCounterCheck(String val) {
+		this(val, null);
+	}
+
+	public StaticCounterCheck(String val, Pattern pNoReplace) {
 		this.val = val;
 		this.message = "Expected value: " + val;
+		this.noReplace = pNoReplace;
 	}
+	
 	@Override
 	public CheckResult performCheck(CounterData cd, Cell cell, String cellval) {
 		if (cellval == null) {
@@ -32,6 +41,12 @@ public class StaticCounterCheck extends CounterCheck {
 		if (val.equalsIgnoreCase(cellval.replaceAll("[:\\s]+$", ""))) {
 			return CheckResult.createCellInvalidPunct(cell, message).setNewVal(val);
 		} 
+		
+		if (noReplace != null) {
+			if (noReplace.matcher(cellval).matches()) {
+				return CheckResult.createCellStatus(cell, stat).setMessage(message);
+			}
+		}
 		
 		CheckResult res = CheckResult.createCellStatus(cell, stat).setMessage(message).setNewVal(val);
 		return res;

@@ -72,14 +72,17 @@ public abstract class ReportType {
 		}		
 	}
 	
-	public void checkFields(CounterData data, int dr, int fieldCol, String[] fields) {
+	public void checkFieldData(CounterData data, int dr) {
+		addCheckRange(ReportType.NONBLANK, dr, 0, data.getLastRow(), 2);
+		addCheckRange(new IntCounterCheck("Monthly stat must be a number"), dr, getFirstDataCol(), data.getLastRow(), getLastDataColWithVal(data)); //Month counts
+		addCheckRange(new RowSumCounterCheck(getFirstDataCol(), getLastDataCol(data), "Cell should be total of data cp;"), dr, getTotalCol(data), data.getLastRow(), getTotalCol(data)); 
+	}
+	
+	public void checkFieldLabels(CounterData data, int dr, int fieldCol, String[] fields) {
 		for(int datarow = dr; data.getLastCol(datarow) > 0; datarow += fields.length){
-			addCheckRange(ReportType.NONBLANK, datarow, 0, datarow+fields.length-1, 2);
 			for(int i=0; i<fields.length; i++) {
 				addCheck(datarow + i, fieldCol, new StaticCounterCheck(fields[i]));				
 			}
-			addCheckRange(new IntCounterCheck("Monthly stat must be a number"), datarow, getFirstDataCol(), datarow + fields.length - 1, getLastDataColWithVal(data)); //Month counts
-			addCheckRange(new RowSumCounterCheck(getFirstDataCol(), getLastDataCol(data), "Cell should be total of data cp;"), datarow, getTotalCol(data), datarow + fields.length - 1, getTotalCol(data)); 
 		}		
 	}
 	
@@ -97,16 +100,18 @@ public abstract class ReportType {
 	}
 
 	public void addCheckStandard(CounterData data) {
+		Pattern pHasDate = Pattern.compile("^.*\\d\\d\\d\\d.*$");
+		
 		if (rev == REV.R3 || rev == REV.R1) {
 			addCheck("A2", ReportType.NONBLANK);
-			addCheck("A3", new StaticCounterCheck("Date run:"));
+			addCheck("A3", new StaticCounterCheck("Date run:", pHasDate));
 			addCheck("A4", ReportType.YYYYMMDD);
 		} else if (rev == REV.R4) {
 			addCheck("A2", ReportType.NONBLANK);
 			//Institutional Identifier, A3 may be blank
 			addCheck("A4", new StaticCounterCheck("Period Covered by Report"));
 			addCheck("A5", ReportType.YYYYMMDD_to_YYYYMMDD);
-			addCheck("A6", new StaticCounterCheck("Date run"));
+			addCheck("A6", new StaticCounterCheck("Date run", pHasDate));
 			addCheck("A7", ReportType.YYYYMMDD);			
 		}
 		
@@ -162,8 +167,9 @@ public abstract class ReportType {
 	public static CounterCheck NB_JOURNAL = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID_BLANK).setMessage("Non-blank Journal expected");
 	public static CounterCheck NB_PLATFORM = new PatternCounterCheck(Pattern.compile(".+")).setCounterStat(CounterStat.INVALID_BLANK).setMessage("Non-blank Platform expected");
 	
-	public static CounterCheck ISSN = new PatternCounterCheck(Pattern.compile("^(\\d{4,4}-?\\d{3,3}[\\dX])?$")).setCounterStat(CounterStat.WARNING).setMessage("Invalid ISSN").setIgnoreVal(true);
-	public static CounterCheck ISBN = new PatternCounterCheck(Pattern.compile("^(((\\d-?){3,3})?(\\d-?){9,9}\\d)?$")).setCounterStat(CounterStat.WARNING).setMessage("Invalid ISBN");
+	public static Pattern ISN_NA = Pattern.compile("^\\s*(-|na|n/a)\\s*$");
+	public static CounterCheck ISSN = new PatternCounterCheck(Pattern.compile("^(\\d{4,4}-?\\d{3,3}[\\dX])?$"), ISN_NA, "").setCounterStat(CounterStat.WARNING).setMessage("Invalid ISSN").setIgnoreVal(true);
+	public static CounterCheck ISBN = new PatternCounterCheck(Pattern.compile("^(((\\d-?){3,3})?(\\d-?){9,9}\\d)?$"), ISN_NA, "").setCounterStat(CounterStat.WARNING).setMessage("Invalid ISBN").setIgnoreVal(true);
 
 	public static String sYYYYMMDD = "\\d\\d\\d\\d-(01|02|03|04|05|06|07|08|09|10|11|12)-(0[1-9]|[12][0-9]|30|31|32)";
 	public static Pattern pYYYYMMDD_to_YYYYMMDD = Pattern.compile("^" + sYYYYMMDD + " to " + sYYYYMMDD + "$");
