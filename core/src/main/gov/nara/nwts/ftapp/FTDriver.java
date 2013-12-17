@@ -21,6 +21,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
+import javax.swing.JFrame;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -89,6 +90,7 @@ public class FTDriver {
 	public File root;
 	public TreeMap<String,Stats> types;
 	public File getRoot() {return root;}
+	public JFrame getFrame() {return null;}
 	
 	public FTDriver(File root) {
 		batchItems = new Vector<Vector<String>>();

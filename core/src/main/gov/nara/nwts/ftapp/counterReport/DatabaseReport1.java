@@ -1,6 +1,7 @@
 package gov.nara.nwts.ftapp.counterReport;
 
 import gov.nara.nwts.ftapp.counter.CounterData;
+import gov.nara.nwts.ftapp.counter.ListCounterCheck;
 import gov.nara.nwts.ftapp.counter.REV;
 import gov.nara.nwts.ftapp.counter.ReportType;
 
@@ -18,7 +19,11 @@ public class DatabaseReport1 extends ReportType {
 	public String[] getCols() {return COLS;}
 	
 	@Override public void initCustom(CounterData data) {
-		checkFields(data, getDataRow(), getFirstDataCol()-1, FIELDS);
+		ListCounterCheck labels = new ListCounterCheck(FIELDS);
+		labels.addAlternative("searches", "Total searches run");
+		labels.addAlternative("sessions", "Total sessions");
+		addCheckRange(labels, getDataRow(), getFirstDataCol()-1, data.getLastRow(), getFirstDataCol()-1); 
+		checkFieldData(data, getDataRow());
 		this.checkColHeader(data);
 
 		addCheckRange(ReportType.NB_PLATFORM, getDataRow(), 2, data.getLastRow(), 2); //Plat

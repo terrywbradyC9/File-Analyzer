@@ -11,6 +11,7 @@ import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.CSVFilter;
 import gov.nara.nwts.ftapp.filter.CounterFilter;
+import gov.nara.nwts.ftapp.filter.TsvFilter;
 import gov.nara.nwts.ftapp.filter.TxtFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
@@ -121,6 +122,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
     	if (sep != Separator.DefaultForType) return sep.separator;
     	if (ext.equals("CSV")) return ",";
     	if (ext.equals("TXT")) return "\t";
+    	if (ext.equals("TSV")) return "\t";
     	return "\t";
     }
     
@@ -256,6 +258,7 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 		filters.add(new CounterFilter());
 		filters.add(new CSVFilter());
 		filters.add(new TxtFilter());
+		filters.add(new TsvFilter());
 	}
 	@Override
 	public ActionResult importFile(File selectedFile) throws IOException {
@@ -272,6 +275,5 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 		return false;
 	}
 	
-	
-	
+
 }

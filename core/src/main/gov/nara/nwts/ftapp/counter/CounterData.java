@@ -86,6 +86,7 @@ public class CounterData {
 	
 	public boolean isFixable() {
 		if (!hasFix()) return false;
+		if (fileStat.stat == CounterStat.JSTOR || fileStat.stat == CounterStat.SHIFT_2_COL) return true;
 		return allFixable;
 	}
 	
@@ -113,15 +114,16 @@ public class CounterData {
 			}			
 		}
 		
-		String Last1 = getCellValue(Cell.at(data.size()-1, 0));
+		String Last1 = getCellValue(Cell.at(getLastRow(), 0));
 		if (Last1 != null) {
-			if (Last1.startsWith(""+0x00A9)) {
-				data.remove(data.size() - 1);
+			if (Last1.isEmpty()) {
+			} else if (Last1.charAt(0) == 0x00A9) {
+				data.remove(getLastRow());
 				
 				if (fileStat.stat == CounterStat.JSTOR) {
-					fileStat.message = fileStat.message + "JSTOR: Remove blank line before header. ";
+					fileStat.message = fileStat.message + "JSTOR: Remove trailing copyright. ";
 				} else {
-					fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove blank line before header. ");
+					fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove trailing copyright. ");
 				}
 			}			
 		}
@@ -141,9 +143,9 @@ public class CounterData {
 				if ((r==4) || (r==8)) {
 					data.remove(r);
 					if (fileStat.stat == CounterStat.JSTOR) {
-						fileStat.message = fileStat.message + "JSTOR: Remove trailing copyright. ";
+						fileStat.message = fileStat.message + "JSTOR: Remove blank line before header. ";
 					} else {
-						fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove trailing copyright. ");
+						fileStat = CheckResult.createFileStatus(CounterStat.JSTOR).setMessage("JSTOR: Remove blank line before header. ");
 					}
 					break;					
 				}
@@ -206,7 +208,7 @@ public class CounterData {
 			x = (x == null) ? 1 : x.intValue() + 1;
 			resultCount.put(cr.stat, x);
 		}
-		StringBuffer buf = new StringBuffer();
+		StringBuffer buf = new StringBuffer(fileStat.message);
 		Vector<CounterStat> cstats = new Vector<CounterStat>();
 		for(CounterStat st: resultCount.keySet()) {
 			cstats.add(0, st);
@@ -217,6 +219,7 @@ public class CounterData {
 			buf.append(resultCount.get(st));
 			buf.append(" cells; ");
 		}
+		
 		fileStat = CheckResult.createFileStatus(overall).setMessage(buf.toString());
 		for(CheckResult cr: results) {
 			if (cr.stat == CounterStat.VALID) continue;
@@ -284,4 +287,5 @@ public class CounterData {
 		if (cell.col >= xdata.get(cell.row).size() || cell.col < 0) return;
 		xdata.get(cell.row).set(cell.col, val);
 	}
+	
 }

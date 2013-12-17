@@ -59,4 +59,5 @@ class MyPanel extends JPanel {
 		}
 		return p;
 	}
+	
 }

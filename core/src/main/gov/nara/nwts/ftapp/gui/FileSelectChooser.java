@@ -17,7 +17,7 @@ import javax.swing.event.DocumentListener;
  * @author TBrady
  *
  */
-class FileSelectChooser extends JPanel implements ActionListener, DocumentListener {
+public class FileSelectChooser extends JPanel implements ActionListener, DocumentListener {
 	private static final long serialVersionUID = 1L;
 	private Preferences p;
 	protected JFrame parent; 
@@ -26,10 +26,10 @@ class FileSelectChooser extends JPanel implements ActionListener, DocumentListen
 	protected String title;
 	private String key;
 	
-	FileSelectChooser(JFrame parent, String title, String def) {
+	public FileSelectChooser(JFrame parent, String title, String def) {
 		this(parent, title, null, null, def);
 	}
-	FileSelectChooser(JFrame parent, String title, Preferences p, String key, String def) {
+	public FileSelectChooser(JFrame parent, String title, Preferences p, String key, String def) {
 		this.p = p;
 		this.parent = parent;
 		this.title = title;
