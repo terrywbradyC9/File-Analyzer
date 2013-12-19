@@ -1,5 +1,7 @@
 package gov.nara.nwts.ftapp.ftprop;
 
+import java.io.File;
+
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.gui.FileSelectChooser;
 
@@ -48,6 +50,12 @@ public class FTPropFile extends DefaultFTProp {
 
 	public Object getValue() {
 		return chooser.tf.getText();
+	}
+	
+	public File getFile() {
+		String s = (String)getValue();
+		if (s == null) return null;
+		return new File(s);
 	}
 
 	public void setValue(Object obj) {

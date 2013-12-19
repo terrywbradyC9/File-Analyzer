@@ -102,7 +102,6 @@ public class FTDriver {
 		myresfilter = new ResultFilter();
 	}
 
-	
 	public void showSummary(String name, String longname, StatsItemConfig details, TreeMap<String,Stats>types, boolean completed, String note){
 		
 	}
