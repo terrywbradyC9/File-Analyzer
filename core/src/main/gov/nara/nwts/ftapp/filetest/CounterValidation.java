@@ -26,8 +26,6 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 
@@ -54,12 +52,12 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	
 	public static enum CounterStatsItems implements StatsItemEnum {
 		File_Cell(StatsItem.makeStringStatsItem("File [cell row, cell col]", 100)),
-		Filename(StatsItem.makeStringStatsItem("File", 150)),
+		Filename(StatsItem.makeStringStatsItem("File", 150).makeFilter(true)),
 		Cell(StatsItem.makeStringStatsItem("Cell", 50)),
 		Rec(StatsItem.makeEnumStatsItem(CounterRec.class, "Record").setWidth(60)),
 		Stat(StatsItem.makeEnumStatsItem(CounterStat.class, "Compliance").setWidth(170)),
 		Fixable(StatsItem.makeEnumStatsItem(FIXABLE.class, "Fixable").setWidth(40)),
-		Report(StatsItem.makeStringStatsItem("Counter Report", 150)),
+		Report(StatsItem.makeStringStatsItem("Counter Report", 150).makeFilter(true)),
 		Version(StatsItem.makeEnumStatsItem(REV.class, "Rev").setWidth(40)),
 		Message(StatsItem.makeStringStatsItem("Message", 400)),
 		CellValue(StatsItem.makeStringStatsItem("Cell Value", 250)),
@@ -83,17 +81,16 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 			}
 
 		}
+
 		public CounterStats create(String key) {return new CounterStats(key);}
 		public CounterStats create(File f, String cellname) {return new CounterStats(f, cellname);}
+
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(CounterStatsItems.class);
 
 	long counter = 1000000;
 	boolean showValid = false;
 	
-	Vector<String> files = new Vector<String>();
-	Set<String> reportName = new HashSet<String>();
-
 	public static final String FIXSUFF = "fix-suffix";
 	public CounterValidation(FTDriver dt) {
 		super(dt);
@@ -164,11 +161,9 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 		
 		if (cd.report != null) {
 			s.setVal(CounterStatsItems.Report, cd.report);
-			reportName.add(cd.report);
 		}
 		if (cd.version != null) s.setVal(CounterStatsItems.Version, REV.find(cd.version));							
 		s.setVal(CounterStatsItems.Filename, f.getName());			
-		files.add(f.getName());
 
 		if (cd.rpt == null) {
 			s.setVal(CounterStatsItems.Stat, CounterStat.UNSUPPORTED_REPORT);
@@ -234,13 +229,11 @@ public class CounterValidation extends DefaultFileTest implements Importer {
 	
 
 	public void refineResults() {
-		getStatsDetails().get(CounterStatsItems.Filename.ordinal()).values = files.toArray();
-		getStatsDetails().get(CounterStatsItems.Report.ordinal()).values = reportName.toArray();
+		getStatsDetails().createFilters(this.dt.types);
 		showValid = false;
 	}
 	
 	public void init() {
-		files.clear();
 	}
 	
     public Stats createStats(String key){ 

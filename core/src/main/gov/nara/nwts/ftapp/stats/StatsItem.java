@@ -8,6 +8,7 @@ public class StatsItem {
 	public boolean export = true;
 	public Object initVal;
 	private int index;
+	private boolean makeFilter;
 	
 	public StatsItem(Class<?> myclass, String header, int width, Object[] values, boolean export, Object initVal) {
 		this.myclass = myclass;
@@ -54,6 +55,13 @@ public class StatsItem {
 		this.export = export;
 		return this;
 	}
+	
+	public StatsItem makeFilter(boolean b) {
+		this.makeFilter = b;
+		return this;
+	}
+	
+	public boolean getFilter() {return makeFilter;}
 	
 	public StatsItem setValues(Object[] values) {
 		this.values = values;

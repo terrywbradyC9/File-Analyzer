@@ -2,9 +2,9 @@ package gov.nara.nwts.ftapp.stats;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class StatsItemConfig implements Iterable<StatsItem>  {
 	ArrayList<StatsItem> columns;
@@ -55,20 +55,19 @@ public class StatsItemConfig implements Iterable<StatsItem>  {
 		return columns.iterator();
 	}
 
-	public static Object[] getUniqueVals(TreeMap<String,Stats> data, StatsItemEnum si) {
-		HashSet<Object> vals = new HashSet<Object>();
-		for(Stats stat: data.values()) {
-			Object obj = stat.getVal(si);
-			if (obj == null) continue;
-			vals.add(obj);
+	public void createFilters(TreeMap<String,Stats> data) {
+		for(StatsItem si: columns) {
+			if (si.getFilter()) {
+				TreeSet<Object> vals = new TreeSet<Object>();
+				for(Stats stat: data.values()) {
+					Object obj = stat.getKeyVal(si, null);
+					if (obj == null) continue;
+					vals.add(obj);
+				}
+				si.values = vals.toArray();
+			}
 		}
-		return vals.toArray();
-	}
-	
-	public void setUniqueVals(TreeMap<String,Stats> data, StatsItemEnum si) {
-		if (this.size() > si.ordinal()) {
-			this.get(si.ordinal()).values = StatsItemConfig.getUniqueVals(data, si);			
-		}
+		
 	}
 	
 }
