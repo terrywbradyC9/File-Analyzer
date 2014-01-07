@@ -3,6 +3,8 @@ package gov.nara.nwts.ftapp.stats;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class StatsItemConfig implements Iterable<StatsItem>  {
 	ArrayList<StatsItem> columns;
@@ -52,4 +54,20 @@ public class StatsItemConfig implements Iterable<StatsItem>  {
 	public Iterator<StatsItem> iterator() {
 		return columns.iterator();
 	}
+
+	public void createFilters(TreeMap<String,Stats> data) {
+		for(StatsItem si: columns) {
+			if (si.getFilter()) {
+				TreeSet<Object> vals = new TreeSet<Object>();
+				for(Stats stat: data.values()) {
+					Object obj = stat.getKeyVal(si, null);
+					if (obj == null) continue;
+					vals.add(obj);
+				}
+				si.values = vals.toArray();
+			}
+		}
+		
+	}
+	
 }
