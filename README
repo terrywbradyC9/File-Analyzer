@@ -1,7 +1,9 @@
 PURPOSE
-The File Analyzer is a general purpose desktop (and command line) tool designed to automate simple, file-based operations. The File Analyzer assembles a toolkit of tasks a user can perform.
+The [File Analyzer](http://georgetown-university-libraries.github.io/File-Analyzer/) is a general purpose desktop (and command line) 
+tool designed to automate simple, file-based operations.  The File Analyzer assembles a toolkit of tasks a user can perform.
 
-The tasks that have been written into the File Analyzer code base have been optimized for use by libraries, archives, and other cultural heritage institutions.
+The tasks that have been written into the File Analyzer code base have been optimized for use by libraries, archives, 
+and other cultural heritage institutions.
 
 File Analyzer Wiki: https://github.com/Georgetown-University-Libraries/File-Analyzer/wiki
 
