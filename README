@@ -10,6 +10,9 @@ File Analyzer Wiki: https://github.com/Georgetown-University-Libraries/File-Anal
 This code has been derived from the NARA File Analyzer and Metadata Harvester which is available at 
 https://github.com/usnationalarchives/File-Analyzer.
 
+![screen shot](https://raw.github.com/Georgetown-University-Libraries/File-Analyzer/master/doc/WikiScreenShots/Overview/Slide3.JPG)
+
+
 PREREQUISITES
 - JDK 1.6 or higher (for build)
 - JRE 1.6 or higher (for runtime)
