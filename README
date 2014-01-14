@@ -1,5 +1,7 @@
 PURPOSE
-The [File Analyzer](http://georgetown-university-libraries.github.io/File-Analyzer/) is a general purpose desktop (and command line) 
+Project Page: http://georgetown-university-libraries.github.io/File-Analyzer/
+
+The File Analyzer and Metadata Harvester is a general purpose desktop (and command line) 
 tool designed to automate simple, file-based operations.  The File Analyzer assembles a toolkit of tasks a user can perform.
 
 The tasks that have been written into the File Analyzer code base have been optimized for use by libraries, archives, 
