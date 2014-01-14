@@ -1,43 +1,9 @@
 PURPOSE
-The File Analyzer and Metadata Harvester is designed to automate simple, file-based operations performed by cultural heritage institutions.
-- Example: count files by type
-- Example: test file naming conventions
+The File Analyzer is a general purpose desktop (and command line) tool designed to automate simple, file-based operations. The File Analyzer assembles a toolkit of tasks a user can perform.
 
-The application assembles a toolkit of tasks a user can perform
-- Present tasks in a simple User Interface
-- Reduce learning curve when deploying a new task
-- New tasks are easy for a user to locate
+The tasks that have been written into the File Analyzer code base have been optimized for use by libraries, archives, and other cultural heritage institutions.
 
-The modular code makes it easy to deploy new code and to share code.
-
-(test change)
-
-APPLICATION DESCRIPTION
-- Desktop Application written in Java
-- Scans a file system and performs an action on files
-- Imports a file, and performs an action on records
-- Presents summary results
-- Results Merging
-- Customizable
-- Easy to add additional rules to the application to implement local business rules
-- Same UI for all tasks
-
-OVERVIEW PRESENTATIONS
-FILE ANALYZER WIKI
-- https://github.com/Georgetown-University-Libraries/File-Analyzer/wiki
-WRLC (Washington Research Library Consortium) Forum Presentation - Sept 2013
-- https://docs.google.com/presentation/d/1hqbusyuNcsphFeAmsNuI3120c4iQqBycB9n7RQ6txdA/pub?start=false&loop=false&delayms=3000
-OpenRepositories 2013 Presentation
-- http://or2013.net/sessions/focus-your-content-not-ingesting-your-content
-- http://or2013.net/sites/or2013.net/files/slides/OR2013%20Focus%20on%20Your%20Content.ppt
-Code4Lib Presentation
-- https://docs.google.com/presentation/d/1Sq2gqGm58DeuzSTigEofGGci_szqo5rwctgqER2HOKo/pub?start=false&loop=false&delayms=3000
-- https://archive.org/details/Code4LibLightningTalksApr2013TerryBrady
-DSpace Tools Overview
-- http://prezi.com/wridwe2h0d4a/automating-dspace-folder-creation/?kw=view-wridwe2h0d4a&rc=ref-16497460
-- http://prezi.com/cigoderbzi2g/dspace-ingest-via-file-analyzer/?kw=view-cigoderbzi2g&rc=ref-16497460
-Digitization Tools
-- https://docs.google.com/document/d/1KopsLHZCN2dxmZoWAV4QUpFETBRnpOID8lpq65I6Ne4/pub
+File Analyzer Wiki: https://github.com/Georgetown-University-Libraries/File-Analyzer/wiki
 
 ==================================================================================================
 
