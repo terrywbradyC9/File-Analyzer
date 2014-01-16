@@ -70,7 +70,7 @@ class ListFiles extends DefaultFileTest {
 
 	public String getDescription() {
 		return "This rule will generate a listing of the full path to every file it finds.\n" +
-				"The purpose of this tool is to generate a file list for use in other applications.";
+				"The purpose of this tool is to generate a file list for import into in other applications.";
 	}
 
 }
