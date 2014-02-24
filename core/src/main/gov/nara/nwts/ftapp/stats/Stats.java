@@ -161,6 +161,18 @@ public class Stats {
 		return (Integer)getVal(eitem, null);
 	}
 
+	public String getStringVal(StatsItemEnum eitem) {
+		return getStringVal(eitem, "");
+	}
+	public String getStringVal(StatsItemEnum eitem, String def) {
+		int index = eitem.si().getIndex();
+		if ((index >= 0) && (vals.size() > index)) {
+			if (vals.get(index) == null) return def;
+			return vals.get(index).toString();
+		}
+		return def;
+	}
+
 	public Object getVal(StatsItemEnum eitem, Object def) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {
