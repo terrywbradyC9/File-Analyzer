@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,15 +15,25 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 public class ExcelReader {
+	static Pattern pInt = Pattern.compile("^(\\d+)\\.0$");
 	public static Vector<Vector<String>> readExcel(File f) throws InvalidFormatException, IOException {		
+		return readExcelWorksheet(f, 0, 1);
+	}
+
+	public static Vector<Vector<String>> readExcelWorksheet(File f, int sheetIndex) throws InvalidFormatException, IOException {
+		return readExcelWorksheet(f, sheetIndex, 0);
+	}
+	public static Vector<Vector<String>> readExcelWorksheet(File f, int sheetIndex, int maxSheets) throws InvalidFormatException, IOException {		
 		Vector<Vector<String>> data = new Vector<Vector<String>>();
 
 		FileInputStream fs = new FileInputStream(f);
 		try {
 			Workbook w = WorkbookFactory.create(fs);
-			if (w.getNumberOfSheets() > 1) throw new InvalidFormatException("Workbook has more than one worksheet");
-			if (w.getNumberOfSheets() != 1) throw new InvalidFormatException("Workbook does not have a worksheet");
-			Sheet sheet = w.getSheetAt(0);
+			if (w.getNumberOfSheets() <= sheetIndex) throw new InvalidFormatException("Cannot find worksheet "+ sheetIndex);
+			if (maxSheets != 0) {
+				if (w.getNumberOfSheets() > maxSheets) throw new InvalidFormatException("Workbook has more than " + maxSheets + " worksheet(s)");				
+			}
+			Sheet sheet = w.getSheetAt(sheetIndex);
 			for(int r=0; r<sheet.getPhysicalNumberOfRows(); r++) {
 				Vector<String> row = new Vector<String>();
 				data.add(row);
@@ -29,7 +41,26 @@ public class ExcelReader {
 				if (srow == null) continue;
 				for(int c=0; c<srow.getLastCellNum(); c++) {
 					Cell cell = srow.getCell(c); 
-					row.add(cell == null ? null : cell.toString());
+					if (cell == null) {
+						row.add(null);
+					} else {
+						String val = "";
+						try {
+							if (cell.getCellType() == 0) {
+								val = ""+cell.getNumericCellValue();
+								Matcher m = pInt.matcher(val);
+								if (m.matches()) {
+									val = m.group(1);
+								}
+							} else {
+								val = cell.toString();
+							}
+						} catch (Exception e) {
+							val = "N/A "+e.getMessage();
+						}
+						row.add(val);
+					}
+					
 				}
 			}
 		} catch (InvalidFormatException e) {

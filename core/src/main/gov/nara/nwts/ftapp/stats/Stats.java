@@ -116,6 +116,10 @@ public class Stats {
 	}
 	 
 	public void appendVal(StatsItemEnum eitem, String val) {
+		appendVal(eitem, val, "");
+	}
+	
+	public void appendVal(StatsItemEnum eitem, String val, String sep) {
 		int index = eitem.si().getIndex();
 		if ((index >= 0) && (vals.size() > index)) {
 			Object obj = vals.get(index);
@@ -123,6 +127,7 @@ public class Stats {
 				vals.set(index,val);				
 			} else if (obj instanceof String) {
 				String s = (String)obj;
+				if (!s.isEmpty() && !val.isEmpty()) s += sep;
 				s += val;
 				vals.set(index, s);
 			}
