@@ -19,15 +19,27 @@ import java.util.Vector;
 public class DelimitedFileWriter {
 	BufferedWriter bw;
 	String sep;
+	
+	public static final String LF = "\n";
+	public static final String CRLF = "\r\n";
+	String lineend;
 
 	public DelimitedFileWriter(File f, String sep) throws FileNotFoundException, UnsupportedEncodingException {
+		this(f, sep, LF);
+	}
+	public DelimitedFileWriter(File f, String sep, String lineend) throws FileNotFoundException, UnsupportedEncodingException {
 		bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
 		this.sep = sep;
+		this.lineend = lineend;
 	}
 
 	public DelimitedFileWriter(OutputStream os, String sep) throws FileNotFoundException, UnsupportedEncodingException {
+		this(os, sep, LF);
+	}
+	public DelimitedFileWriter(OutputStream os, String sep, String lineend) throws FileNotFoundException, UnsupportedEncodingException {
 		bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
 		this.sep = sep;
+		this.lineend = lineend;
 	}
 
 	public void writeField(String s) throws IOException {
@@ -39,7 +51,7 @@ public class DelimitedFileWriter {
 			s = '"' + s.replaceAll("\"", "\"\"") + '"';
 		}
 		bw.write(s);
-		bw.write(isLast ? "\n" : sep);
+		bw.write(isLast ? lineend : sep);
 	}
 	public void writeRow(Vector<String> row) throws IOException {
 		int i=0;
