@@ -46,12 +46,16 @@ public class ExcelReader {
 					} else {
 						String val = "";
 						try {
-							if (cell.getCellType() == 0) {
+							if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
 								val = ""+cell.getNumericCellValue();
 								Matcher m = pInt.matcher(val);
 								if (m.matches()) {
 									val = m.group(1);
 								}
+							} else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+								val = cell.toString();
+							} else if (cell.getCellType() == Cell.CELL_TYPE_BLANK) {
+								val = "";
 							} else {
 								val = cell.toString();
 							}
