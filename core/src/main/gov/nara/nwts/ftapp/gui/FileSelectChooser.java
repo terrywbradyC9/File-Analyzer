@@ -43,9 +43,9 @@ public class FileSelectChooser extends JPanel implements ActionListener, Documen
 		button = new JButton("...");
 		add(button);
 		button.addActionListener(this);
-		button = new JButton("X");
-		add(button);
-		button.addActionListener(new ActionListener(){
+		buttonX = new JButton("X");
+		add(buttonX);
+		buttonX.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				tf.setText("");
 			}});
