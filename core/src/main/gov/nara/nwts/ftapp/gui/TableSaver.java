@@ -3,6 +3,7 @@ package gov.nara.nwts.ftapp.gui;
 import gov.nara.nwts.ftapp.importer.DelimitedFileImporter.Separator;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -120,8 +121,11 @@ class TableSaver extends JDialog {
     	pCheck.add(bp2);
 
     	colPanel = new JPanel(new GridLayout(0,3));
+    	JScrollPane csp = new JScrollPane(colPanel);
+		csp.setPreferredSize(new Dimension(colPanel.getSize().width + 50, 200));
 
-    	add(new JScrollPane(colPanel), BorderLayout.CENTER);
+
+    	add(csp, BorderLayout.CENTER);
     	checks = new ArrayList<JCheckBox>();
    		for(int c=0; c<tm.getColumnCount(); c++){
    			Object chead = jt.getColumnModel().getColumn(c).getHeaderValue();

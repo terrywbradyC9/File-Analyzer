@@ -36,7 +36,7 @@ public class DelimitedFileReader {
 			br.close();
 			return null;
 		}
-		if (!sep.equals("")) pline = pline.trim();
+		if (!sep.trim().equals("")) pline = pline.trim();
 		Vector<String> cols = new Vector<String>();
 		while(pline!=null){
 			if (!sep.trim().equals("")) pline = pline.trim();
