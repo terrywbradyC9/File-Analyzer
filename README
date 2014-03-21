@@ -22,6 +22,7 @@ PREREQUISITES
 INSTALLATION
 - Clone this code to your computer
 - Run mvn install
+- Detailed [[Installation instructions]]
 
 DEPLOYMENTS
 This code will build 3 flavors of the File Analyzer.
