@@ -17,6 +17,7 @@ public class ImporterRegistry extends Vector<Importer> {
 	public ImporterRegistry(FTDriver dt) {
 		add(new DelimitedFileImporter(dt));
 		add(new Parser(dt));
+		add(new MultiParser(dt));
 		add(new CountKey(dt));
 		add(new CounterValidation(dt));
 	}
