@@ -91,10 +91,8 @@ public class MultiParser extends DefaultImporter {
 						stats.setVal(ParserStatsItems.PassFail, status.PASS);
 						for(String s: groups) {
 							try {
-								//Java 7
-								//StatsItem si = details.getByKey(s);
-								//stats.setKeyVal(si, m.group(s));
-								s.toString();
+								StatsItem si = details.getByKey(s);
+								stats.setKeyVal(si, m.group(s));
 							} catch (Exception e) {
 							}
 						}
