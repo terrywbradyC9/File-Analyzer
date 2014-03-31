@@ -94,6 +94,7 @@ public class MultiParser extends DefaultImporter {
 								//Java 7
 								//StatsItem si = details.getByKey(s);
 								//stats.setKeyVal(si, m.group(s));
+								s.toString();
 							} catch (Exception e) {
 							}
 						}
