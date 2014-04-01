@@ -3,7 +3,7 @@ package gov.nara.nwts.ftapp.importer;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
-import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.FTPropFile;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -21,8 +21,7 @@ import java.util.regex.Pattern;
 
 /**
  * Base class parser to ananlyze and ingest individual rows from a file using a regular expression pattern.
- * NOT USED -- NEED USE CASE OR DELETE
- * @author TBrady
+  * @author TBrady
  *
  */
 public class MultiParser extends DefaultImporter {
@@ -42,38 +41,68 @@ public class MultiParser extends DefaultImporter {
 		return details;
 	}
 
-	public static final int FIELDS = 10;
-	public static final String FIELD_GRP = "RegEx Named Groups";
-	public static final String FIELD_RX = "RegEx ";
-	public static final String getOptField(int i) {return FIELD_RX + i;}
+	public static final String F_PARSE = "Parser Rule File";
+	private FTPropFile pParseRule;
+	
 	public MultiParser(FTDriver dt) {
 		super(dt);
-		this.ftprops.add(new FTPropString(dt, this.getClass().getName(), FIELD_GRP, FIELD_GRP,
-				"Regex Named Groups, Comma Separated", ""));
-		for(int i=1; i<=FIELDS; i++) {
-			this.ftprops.add(new FTPropString(dt, this.getClass().getName(), getOptField(i), "f"+i,
-					getOptField(i), ""));
+		pParseRule = new FTPropFile(dt, this.getClass().getName(), F_PARSE, F_PARSE,
+				"Parser Rule File", "");
+		this.ftprops.add(pParseRule);
+	}
+	
+	enum ParserFileMode {NA,COLS,PATTS;}
+	
+	class ParserFile {
+		String[] groups = new String[0];
+		Vector<Pattern> patterns = new Vector<Pattern>();
+		
+		ParserFile(File f) {
+			try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+				ParserFileMode pfm = ParserFileMode.NA;
+				for(String line=br.readLine(); line!=null; line=br.readLine()) {
+					line = line.trim();
+					if (line.startsWith("#")) continue;
+					if (line.isEmpty()) continue;
+					
+					if (line.equals("[COLS]")) {
+						pfm = ParserFileMode.COLS;
+						continue;
+					} 
+					if (line.equals("[PATTERNS]")) {
+						pfm = ParserFileMode.PATTS;
+						continue;
+					}
+					
+					if (pfm == ParserFileMode.COLS) {
+						groups = line.split(",");
+					} else if (pfm == ParserFileMode.PATTS) {
+						try {
+							patterns.add(Pattern.compile(line));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+			
 		}
 	}
 	
+	
 	public ActionResult importFile(File selectedFile) throws IOException {
-		String sGrp = (String)this.getProperty(FIELD_GRP);
-		String[] groups = sGrp.split(","); 
+		File parse = pParseRule.getFile();
+		ParserFile pf = new ParserFile(parse);
 		details = StatsItemConfig.create(ParserStatsItems.class);
-		for(String s: groups) {
-			details.addStatsItem(s, StatsItem.makeStringStatsItem(s));
+		for(String grp: pf.groups) {
+			details.addStatsItem(grp, StatsItem.makeStringStatsItem(grp));
 		}
-		
-		Vector<Pattern> patterns = new Vector<Pattern>();
-		
-		for(int i=1; i<=FIELDS; i++) {
-			String s = (String)this.getProperty(getOptField(i));
-			if (s.isEmpty()) continue;
-			try {
-				patterns.add(Pattern.compile(s));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		for(Pattern patt: pf.patterns) {
+			System.out.println(patt.toString());
 		}
 		Timer timer = new Timer();
 		TreeMap<String,Stats> types = new TreeMap<String,Stats>();
@@ -85,11 +114,11 @@ public class MultiParser extends DefaultImporter {
 				Stats stats = Stats.Generator.INSTANCE.create(details, key);
 				stats.setVal(ParserStatsItems.PassFail, status.FAIL);
 				types.put(key, stats);
-				for(Pattern p: patterns) {
+				for(Pattern p: pf.patterns) {
 					Matcher m = p.matcher(line);
 					if (m.matches()) {
 						stats.setVal(ParserStatsItems.PassFail, status.PASS);
-						for(String s: groups) {
+						for(String s: pf.groups) {
 							try {
 								StatsItem si = details.getByKey(s);
 								stats.setKeyVal(si, m.group(s));
@@ -116,7 +145,17 @@ public class MultiParser extends DefaultImporter {
 	}
 	public String getDescription() {
 		return "This rule will parse each line of a file and add it to the results table.\n" +
-				"This rule requires an understanding of regular expressions.";
+				"This rule takes advantage of named groups in a regular expression match.\n\n" +
+				"[COLS]\n" +
+				"FIRST,LAST,ID,COST\n\n" +
+				"[PATTERNS]\n" +
+				"# Sample Comment 1\n" +
+				"^(?<FIRST>[^\\t\\-]+)-(?<ID>[^\\t]+)\\t(?<LAST>[^\\t]+).*\\$(?<COST>\\d+).*$\n" +
+				"^(?<FIRST>[^\\t\\-]+)-(?<ID>[^\\t]+)\\t(?<LAST>[^\\t]+).*$\n" +
+				"# Sample Comment 2\n" +
+				"^(?<FIRST>[^\\t\\-]+)\\t(?<LAST>[^\\t]+).*\\$(?<COST>\\d+).*$\n" +
+				"^(?<FIRST>[^\\t\\-]+)\\t(?<LAST>[^\\t]+).*$\n" +
+				"^$";
 	}
 	public String getShortName() {
 		return "MultiParse";
