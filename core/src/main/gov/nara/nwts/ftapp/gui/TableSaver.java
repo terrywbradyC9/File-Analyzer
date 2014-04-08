@@ -3,7 +3,12 @@ package gov.nara.nwts.ftapp.gui;
 import gov.nara.nwts.ftapp.importer.DelimitedFileImporter.Separator;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -88,9 +94,38 @@ class TableSaver extends JDialog {
     			jfc.setSelectedFile(new File(p,fname +".txt"));
     		}
     	}
-    	add(jfc, BorderLayout.NORTH);
-    	colPanel = new JPanel(new GridLayout(0,1));
-    	add(new JScrollPane(colPanel), BorderLayout.CENTER);
+    	JPanel pTop = new JPanel(new BorderLayout());
+    	add(pTop, BorderLayout.NORTH);
+    	pTop.add(jfc, BorderLayout.NORTH);
+    	
+    	JPanel pCheck = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    	pTop.add(pCheck, BorderLayout.SOUTH);
+    	JButton b = new JButton("Check All");
+    	b.setMargin(new Insets(0,0,0,0));
+    	b.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for(JCheckBox cb: checks) cb.setSelected(true);
+			}});
+    	JPanel bp1 = new JPanel();
+    	bp1.add(b);
+    	pCheck.add(bp1);
+    	
+       	b = new JButton("Uncheck All");
+    	b.setMargin(new Insets(0,0,0,0));
+    	b.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for(JCheckBox cb: checks) cb.setSelected(false);
+			}});
+    	JPanel bp2 = new JPanel();
+    	bp2.add(b);
+    	pCheck.add(bp2);
+
+    	colPanel = new JPanel(new GridLayout(0,3));
+    	JScrollPane csp = new JScrollPane(colPanel);
+		csp.setPreferredSize(new Dimension(colPanel.getSize().width + 50, 200));
+
+
+    	add(csp, BorderLayout.CENTER);
     	checks = new ArrayList<JCheckBox>();
    		for(int c=0; c<tm.getColumnCount(); c++){
    			Object chead = jt.getColumnModel().getColumn(c).getHeaderValue();

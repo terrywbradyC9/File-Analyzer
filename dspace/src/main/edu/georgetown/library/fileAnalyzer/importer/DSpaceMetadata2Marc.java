@@ -42,7 +42,7 @@ import gov.nara.nwts.ftapp.util.XMLUtil;
 public class DSpaceMetadata2Marc extends DefaultImporter {
 
 	public static Pattern phead = Pattern
-			.compile("^dc\\.([a-z]+)(\\.([a-z]+))?(\\[[a-zA-Z_]+\\])?$");
+			.compile("^dc\\.([a-z]+)(\\.([a-z]+))?(\\[[a-zA-Z_]*\\])?$");
 	public static NumberFormat nf = NumberFormat.getNumberInstance();
 	static {
 		nf.setMinimumIntegerDigits(4);

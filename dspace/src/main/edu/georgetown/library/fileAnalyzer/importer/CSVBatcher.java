@@ -68,7 +68,7 @@ public class CSVBatcher extends DefaultImporter {
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), HEADROW, HEADROW,
 				"Treat first row as header", YN.values(), YN.Y));
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), BATCHSIZE, BATCHSIZE,
-				"Treat first row as header", SIZE.values(), SIZE.B1000));
+				"Batch Size", SIZE.values(), SIZE.B1000));
 	}
 	boolean forceKey;
 	

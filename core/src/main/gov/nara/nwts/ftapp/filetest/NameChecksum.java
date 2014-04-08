@@ -27,6 +27,9 @@ public class NameChecksum extends DefaultFileTest {
 	
 	HashMap<String, List<ChecksumStats>> keymap;
 	public static final String ALGORITHM = "Algorithm";
+	public static final String KEY = "Key";
+	static enum KEYTYPE {NAME, PATH;}
+	
 	static enum Algorithm {
 		MD5("MD5"),
 		SHA1("SHA-1"),
@@ -45,12 +48,15 @@ public class NameChecksum extends DefaultFileTest {
 		keymap = new HashMap<String, List<ChecksumStats>>();
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), ALGORITHM, "algorithm",
 				"Checksum Algorithm", Algorithm.values(), Algorithm.MD5));
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), KEY, KEY,
+				"Result Key", KEYTYPE.values(), KEYTYPE.PATH));
 	}
 
 	public String toString() {
 		return "Sort By Checksum";
 	}
 	public String getKey(File f) {
+		if (((KEYTYPE)getProperty(KEY)) == KEYTYPE.NAME) return f.getName();
 		return getRelPath(f);
 	}
 	

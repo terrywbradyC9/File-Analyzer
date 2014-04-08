@@ -5,6 +5,7 @@ import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ class SummaryPanel extends MyBorderPanel {
 	private static final long serialVersionUID = 1L;
 	JPanel tp;
 	JPanel filterPanel;
+	JScrollPane spFilter;
 	StatsTable st;
 	JTextField note;
 	JTextField fnote;
@@ -68,7 +70,9 @@ class SummaryPanel extends MyBorderPanel {
 			}});
 		p.add(b);
 		filterPanel = new JPanel();
-		np.add(filterPanel, BorderLayout.SOUTH);
+		spFilter = new JScrollPane(filterPanel);
+		spFilter.setPreferredSize(new Dimension(800, np.getPreferredSize().height + 10));
+		np.add(spFilter, BorderLayout.SOUTH);
 	}
 	
 	
@@ -77,6 +81,7 @@ class SummaryPanel extends MyBorderPanel {
 		tp.removeAll();
 		tp.add(new JScrollPane(st.jt), BorderLayout.CENTER);
 		filterPanel.removeAll();
+		spFilter.setVisible(!st.filters.isEmpty());
 		for(Iterator<JComboBox>i=st.filters.iterator();i.hasNext();) {
 			JComboBox cb = i.next();
 			if (cb!=null) filterPanel.add(cb);
