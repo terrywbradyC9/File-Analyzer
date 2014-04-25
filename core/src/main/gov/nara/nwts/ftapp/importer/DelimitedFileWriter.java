@@ -27,17 +27,23 @@ public class DelimitedFileWriter {
 	public DelimitedFileWriter(File f, String sep) throws FileNotFoundException, UnsupportedEncodingException {
 		this(f, sep, LF);
 	}
-	public DelimitedFileWriter(File f, String sep, String lineend) throws FileNotFoundException, UnsupportedEncodingException {
-		bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
+	public DelimitedFileWriter(File f, String sep, String lineend, String encoding) throws FileNotFoundException, UnsupportedEncodingException {
+		bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f), encoding));
 		this.sep = sep;
 		this.lineend = lineend;
+	}
+	public DelimitedFileWriter(File f, String sep, String lineend) throws FileNotFoundException, UnsupportedEncodingException {
+		this(f, sep, lineend, "UTF-8");
 	}
 
 	public DelimitedFileWriter(OutputStream os, String sep) throws FileNotFoundException, UnsupportedEncodingException {
 		this(os, sep, LF);
 	}
 	public DelimitedFileWriter(OutputStream os, String sep, String lineend) throws FileNotFoundException, UnsupportedEncodingException {
-		bw = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+		this(os, sep, lineend, "UTF-8");
+	}
+	public DelimitedFileWriter(OutputStream os, String sep, String lineend, String encoding) throws FileNotFoundException, UnsupportedEncodingException {
+		bw = new BufferedWriter(new OutputStreamWriter(os, encoding));
 		this.sep = sep;
 		this.lineend = lineend;
 	}
