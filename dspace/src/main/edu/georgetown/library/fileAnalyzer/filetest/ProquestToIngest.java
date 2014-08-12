@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -34,6 +35,7 @@ import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 import gov.nara.nwts.ftapp.util.XMLUtil;
+import gov.nara.nwts.ftapp.util.ZipUtil;
 
 public class ProquestToIngest extends DefaultFileTest {
 	
@@ -75,6 +77,7 @@ public class ProquestToIngest extends DefaultFileTest {
 	static String P_MARC = "Generate MARC";
 	static String P_FOLDERS = "Separate Folders per Dept";
 	static String PS_FOLDERS = "folders";
+	static String P_ZIP = "zip ingest";
 	
 	public ProquestToIngest(FTDriver dt) {
 		super(dt);
@@ -82,6 +85,8 @@ public class ProquestToIngest extends DefaultFileTest {
 				"Generate a MARC XML record for QC/troubleshooting purposes", YN.values(), YN.N));	
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_FOLDERS, PS_FOLDERS,
 				"Group ETD's into folders by academic department", YN.values(), YN.Y));	
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ZIP, P_ZIP,
+				"Create zip files for ingest folders", YN.values(), YN.N));	
 		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_NAME, MarcUtil.P_UNIV_NAME,
 				"University Name", "My University"));
 		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_LOC, MarcUtil.P_UNIV_LOC,
@@ -100,10 +105,16 @@ public class ProquestToIngest extends DefaultFileTest {
 	
 	public static final String PQEXTRACT = "pqextract_";
 	
+	private Vector<File> outdirs = new Vector<>();
+	
 	public void init() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		outdir = new File(getRoot(), PQEXTRACT+df.format(new Date()));
 		outdir.mkdir();		
+		outdirs.clear();
+		if (this.getProperty(P_FOLDERS).equals(YN.N)) {
+			outdirs.add(outdir);
+		}
 	}
 
 	public String getDescription() {
@@ -257,7 +268,23 @@ public class ProquestToIngest extends DefaultFileTest {
 			dept = dept.replaceAll("[^a-zA-Z0-9]", "_").replaceAll("__+","_");
 			File deptdir = new File(outdir, dept);
 			deptdir.mkdir();
-			zout.renameTo(new File(deptdir, zout.getName()));
+			File newName = new File(deptdir, zout.getName()); 
+			zout.renameTo(newName);
+			if (!outdirs.contains(deptdir)) {
+				outdirs.add(deptdir);				
+			}
+		}
+		
+		if (getProperty(P_ZIP) == YN.Y) {
+			for(File ingestFolder: outdirs) {
+				try {
+					ZipUtil.zipFolder(ingestFolder);
+				} catch (IOException e) {
+					System.err.println(e.getMessage() + " " + ingestFolder.getAbsolutePath());
+				} catch (Exception e) {
+					System.err.println(e.getMessage() + " " + ingestFolder.getAbsolutePath());
+				}
+			}
 		}
 		return zcount;
 	}
