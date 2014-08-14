@@ -39,6 +39,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 import gov.nara.nwts.ftapp.util.FileUtil;
 import gov.nara.nwts.ftapp.util.XMLUtil;
+import gov.nara.nwts.ftapp.util.ZipUtil;
 
 /**
  * @author TBrady
@@ -129,6 +130,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
 	public static final String REUSABLE_LICENSE = "Reusable License";
 	public static final String P_AUTONAME = "Add User and Date to Ingest Folder";
+	public static final String P_ZIP = "Create Zip File of Ingest Folders";
 	public static enum FIXED {
 		FOLDER(0), ITEM(1), THUMB(2), LICENSE(3);
 		int index;
@@ -147,6 +149,8 @@ public class IngestFolderCreate extends DefaultImporter {
 				"Relative path to license file to be used for all items w/o license (optional)", ""));
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(), P_AUTONAME, "autoname",
 				"Append user name, date and time to ingest folder name", YN.values(), YN.Y));
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(), P_ZIP, "ingest-zip",
+				"Create Zip File of Ingest Folders", YN.values(), YN.N));
 
 	}
 
@@ -362,9 +366,13 @@ public class IngestFolderCreate extends DefaultImporter {
 			types.put(key, stats);
 		}
 		
+		if (getProperty(P_ZIP) == YN.Y) {
+			ZipUtil.zipFolder(getCurrentIngestDir(selectedFile));
+		}
+		
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), getDetails(), types, true, timer.getDuration());
 	}
-
+	
 	public void importRow(File selectedFile, Vector<String> cols,Stats stats, String globalThumb, String globalLicense) {
 		StringBuffer buf = new StringBuffer();
 		try {
