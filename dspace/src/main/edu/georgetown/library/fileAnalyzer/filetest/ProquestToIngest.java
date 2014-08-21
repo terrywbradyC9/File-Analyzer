@@ -251,6 +251,9 @@ public class ProquestToIngest extends DefaultFileTest {
 		if (!bXmlFound) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, "ProQuest XML File not found in root directory");	
+		}
+		
+		if (stats.getVal(ProquestStatsItems.OverallStat) == OVERALL_STAT.FAIL) {
 			for (File c : zout.listFiles()) {
 				if (!c.delete()) {
 					System.err.println("Cannot delete "+c.getAbsolutePath());
