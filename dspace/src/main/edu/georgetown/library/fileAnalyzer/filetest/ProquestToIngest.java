@@ -139,25 +139,27 @@ public class ProquestToIngest extends DefaultFileTest {
 		byte[] buf = new byte[4096];
 		String dept = "TBD";
 		boolean bXmlFound = false;
-		try {
+		
+		File contents = new File(zout, "contents");
+		
+		try(
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
-			File contents = new File(zout, "contents");
 			BufferedWriter br = new BufferedWriter(new FileWriter(contents));
+		) {
 			
 			for(ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry()){
 				if (ze.getName().startsWith("__MACOSX")) continue;
-				if (ze.getName().equals(".DS_Store")) continue;
+				if (ze.getName().endsWith(".DS_Store")) continue;
 				File ztemp = new File(ze.getName());
 				File zeout = new File(zout, ztemp.getName());
 				if (ze.isDirectory()) continue;
 				
-				FileOutputStream fos = new FileOutputStream(zeout);
-				for(int i=zis.read(buf); i > -1; i=zis.read(buf)) {
-					fos.write(buf, 0, i);
-					bytes += i;
+				try(FileOutputStream fos = new FileOutputStream(zeout)) {
+					for(int i=zis.read(buf); i > -1; i=zis.read(buf)) {
+						fos.write(buf, 0, i);
+						bytes += i;
+					}
 				}
-				fos.flush();
-				fos.close();
 				
 				if (ze.getName().toLowerCase().endsWith(".xml") && (!ze.getName().contains("/"))) {
 					try {
@@ -232,11 +234,6 @@ public class ProquestToIngest extends DefaultFileTest {
 				zcount++;
 
 			}
-			br.flush();
-			br.close();
-
-			zis.close();
-			
 		} catch (ZipException e) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, e.getMessage());					
@@ -253,7 +250,15 @@ public class ProquestToIngest extends DefaultFileTest {
 		
 		if (!bXmlFound) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
-			stats.setVal(ProquestStatsItems.Message, "ProQuest XML File not found in root directory");					
+			stats.setVal(ProquestStatsItems.Message, "ProQuest XML File not found in root directory");	
+			for (File c : zout.listFiles()) {
+				if (!c.delete()) {
+					System.err.println("Cannot delete "+c.getAbsolutePath());
+				}
+			}
+			if (!zout.delete()){
+				System.err.println("Cannot delete "+zout.getAbsolutePath());
+			}
 			return zcount;		
 		}
 
