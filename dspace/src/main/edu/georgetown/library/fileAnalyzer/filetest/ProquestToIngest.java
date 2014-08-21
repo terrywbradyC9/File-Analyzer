@@ -138,12 +138,15 @@ public class ProquestToIngest extends DefaultFileTest {
 		long bytes = 0;
 		byte[] buf = new byte[4096];
 		String dept = "TBD";
+		boolean bXmlFound = false;
 		try {
 			ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
 			File contents = new File(zout, "contents");
 			BufferedWriter br = new BufferedWriter(new FileWriter(contents));
 			
 			for(ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry()){
+				if (ze.getName().startsWith("__MACOSX")) continue;
+				if (ze.getName().equals(".DS_Store")) continue;
 				File ztemp = new File(ze.getName());
 				File zeout = new File(zout, ztemp.getName());
 				if (ze.isDirectory()) continue;
@@ -158,6 +161,7 @@ public class ProquestToIngest extends DefaultFileTest {
 				
 				if (ze.getName().toLowerCase().endsWith(".xml") && (!ze.getName().contains("/"))) {
 					try {
+						bXmlFound = true;
 						Document d = XMLUtil.db.parse(zeout);
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.PASS);
 						NodeList nl = d.getElementsByTagName("DISS_title");
@@ -246,6 +250,12 @@ public class ProquestToIngest extends DefaultFileTest {
 		
 		stats.setVal(ProquestStatsItems.Items, zcount);
 		stats.setVal(ProquestStatsItems.Size, bytes);
+		
+		if (!bXmlFound) {
+			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
+			stats.setVal(ProquestStatsItems.Message, "ProQuest XML File not found in root directory");					
+			return zcount;		
+		}
 
 		if (bytes > 25000000 && stats.getVal(ProquestStatsItems.OverallStat) == OVERALL_STAT.INIT) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);					
