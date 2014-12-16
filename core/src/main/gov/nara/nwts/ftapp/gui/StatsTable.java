@@ -154,6 +154,14 @@ class StatsTable {
 							int v = (Integer) value;
 							setText(DirectoryTable.nf.format(v));
 							setHorizontalAlignment(JLabel.RIGHT);
+                        } else if (value instanceof Float) {
+                            float v = (Float) value;
+                            setText(DirectoryTable.ndurf.format(v));
+                            setHorizontalAlignment(JLabel.RIGHT);
+                        } else if (value instanceof Double) {
+                            double v = (Double) value;
+                            setText(DirectoryTable.ndurf.format(v));
+                            setHorizontalAlignment(JLabel.RIGHT);
 						} else {
 							String s = value.toString();
 							if (s.contains("\n")) {
