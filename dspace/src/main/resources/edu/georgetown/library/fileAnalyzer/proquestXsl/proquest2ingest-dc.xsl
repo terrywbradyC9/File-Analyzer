@@ -115,7 +115,7 @@
         <xsl:variable name="code" select="text()"/>
         <xsl:variable name="ecatcode" select="document('lcsh.xml')//lcsh[@code=$code]"/>
         <xsl:for-each select="$ecatcode">
-            <xsl:variable name="catacode" select="val"/>
+            <xsl:variable name="catcode" select="val"/>
             <xsl:variable name="nc" select="count($catcode)"/>
  
             <xsl:if test="$nc &gt; 0">
