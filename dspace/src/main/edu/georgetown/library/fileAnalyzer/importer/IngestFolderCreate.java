@@ -46,7 +46,7 @@ import gov.nara.nwts.ftapp.util.ZipUtil;
  *
  */
 public class IngestFolderCreate extends DefaultImporter {
-	private static enum IngestStatsItems implements StatsItemEnum {
+	static enum IngestStatsItems implements StatsItemEnum {
 		LineNo(StatsItem.makeStringStatsItem("Line No").setExport(false).setWidth(60)),
 		Folder(StatsItem.makeStringStatsItem("Folder")),
 		Status(StatsItem.makeEnumStatsItem(status.class, "Status").setWidth(60)),
@@ -104,9 +104,9 @@ public class IngestFolderCreate extends DefaultImporter {
 		
 	}
 	
-	private static enum FileStats {NA, NOT_FOUND, ERROR, ALREADY_EXISTS, MOVED_TO_INGEST, COPIED_TO_INGEST;}
-	private static enum MetaStats {NA, ERROR, CREATED, OVERWRITTEN;}
-	private static enum InputMetaStats {NA, MISSING, FORMAT_ERROR, DUPLICATE, OK;}
+	static enum FileStats {NA, NOT_FOUND, ERROR, ALREADY_EXISTS, MOVED_TO_INGEST, COPIED_TO_INGEST;}
+	static enum MetaStats {NA, ERROR, CREATED, OVERWRITTEN;}
+	static enum InputMetaStats {NA, MISSING, FORMAT_ERROR, DUPLICATE, OK;}
 	class CreateException extends Exception {
 		private static final long serialVersionUID = 5042987495219000857L;
 
@@ -166,7 +166,7 @@ public class IngestFolderCreate extends DefaultImporter {
 				"\t3) Thumbnail file name - optional, file must exist if present\n"+
 				"\t4) License file name - optional, file must exist if present\n"+
 				"\tAddition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
-				"A title (dc.title) and a properly formatted creation date (dc.date.created) must be present somewhere in the set of additional columns.";
+				validateRowDescription();
 	}
 	public String getShortName() {
 		return "Ingest Folder";
@@ -373,6 +373,16 @@ public class IngestFolderCreate extends DefaultImporter {
 		return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), getDetails(), types, true, timer.getDuration());
 	}
 	
+	public String validateRowDescription() {
+	    return "A title (dc.title) must be present .";
+	}
+    public void validateRow(Vector<String> cols,Stats stats) throws CreateException {
+        if (!hasColumnValue(cols, "dc.title")) {
+            stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
+            throw new CreateException("Item must have element [dc.title]");
+        } 
+    }
+	
 	public void importRow(File selectedFile, Vector<String> cols,Stats stats, String globalThumb, String globalLicense) {
 		StringBuffer buf = new StringBuffer();
 		try {
@@ -433,23 +443,7 @@ public class IngestFolderCreate extends DefaultImporter {
 				}
 			}				
 				
-			if (!hasColumnValue(cols, "dc.title")) {
-				stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
-				throw new CreateException("Item must have element [dc.title]");
-			} else if (!hasColumnValue(cols, "dc.date.created")) {
-				stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.MISSING);
-				throw new CreateException("Item must have element [dc.date.created]");
-			} else {
-				for(column col: colHeaderDefs) {
-					if (col.valid && col.element.equals("date")) {
-						String val = getColumnValue(cols, col.name, "");
-						if (!testDate(val)) {
-							stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.FORMAT_ERROR);
-							throw new CreateException(col.name +" [" + val + "] must start with either YYYY-MM-DD, YYYY-MM, YYYY or 'No Date'.");
-						}
-					}
-				}
-			} 
+			validateRow(cols, stats);
 			stats.setVal(IngestStatsItems.InputMetadata, InputMetaStats.OK);				
 
 			testFile(stats, IngestStatsItems.ItemFileStats, selectedFile, folder, file);
