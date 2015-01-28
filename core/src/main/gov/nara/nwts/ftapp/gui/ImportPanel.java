@@ -47,8 +47,8 @@ class ImportPanel extends MyPanel {
 	JTextField suffix;
 	JFormattedTextField start;
 	JFormattedTextField end;
-	JComboBox pad;
-	JComboBox importers;
+	JComboBox<Object> pad;
+	JComboBox<Importer> importers;
 	JTextArea importerDesc;
 	JCheckBox forceKey;
 	DirectoryTable parent;
@@ -128,7 +128,7 @@ class ImportPanel extends MyPanel {
 		p1 = new JPanel();
 		p1.setBorder(BorderFactory.createTitledBorder("File Import Action"));
 		String importrule = parent.preferences.get("import-rule", "");
-		importers = new JComboBox(parent.importerRegistry);
+		importers = new JComboBox<Importer>(parent.importerRegistry);
 		for(int i=0; i<importers.getItemCount(); i++){
 			Importer im = (Importer)importers.getItemAt(i);
 			if (im.toString().equals(importrule)) {
@@ -202,7 +202,7 @@ class ImportPanel extends MyPanel {
 		genp.add(end);
 		genp.add(new JLabel("Num Digits"));
 		Object[] objs = {"No Padding",2,3,4,5,6,7,8};
-		pad = new JComboBox(objs);
+		pad = new JComboBox<Object>(objs);
 		genp.add(pad);
 		genp.add(new JLabel("Suffix"));
 		suffix = new JTextField(25);
