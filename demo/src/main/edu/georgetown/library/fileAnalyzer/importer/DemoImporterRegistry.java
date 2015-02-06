@@ -20,6 +20,7 @@ public class DemoImporterRegistry extends DSpaceImporterRegistry {
 		
 		removeImporter(CounterValidation.class);
 		add(new CounterValidationXls(dt));
+        add(new DemoImporter(dt));
 	}
 	
 
