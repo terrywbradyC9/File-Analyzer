@@ -28,5 +28,8 @@ public class InitializationStatus {
             addMessage(iStat.getMessage());
         }
     }
+    public void addMessage(Exception ex) {
+        addFailMessage(ex.getMessage());
+    }
     
 }
