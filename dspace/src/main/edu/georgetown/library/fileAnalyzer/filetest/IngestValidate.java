@@ -4,6 +4,7 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTProp;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -132,12 +133,13 @@ public class IngestValidate extends DefaultFileTest {
 		public DSpaceStats create(String key) {return new DSpaceStats(key);}
 	}
 	public static StatsItemConfig details = StatsItemConfig.create(DSpaceStatsItems.class);
-    public void init() {
+    @Override public InitializationStatus init() {
     	details = StatsItemConfig.create(DSpaceStatsItems.class);
     	for(FTProp prop: ftprops) {
     		if (prop.getValue().equals("NA")) continue;
     		details.addStatsItem(prop.getValue(), StatsItem.makeStringStatsItem(prop.getValue().toString()));
     	}
+    	return super.init();
     }
 	
 	public class DSpaceInfo {

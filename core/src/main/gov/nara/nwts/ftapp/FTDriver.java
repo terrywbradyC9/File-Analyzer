@@ -22,6 +22,7 @@ import java.util.Vector;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -266,6 +267,16 @@ public class FTDriver {
 		saveFile = output.getName();
 		saveDir = output.getParentFile();
 		fileTraversal.traverseFile();		
+		if (fileTraversal.iStat != null) {
+		    if (fileTraversal.iStat.hasMessage()) {
+                if (fileTraversal.iStat.hasFailTest()) {
+                    JOptionPane.showMessageDialog(getFrame(), fileTraversal.iStat.getMessage(), "Property Error - Cannot Run Task", JOptionPane.ERROR_MESSAGE);                                 
+                } else {
+                    JOptionPane.showMessageDialog(getFrame(), fileTraversal.iStat.getMessage(), "Property Warning", JOptionPane.WARNING_MESSAGE);                                  
+                }
+
+		    }
+		}
 	}
 	public void loadBatch(File f) throws IOException {
 		batchItems = DelimitedFileReader.parseFile(f, "\t", false);

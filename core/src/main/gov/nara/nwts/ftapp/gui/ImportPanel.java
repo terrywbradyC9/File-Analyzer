@@ -1,6 +1,7 @@
 package gov.nara.nwts.ftapp.gui;
 
 import gov.nara.nwts.ftapp.ftprop.FTProp;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.importer.Importer;
 import gov.nara.nwts.ftapp.stats.Stats;
 
@@ -170,7 +171,17 @@ class ImportPanel extends MyPanel {
 					if (f.exists()) {
 						Importer imp = (Importer)parent.importPanel.importers.getSelectedItem();
 						try {
-							parent.importFile(imp, f);
+						    InitializationStatus iStat = imp.initValidate(f);
+						    if (iStat.hasMessage()) {
+						        if (iStat.hasFailTest()) {
+	                                JOptionPane.showMessageDialog(parent.frame, iStat.getMessage(), "Property Error - Cannot Run Task", JOptionPane.ERROR_MESSAGE);						            
+						        } else {
+                                    JOptionPane.showMessageDialog(parent.frame, iStat.getMessage(), "Property Warning", JOptionPane.WARNING_MESSAGE);                                  
+						        }
+						    }
+						    if (!iStat.hasFailTest()) {
+	                            parent.importFile(imp, f);						        
+						    }
 						} catch (IOException e) {
 							JOptionPane.showMessageDialog(parent.frame, e.getMessage()+": "+f.getAbsolutePath());
 						}
