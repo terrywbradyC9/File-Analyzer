@@ -162,6 +162,10 @@ public class Stats {
 		return (Long)getVal(eitem, null);
 	}
 
+    public Money getMoneyVal(StatsItemEnum eitem) {
+        return (Money)getVal(eitem, new Money());
+    }
+
 	public Integer getIntVal(StatsItemEnum eitem) {
 		return (Integer)getVal(eitem, null);
 	}
