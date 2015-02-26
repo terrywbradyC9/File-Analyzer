@@ -30,6 +30,7 @@ import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -126,6 +127,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	private enum status {INIT,PASS,WARN,FAIL}
 	
 	NumberFormat nf;
+	MetadataRegPropFile metadataPropFile;
 	
 	public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
 	public static final String REUSABLE_LICENSE = "Reusable License";
@@ -143,6 +145,8 @@ public class IngestFolderCreate extends DefaultImporter {
 		nf.setMinimumIntegerDigits(8);
 		nf.setGroupingUsed(false);
 
+		metadataPropFile = new MetadataRegPropFile(dt);
+		this.ftprops.add(metadataPropFile);
 		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_THUMBNAIL, "thumb",
 				"Relative path to thumbnail file to be used for all items w/o thumbnail (optional)", ""));
 		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(), REUSABLE_LICENSE, "license",
@@ -568,5 +572,28 @@ public class IngestFolderCreate extends DefaultImporter {
 			stats.setVal(IngestStatsItems.Status, status.FAIL);
 		}
 	}
+
+    public InitializationStatus initValidate(File refFile) { 
+        InitializationStatus iStat = super.initValidate(refFile);
+        Vector<Vector<String>> data;
+        try {
+            data = DelimitedFileReader.parseFile(refFile, "\t");
+            if (data.size() > 0) {
+                Vector<String> cols = data.get(0);
+                for(int i=4; i<cols.size(); i++) {
+                    String col = cols.get(i);
+                    if (!metadataPropFile.isFieldInRegistry(col)) {
+                        iStat.addFailMessage(col + " is not defined in the metadata registry");
+                    }
+                }
+            } else {
+                iStat.addFailMessage("Empty inventory file.");
+            }
+        } catch (IOException e) {
+            iStat.addMessage(e);
+        }
+
+        return iStat;
+    }
 
 }

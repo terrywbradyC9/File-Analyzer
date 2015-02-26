@@ -7,17 +7,11 @@
  */
 package edu.georgetown.library.fileAnalyzer.importer;
 
-import java.util.HashMap;
-
 /**
  * Convert metadata field registry to JSON*
  * @author twb27
  */
 public class Field {
-    static HashMap<String,Field> fields = new HashMap<String,Field>();
-    static boolean testField(String name) {
-        return fields.containsKey(name);
-    }
     public static String makeName(String prefix, String element, String qualifier) {
         StringBuilder sb = new StringBuilder(prefix);
         sb.append(".");
@@ -51,7 +45,6 @@ public class Field {
         this.element = element;
         this.qualifier = qualifier;
         this.description = description;
-        fields.put(name, this);
     }
     
     public String toString() {

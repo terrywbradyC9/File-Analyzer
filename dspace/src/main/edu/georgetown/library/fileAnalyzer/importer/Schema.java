@@ -8,6 +8,7 @@
 package edu.georgetown.library.fileAnalyzer.importer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -45,5 +46,15 @@ public class Schema {
             sb.append(String.format("%n\t%s",f));
         }
         return sb.toString();
+    }
+    
+    static public HashMap<String,Field> getFields(Schema[] schemas) {
+        HashMap<String,Field> fields = new HashMap<String,Field>();
+        for(Schema schema: schemas) {
+            for(Field field: schema.getFields()) {
+                fields.put(field.name(), field);
+            }
+        }
+        return fields;
     }
 }

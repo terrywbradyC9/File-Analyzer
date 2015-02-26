@@ -13,12 +13,12 @@ public class InitializationStatus {
     public String getMessage() {return sb.toString();}
     
     public void addMessage(String s) {
+        if (sb.length() > 0) sb.append("\n");
         sb.append(s);
         showMessage = true;
     }
     public void addFailMessage(String s) {
-        sb.append(s);
-        showMessage = true;
+        addMessage(s);
         failTest = true;
     }
     public void addMessage(InitializationStatus iStat) {
