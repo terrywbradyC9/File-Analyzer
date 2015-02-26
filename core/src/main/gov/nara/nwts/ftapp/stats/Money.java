@@ -9,14 +9,18 @@ import java.util.regex.Pattern;
 public class Money implements Comparable<Money> {
     static Pattern pm = Pattern.compile("^(-?\\d+)\\.(\\d{0,2})\\d*$");
     static NumberFormat csvndurf = NumberFormat.getNumberInstance();
+    static NumberFormat csvndurft = NumberFormat.getNumberInstance();
     
     static {
         csvndurf.setMinimumFractionDigits(2);
         csvndurf.setGroupingUsed(false);
+        csvndurft.setMinimumFractionDigits(1);
+        csvndurft.setGroupingUsed(false);
     }
 
-    Long cents = null;
+    final Long cents;
     public Money() {
+        this.cents = null;
     }
     
     public Money(double fcents) {
@@ -28,7 +32,10 @@ public class Money implements Comparable<Money> {
     }
     
     public Money(String val) throws NumberFormatException {
-        if (val == null) return;
+        if (val == null) {
+            cents = null;
+            return;
+        }
         val = val.replaceAll("[\\$,\\s]","");
         Matcher m = pm.matcher(val);
         String s = "0";
@@ -37,7 +44,12 @@ public class Money implements Comparable<Money> {
         } else {
             s = val + "00";
         }
-        cents = Long.parseLong(s);
+        Long tcents = null;
+        try {
+            tcents = Long.parseLong(s);
+        } finally {
+            cents = tcents;
+        }
     }
     
     public String toString() {
@@ -49,7 +61,12 @@ public class Money implements Comparable<Money> {
         if (cents == null) return "";
         return csvndurf.format(cents / 100.0);
     }
-    
+
+    public String csvStringTrim() {
+        if (cents == null) return "";
+        return csvndurft.format(cents / 100.0);
+    }
+
     public int compareTo(Money m) {
         if (m == null) return 1;
         if (m.cents == null && this.cents == null) return 0;
@@ -62,10 +79,26 @@ public class Money implements Comparable<Money> {
         return this.cents == null;
     }
     
-    public void sum(Money m) {
-        if (cents == null) return;
-        if (m.cents == null) return;
-        cents += m.cents;
+    public Money moneySum(Money m) {
+        if (cents == null) {
+            return new Money(m.cents);
+        }
+        if (m.cents == null) return m;
+        return new Money(cents + m.cents);
+    }
+    
+    public Money moneySum(int v) {
+        if (cents == null) {
+            return new Money(v);
+        }
+        return new Money(cents + v);
+    }
+
+    public Money moneySum(long v) {
+        if (cents == null) {
+            return new Money(v);
+        }
+        return new Money(cents + v);
     }
     
     public boolean equals(Money m) {
