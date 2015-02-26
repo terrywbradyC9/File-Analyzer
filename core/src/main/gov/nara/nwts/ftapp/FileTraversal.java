@@ -26,7 +26,7 @@ public class FileTraversal {
 	protected int max;
 	protected int numProcessed = 0;
 	protected boolean cancelled = false;
-	protected InitializationStatus iStat;
+	public InitializationStatus iStat;
 	
 	public int getNumProcessed() {
 		return numProcessed;

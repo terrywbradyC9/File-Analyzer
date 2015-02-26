@@ -30,7 +30,8 @@ public class MetadataRegPropFile extends FTPropFile {
                 } else {
                     //iStat.addMessage(data.length + " schemas in registry. " + fields.size() + " fields in the Metadata Registry.");                    
                 }
-            } catch (IOException e) {
+            } catch (IOException|RuntimeException e) {
+                iStat.addFailMessage("Cannot Parse the Metadata Registry File");
                 iStat.addFailMessage(e.getMessage());
             }            
         }

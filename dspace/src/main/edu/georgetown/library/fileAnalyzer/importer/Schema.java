@@ -50,10 +50,13 @@ public class Schema {
     
     static public HashMap<String,Field> getFields(Schema[] schemas) {
         HashMap<String,Field> fields = new HashMap<String,Field>();
-        for(Schema schema: schemas) {
-            for(Field field: schema.getFields()) {
-                fields.put(field.name(), field);
-            }
+        if (schemas != null) {
+            for(Schema schema: schemas) {
+                if (schema.getFields() == null) continue;
+                for(Field field: schema.getFields()) {
+                    fields.put(field.name(), field);
+                }
+            }            
         }
         return fields;
     }
