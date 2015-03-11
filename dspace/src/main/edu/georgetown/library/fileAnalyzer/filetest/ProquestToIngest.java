@@ -29,6 +29,7 @@ import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -107,7 +108,7 @@ public class ProquestToIngest extends DefaultFileTest {
 	
 	private Vector<File> outdirs = new Vector<>();
 	
-	public void init() {
+	public InitializationStatus init() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		outdir = new File(getRoot(), PQEXTRACT+df.format(new Date()));
 		outdir.mkdir();		
@@ -115,6 +116,7 @@ public class ProquestToIngest extends DefaultFileTest {
 		if (this.getProperty(P_FOLDERS).equals(YN.N)) {
 			outdirs.add(outdir);
 		}
+		return super.init();
 	}
 
 	public String getDescription() {

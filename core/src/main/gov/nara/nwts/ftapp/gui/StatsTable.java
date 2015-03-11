@@ -1,5 +1,6 @@
 package gov.nara.nwts.ftapp.gui;
 
+import gov.nara.nwts.ftapp.stats.Money;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -157,6 +158,10 @@ class StatsTable {
                         } else if (value instanceof Float) {
                             float v = (Float) value;
                             setText(DirectoryTable.ndurf.format(v));
+                            setHorizontalAlignment(JLabel.RIGHT);
+                        } else if (value instanceof Money) {
+                            Money v = (Money) value;
+                            setText(v.toString());
                             setHorizontalAlignment(JLabel.RIGHT);
                         } else if (value instanceof Double) {
                             double v = (Double) value;
