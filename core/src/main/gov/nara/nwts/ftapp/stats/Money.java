@@ -46,7 +46,8 @@ public class Money implements Comparable<Money> {
         }
         Long tcents = null;
         try {
-            tcents = Long.parseLong(s);
+			tcents = Long.parseLong(s);
+		} catch (Exception e) {
         } finally {
             cents = tcents;
         }
@@ -80,10 +81,10 @@ public class Money implements Comparable<Money> {
     }
     
     public Money moneySum(Money m) {
+        if (m.cents == null) return m;
         if (cents == null) {
             return new Money(m.cents);
         }
-        if (m.cents == null) return m;
         return new Money(cents + m.cents);
     }
     
