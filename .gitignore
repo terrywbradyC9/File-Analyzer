@@ -1,6 +1,5 @@
 #ignore compiled source
 *.class
-.classpath
 .project
 .settings/*
 bin/*
