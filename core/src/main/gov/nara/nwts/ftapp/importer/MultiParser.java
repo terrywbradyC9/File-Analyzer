@@ -51,10 +51,11 @@ public class MultiParser extends DefaultImporter {
 		this.ftprops.add(pParseRule);
 	}
 	
-	enum ParserFileMode {NA,COLS,PATTS;}
+	enum ParserFileMode {NA,COLS,FILTERS,PATTS;}
 	
 	class ParserFile {
 		String[] groups = new String[0];
+		String[] fgroups = new String[0];
 		Vector<Pattern> patterns = new Vector<Pattern>();
 		
 		ParserFile(File f) {
@@ -69,6 +70,10 @@ public class MultiParser extends DefaultImporter {
 						pfm = ParserFileMode.COLS;
 						continue;
 					} 
+					if (line.equals("[FILTERS]")) {
+						pfm = ParserFileMode.FILTERS;
+						continue;
+					} 
 					if (line.equals("[PATTERNS]")) {
 						pfm = ParserFileMode.PATTS;
 						continue;
@@ -76,6 +81,8 @@ public class MultiParser extends DefaultImporter {
 					
 					if (pfm == ParserFileMode.COLS) {
 						groups = line.split(",");
+					} else if (pfm == ParserFileMode.FILTERS) {
+						fgroups = line.split(",");
 					} else if (pfm == ParserFileMode.PATTS) {
 						try {
 							patterns.add(Pattern.compile(line));
@@ -100,6 +107,12 @@ public class MultiParser extends DefaultImporter {
 		details = StatsItemConfig.create(ParserStatsItems.class);
 		for(String grp: pf.groups) {
 			details.addStatsItem(grp, StatsItem.makeStringStatsItem(grp));
+		}
+		for(String grp: pf.fgroups) {
+			StatsItem si = details.getByKey(grp);
+			if (si != null) {
+				si.makeFilter(true);
+			}
 		}
 		for(Pattern patt: pf.patterns) {
 			System.out.println(patt.toString());
@@ -131,6 +144,7 @@ public class MultiParser extends DefaultImporter {
 				stats.setVal(ParserStatsItems.Data, line);
 			}
 			br.close();
+			details.createFilters(types);
 			return new ActionResult(selectedFile, selectedFile.getName(), this.toString(), details, types, true, timer.getDuration());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -148,6 +162,8 @@ public class MultiParser extends DefaultImporter {
 				"This rule takes advantage of named groups in a regular expression match.\n\n" +
 				"[COLS]\n" +
 				"FIRST,LAST,ID,COST\n\n" +
+				"[FILTERS]\n" +
+				"LAST,COST\n\n" +
 				"[PATTERNS]\n" +
 				"# Sample Comment 1\n" +
 				"^(?<FIRST>[^\\t\\-]+)-(?<ID>[^\\t]+)\\t(?<LAST>[^\\t]+).*\\$(?<COST>\\d+).*$\n" +
