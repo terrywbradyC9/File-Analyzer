@@ -3,6 +3,8 @@ package gov.nara.nwts.ftapp.importer;
 import gov.nara.nwts.ftapp.ActionResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.Timer;
+import gov.nara.nwts.ftapp.YN;
+import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropFile;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -31,6 +33,7 @@ public class MultiParser extends DefaultImporter {
 	public static enum ParserStatsItems implements StatsItemEnum {
 		Row(StatsItem.makeStringStatsItem("Row",60)),
 		PassFail(StatsItem.makeEnumStatsItem(status.class, "Pass/Fail").setInitVal(status.PASS)),
+		Label(StatsItem.makeStringStatsItem("Label").makeFilter(true)),
 		Data(StatsItem.makeStringStatsItem("Data",300));
 		
 		StatsItem si;
@@ -44,23 +47,32 @@ public class MultiParser extends DefaultImporter {
 	}
 
 	public static final String F_PARSE = "Parser Rule File";
+	public static final String F_CASE = "Case Insensitive";
 	private ParserFile pParseRule;
 	
 	public MultiParser(FTDriver dt) {
 		super(dt);
 		pParseRule = new ParserFile(dt);
 		this.ftprops.add(pParseRule);
+		this.ftprops.add(new FTPropEnum(dt, this.getClass().getName(), F_CASE, F_CASE,
+				"Treat patterns as case insensitive", YN.values(), YN.N));
 	}
 	
 	enum ParserFileMode {NA,COLS,FILTERS,PATTS;}
+	int getPatternFlags() {
+		return getProperty(F_CASE) == YN.Y ? Pattern.CASE_INSENSITIVE : 0;
+
+	}
 	
 	class ParserPattern {
 		status stat = status.FAIL;
 		Pattern p;
+		String label;
 		
-		ParserPattern(String category, String pattern) throws PatternSyntaxException {
+		ParserPattern(String category, String pattern, String label) throws PatternSyntaxException {
 			this.stat = status.valueOf(category);
-			this.p = Pattern.compile(pattern);
+			this.p = Pattern.compile(pattern, MultiParser.this.getPatternFlags());
+			this.label = label;
 		}
 	}
 	
@@ -79,13 +91,16 @@ public class MultiParser extends DefaultImporter {
                 if (sb.length() > s.length()) sb.append("|");
                 sb.append(stat.toString());
 			}
-			sb.append(")\\]$");
+			sb.append("):?(.*)\\]$");
 			pCat = Pattern.compile(sb.toString());
 		}
 
 	    public InitializationStatus initValidation(File refFile){
+	    	patterns.clear();
 	        InitializationStatus iStat = new InitializationStatus();
 			String category = "";
+			String label = "";
+			
 			try (BufferedReader br = new BufferedReader(new FileReader(this.getFile()))) {
 				ParserFileMode pfm = ParserFileMode.NA;
 				for(String line=br.readLine(); line!=null; line=br.readLine()) {
@@ -109,6 +124,7 @@ public class MultiParser extends DefaultImporter {
 					Matcher m = pCat.matcher(line);
 					if (m.matches()) {
 						category = m.group(1);
+						label = m.group(2) == null ? "" : m.group(2).trim();
 						continue;
 					}
 					
@@ -117,7 +133,7 @@ public class MultiParser extends DefaultImporter {
 					} else if (pfm == ParserFileMode.FILTERS) {
 						fgroups = line.split(",");
 					} else if (pfm == ParserFileMode.PATTS) {
-						patterns.add(new ParserPattern(category, line));
+						patterns.add(new ParserPattern(category, line, label));
 					}
 				}
 			} catch (PatternSyntaxException|IOException e) {
@@ -154,6 +170,7 @@ public class MultiParser extends DefaultImporter {
 					Matcher m = patt.p.matcher(line);
 					if (m.matches()) {
 						stats.setVal(ParserStatsItems.PassFail, patt.stat);
+						stats.setVal(ParserStatsItems.Label, patt.label);
 						for(String s: pParseRule.groups) {
 							try {
 								StatsItem si = details.getByKey(s);
@@ -182,21 +199,18 @@ public class MultiParser extends DefaultImporter {
 	}
 	public String getDescription() {
 		return "This rule will parse each line of a file and add it to the results table.\n" +
-				"This rule takes advantage of named groups in a regular expression match.\n\n" +
+				"This rule takes advantage of named groups in a regular expression match.\n" +
 				"[COLS]\n" +
-				"FIRST,LAST,ID,COST\n\n" +
+				"FIRST,LAST,ID,COST\n" +
 				"[FILTERS]\n" +
-				"LAST,COST\n\n" +
+				"LAST,COST\n" +
 				"[PATTERNS]\n" +
 				"# Sample Comment 1\n" +
-				"[CATEGORY: SKIP]\n" +
+				"[CATEGORY: SKIP: label]\n" +
 				"^(?<FIRST>[^\\t\\-]+)-(?<ID>[^\\t]+)\\t(?<LAST>[^\\t]+).*\\$(?<COST>\\d+).*$\n" +
 				"^(?<FIRST>[^\\t\\-]+)-(?<ID>[^\\t]+)\\t(?<LAST>[^\\t]+).*$\n" +
 				"# Sample Comment 2\n" +
-				"[CATEGORY: WARN]\n" +
-				"^(?<FIRST>[^\\t\\-]+)\\t(?<LAST>[^\\t]+).*\\$(?<COST>\\d+).*$\n" +
-				"^(?<FIRST>[^\\t\\-]+)\\t(?<LAST>[^\\t]+).*$\n" +
-				"^$";
+				"[CATEGORY: WARN: label]";
 	}
 	public String getShortName() {
 		return "MultiParse";
