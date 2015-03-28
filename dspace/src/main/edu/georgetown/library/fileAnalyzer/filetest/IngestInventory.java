@@ -59,7 +59,7 @@ public class IngestInventory extends DefaultFileTest {
 	}
 	static StatsItemConfig details = StatsItemConfig.create(InventoryStatsItems.class);
 
-	public static final String[] META = { "NA", "dc.contributor",
+	public static final String[] META = { "NA", "collections","dc.contributor",
 			"dc.coverage.spatial", "dc.coverage.temporal", "dc.creator",
 			"dc.date", "dc.date.accessioned", "dc.date.available",
 			"dc.date.copyright", "dc.date.created", "dc.date.issued",

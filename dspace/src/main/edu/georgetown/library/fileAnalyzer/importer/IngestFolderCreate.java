@@ -57,6 +57,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		LicenseFileStats(StatsItem.makeEnumStatsItem(FileStats.class, "License File Status").setWidth(120)),
 		ContentsFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Contents File Status").setWidth(120)),
 		DublinCoreFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Dublin Core File Status").setWidth(120)),
+        CollectionsFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Collections File Status").setWidth(120)),
 		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
 		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(MetaStats.class, "Other Metadata File Status").setWidth(120)),
 		Message(StatsItem.makeStringStatsItem("Message", 300).setExport(false))
@@ -129,12 +130,16 @@ public class IngestFolderCreate extends DefaultImporter {
 	NumberFormat nf;
 	MetadataRegPropFile metadataPropFile;
 	
-	public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
+    public static final String COLLECTIONS = "collections";
+    public static final String CONTENTS = "contents";
+    public static final String DUBLINCORE = "dublin_core.xml";
+
+    public static final String REUSABLE_THUMBNAIL = "Reusable Thumbnail";
 	public static final String REUSABLE_LICENSE = "Reusable License";
 	public static final String P_AUTONAME = "Add User and Date to Ingest Folder";
 	public static final String P_ZIP = "Create Zip File of Ingest Folders";
 	public static enum FIXED {
-		FOLDER(0), ITEM(1), THUMB(2), LICENSE(3);
+		FOLDER(0), ITEM(1), THUMB(2), LICENSE(3), COLLECTIONS(4);
 		int index;
 		FIXED(int i) {index = i;}
 	}
@@ -169,7 +174,8 @@ public class IngestFolderCreate extends DefaultImporter {
 				"\t2) Item file name - required, a file with that name must exist relative to the imported spreadsheet\n"+
 				"\t3) Thumbnail file name - optional, file must exist if present\n"+
 				"\t4) License file name - optional, file must exist if present\n"+
-				"\tAddition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
+                "\t5*) Collections (*if column header is \"collections\") - optional, if non blank, a collections file will be written.\n"+
+				"Addition columns should have a dublin core field name in their header.  Columns without a 'dc.' header will be ignored\n" +
 				validateRowDescription();
 	}
 	public String getShortName() {
@@ -177,7 +183,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	}
 	
 	public void createMetadataFile(File dir, Stats stats, Vector<String> cols, String schema) {
-		String filename = "dublin_core.xml";
+		String filename = DUBLINCORE;
 		IngestStatsItems index = IngestStatsItems.DublinCoreFileStats;
 		
 		if (!schema.equals("dc")) {
@@ -240,7 +246,27 @@ public class IngestFolderCreate extends DefaultImporter {
 			createMetadataFile(dir, stats, cols, schema);
 		}
 		
-		File f = new File(dir, "contents");
+        if (hasCollections) {
+            String collections = cols.get(FIXED.COLLECTIONS.index);
+            if (!collections.isEmpty()) {
+                File cf = new File(dir, COLLECTIONS);
+                if (cf.exists()) {
+                    stats.setVal(IngestStatsItems.CollectionsFileStats, MetaStats.OVERWRITTEN);
+                } else {
+                    stats.setVal(IngestStatsItems.CollectionsFileStats, MetaStats.CREATED);
+                }
+                
+                try(BufferedWriter bw = new BufferedWriter(new FileWriter(cf));) {
+                    bw.write(collections);
+                } catch (IOException e) {
+                    stats.setVal(IngestStatsItems.Status, status.FAIL);
+                    stats.setVal(IngestStatsItems.CollectionsFileStats, MetaStats.ERROR);
+                    stats.setVal(IngestStatsItems.Message, e.getMessage());
+                }
+            }
+        }
+
+        File f = new File(dir, CONTENTS);
 		if (f.exists()) {
 			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.OVERWRITTEN);
 		} else {
@@ -279,6 +305,7 @@ public class IngestFolderCreate extends DefaultImporter {
 			stats.setVal(IngestStatsItems.ContentsFileStats, MetaStats.ERROR);
 			stats.setVal(IngestStatsItems.Message, e1.getMessage());
 		}
+		
 	}
 	
 	
@@ -330,7 +357,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		return new File(parent, name);
 	}
 	
-	
+    public boolean hasCollections = false;
 	public ActionResult importFile(File selectedFile) throws IOException {
 		currentIngestDir = getCurrentIngestDir(selectedFile);
 		Timer timer = new Timer();
@@ -348,6 +375,14 @@ public class IngestFolderCreate extends DefaultImporter {
 		addColumn(new column(FIXED.ITEM.index, InventoryStatsItems.File.si().header, true));
 		addColumn(new column(FIXED.THUMB.index, InventoryStatsItems.ThumbFile.si().header, true));
 		addColumn(new column(FIXED.LICENSE.index, InventoryStatsItems.LicenseFile.si().header, true));
+		
+		if (colheads.size() > FIXED.COLLECTIONS.index) {
+		    hasCollections = false;
+		    if (colheads.get(FIXED.COLLECTIONS.index).equals(COLLECTIONS)) {
+		        addColumn(new column(FIXED.COLLECTIONS.index, COLLECTIONS, true));
+		        hasCollections = true;
+		    }
+		}
 		
 		for(int i=colHeaderDefs.size(); i< colheads.size(); i++) {
 			String colh = colheads.get(i);

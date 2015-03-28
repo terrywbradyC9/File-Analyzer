@@ -14,6 +14,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 import gov.nara.nwts.ftapp.util.XMLUtil;
 
 import edu.georgetown.library.fileAnalyzer.filetest.IngestValidate.Generator.DSpaceStats;
+import edu.georgetown.library.fileAnalyzer.importer.IngestFolderCreate;
 import edu.georgetown.library.fileAnalyzer.importer.MetadataRegPropFile;
 
 import java.io.BufferedReader;
@@ -77,12 +78,18 @@ public class IngestValidate extends DefaultFileTest {
 		INVALID_FILENAME
 	}
 
+   public enum COLLECTIONS_STAT { 
+        NA,
+        PRESENT,
+    }
+
 	public static enum DSpaceStatsItems implements StatsItemEnum {
 		ItemFolder(StatsItem.makeStringStatsItem("Item Folder", 200)),
 		OverallStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "Status", OVERALL_STAT.INVALID).setWidth(80)),
 		NumFiles(StatsItem.makeIntStatsItem("Num Items").setWidth(80)),
 		ContentsStat(StatsItem.makeEnumStatsItem(CONTENTS_STAT.class, "Contents File", CONTENTS_STAT.MISSING).setWidth(80)),
 		ContentFileCount(StatsItem.makeIntStatsItem("Num ContentF Files").setWidth(80)),
+        CollectionsStat(StatsItem.makeEnumStatsItem(COLLECTIONS_STAT.class, "Collections File", COLLECTIONS_STAT.NA).setWidth(80)),
 		DublinCoreStat(StatsItem.makeEnumStatsItem(DC_STAT.class, "Dublin Core File", DC_STAT.MISSING).setWidth(80)),
 		OtherSchemas(StatsItem.makeStringStatsItem("Other Schemas")),
 		OtherMetadataFileStats(StatsItem.makeEnumStatsItem(OTHER_STAT.class, "Other Metadata File Status").setWidth(120)),
@@ -113,6 +120,7 @@ public class IngestValidate extends DefaultFileTest {
 				setVal(DSpaceStatsItems.NumFiles, info.fileCount);
 				setVal(DSpaceStatsItems.ContentsStat, info.contents_stat);
 				setVal(DSpaceStatsItems.ContentFileCount, info.contentsList.size());
+                setVal(DSpaceStatsItems.CollectionsStat, info.collections_stat);
 				setVal(DSpaceStatsItems.DublinCoreStat, info.dc_stat);
 				setVal(DSpaceStatsItems.OtherSchemas, info.otherSchemas);
 				setVal(DSpaceStatsItems.OtherMetadataFileStats, info.other_stat);
@@ -161,6 +169,7 @@ public class IngestValidate extends DefaultFileTest {
 		public OTHER_STAT other_stat = OTHER_STAT.NA;
 		public String otherSchemas = "";
 		public THUMBNAIL_STAT thumbnail_stat = THUMBNAIL_STAT.NA;
+		public COLLECTIONS_STAT collections_stat = COLLECTIONS_STAT.NA;
 		
 		public String primary ="";
 		public String thumbnail ="";
@@ -176,11 +185,13 @@ public class IngestValidate extends DefaultFileTest {
 			
 			for(File file : files) {
 				if (!file.isDirectory()) fileCount++;
-				if (file.getName().equals("contents")) {
+				if (file.getName().equals(IngestFolderCreate.CONTENTS)) {
 					contents = file;
 					contents_stat = CONTENTS_STAT.VALID;
 					readContents(file);
-				} else if (file.getName().equals("dublin_core.xml")) {
+				} else if (file.getName().equals(IngestFolderCreate.COLLECTIONS)) {
+                    collections_stat = COLLECTIONS_STAT.PRESENT;
+				} else if (file.getName().equals(IngestFolderCreate.DUBLINCORE)) {
 					dc = file;
 					try {
 						Document d = XMLUtil.db.parse(dc);
@@ -394,11 +405,12 @@ public class IngestValidate extends DefaultFileTest {
 	}
 	
     public String getShortName(){return "Ingest Validate";}
-
+    
 	public boolean isExpectedFile(File file) {
 		String name = file.getName();
-		if (name.equals("contents")) return true;
-		if (name.equals("dublin_core.xml")) return true;
+        if (name.equals(IngestFolderCreate.CONTENTS)) return true;
+		if (name.equals(IngestFolderCreate.COLLECTIONS)) return true;
+		if (name.equals(IngestFolderCreate.DUBLINCORE)) return true;
 		if (name.equals("Thumbs.db")) return true;
 		if (pOther.matcher(name).matches()) return true;
 		return false;
@@ -430,6 +442,7 @@ public class IngestValidate extends DefaultFileTest {
 				"- An optional license file or text file may be present\n" +
 				"- A dublin core metadata file 'dublin_core.xml' is required.  This file will be scanned for required metadata.\n" +
 				"- A contents file 'contents' is required.  This file must contain a list of all other required files.\n" +
+                "- An optional 'collections' file may be present\n" +
 				"";
 	}
 
