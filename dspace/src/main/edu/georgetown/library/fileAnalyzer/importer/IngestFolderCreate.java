@@ -344,6 +344,7 @@ public class IngestFolderCreate extends DefaultImporter {
 		if (this.getProperty(P_AUTONAME) == YN.N) return defdir;
 		File[] list = parent.listFiles(new FilenameFilter(){
 			public boolean accept(File dir, String name) {
+			    if (!new File(dir, name).isDirectory()) return false;
 				if (name.startsWith("ingest_")) return true;
 				return false;
 			}
