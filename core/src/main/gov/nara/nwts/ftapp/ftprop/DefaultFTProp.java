@@ -18,6 +18,8 @@ public abstract class DefaultFTProp implements FTProp {
 	FTDriver ft;
 	String prefix = ""; 
 	
+	boolean failOnEmpty = false;
+	
 	public enum RUNMODE {
 		TEST,
 		PROD;
@@ -30,6 +32,10 @@ public abstract class DefaultFTProp implements FTProp {
 		this.ft = ft;
 		this.def =  def;
 		this.prefix = prefix;
+	}
+	
+	public void setFailOnEmpty(boolean b) {
+	    failOnEmpty = b;
 	}
 	
 	public void init() {
@@ -84,6 +90,11 @@ public abstract class DefaultFTProp implements FTProp {
 
     public InitializationStatus initValidation(File refFile){
         InitializationStatus iStat = new InitializationStatus();
+        if (failOnEmpty) {
+            if (getValue().toString().isEmpty()) {
+                iStat.addFailMessage(String.format("Propery %s cannot be empty", getName()));
+            }
+        }
         return iStat;
     }
 
