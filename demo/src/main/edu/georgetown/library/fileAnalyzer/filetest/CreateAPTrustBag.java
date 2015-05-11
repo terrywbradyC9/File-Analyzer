@@ -1,6 +1,5 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
-import edu.georgetown.library.fileAnalyzer.filetest.IngestInventory.InventoryStatsItems;
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagFactory;
 import gov.loc.repository.bagit.BagInfoTxt;
@@ -8,11 +7,9 @@ import gov.loc.repository.bagit.transformer.impl.DefaultCompleter;
 import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
-import gov.nara.nwts.ftapp.ftprop.FTProp;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropInt;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
-import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
