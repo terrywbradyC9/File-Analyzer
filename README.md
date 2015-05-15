@@ -27,15 +27,21 @@ https://github.com/usnationalarchives/File-Analyzer.
 
 ## DEPLOYMENTS
 This code will build 3 flavors of the File Analyzer.
+
 ### Core File Analyzer 
 * All code runs from a self-extracting jar file
+
 ### DSpace File Analyzer
 * This version of the file analyzer is a self-extracting jar file that references the core file analyzer jar file. 
 * It contains tools for automating the creation of DSpace ingestion folders
+
 ### Demo File Analyzer
 * This version contains extensions illustrating various capabilities of the File Analyzer.  
 * This version of the file analyzer is a self-extracting jar file that references both the core and dspace file analyzer jar files.
 * This version of the application uses features of Apache Tika and BagIt
+ 
+### External File Analzyer Code (not in this distribution)
+* https://github.com/Georgetown-University-Libraries/Marc-File-Analyzer (does not build directly with mvn)
 
 # License information is contained below.
 
