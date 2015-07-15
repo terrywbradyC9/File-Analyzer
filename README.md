@@ -42,11 +42,8 @@ This code will build 3 flavors of the File Analyzer.
 ### Demo File Analyzer
 * This version contains extensions illustrating various capabilities of the File Analyzer.  
 * This version of the file analyzer is a self-extracting jar file that references both the core and dspace file analyzer jar files.
-* This version of the application uses features of Apache Tika and BagIt
+* This version of the application uses features of Apache Tika, BagIt, and Marc4j
  
-### External File Analzyer Code (not in this distribution)
-* https://github.com/Georgetown-University-Libraries/Marc-File-Analyzer (does not build directly with mvn)
-
 # License information is contained below.
 
     ------------------------------------------------------------------------
