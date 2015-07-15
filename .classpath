@@ -8,6 +8,5 @@
 	<classpathentry kind="var" path="M2_REPO/gov/loc/bagit/4.8/bagit-4.8.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar"/>
     <classpathentry kind="var" path="M2_REPO/info/freelibrary/freelib-marc4j/2.6.6/freelib-marc4j-2.6.6.jar"/>
-	<classpathentry kind="var" path="DSPACE-JARS"/>
 	<classpathentry kind="output" path="dspace/target/classes"/>
 </classpath>
