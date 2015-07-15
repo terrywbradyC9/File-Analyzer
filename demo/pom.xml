@@ -42,6 +42,11 @@
             <artifactId>bagit</artifactId>
             <version>4.8</version>
         </dependency>
+        <dependency>
+            <groupId>info.freelibrary</groupId>
+            <artifactId>freelib-marc4j</artifactId>
+            <version>2.6.6</version>
+        </dependency>
 	</dependencies>
 	<build>
         <resources>
