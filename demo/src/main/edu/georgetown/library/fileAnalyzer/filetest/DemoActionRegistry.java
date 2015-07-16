@@ -17,10 +17,13 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
 		add(new ImageProperties(dt));
 		add(new YearbookNameValidationTest(dt)); 
 		add(new CreateBag(dt)); 
+        add(new CreateAPTrustBag(dt)); 
 		add(new VerifyBag(dt)); 
+        add(new VerifyAPTrustBag(dt)); 
 		removeFT(CounterValidation.class);
 		add(new CounterValidationXls(dt)); 
         add(new DemoFileTest(dt)); 
+	    add(new MarcItemInventory(dt));
 	}
 	
 }

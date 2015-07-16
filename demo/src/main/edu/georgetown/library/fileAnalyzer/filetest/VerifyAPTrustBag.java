@@ -18,7 +18,7 @@ import java.io.File;
  * @author TBrady
  *
  */
-class VerifyBag extends DefaultFileTest { 
+class VerifyAPTrustBag extends DefaultFileTest { 
     public enum STAT {
         VALID,
         INVALID, 
@@ -49,18 +49,18 @@ class VerifyBag extends DefaultFileTest {
     public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
 
     long counter = 1000000;
-    public VerifyBag(FTDriver dt) {
+    public VerifyAPTrustBag(FTDriver dt) {
         super(dt);
     }
 
     public String toString() {
-        return "Verify Bag";
+        return "Verify APTrust Bag";
     }
     public String getKey(File f) {
         return this.getRelPath(f);
     }
     
-    public String getShortName(){return "Bag";}
+    public String getShortName(){return "Ver APT";}
 
     
     public Object fileTest(File f) {
@@ -87,23 +87,20 @@ class VerifyBag extends DefaultFileTest {
     }
 
     public String getDescription() {
-        return "This rule will scan for directories with names ending with '_bag'.  BagIt verifyvalid will be run on the bag.";
+        return "This rule will validate the contents of an APTrust bag file.";
     }
     
-    @Override public boolean processRoot() {
+    @Override public boolean isTestDirectory() {
         return true;
     }
-    @Override public boolean isTestDirectory() {
+    @Override public boolean processRoot() {
         return true;
     }
 
     @Override public boolean isTestFiles() {
         return false; 
     }
-    
     @Override public boolean isTestable(File f) {
-        //if (!f.getParentFile().equals(dt.root)) return false;
-        return (f.getName().endsWith("_bag"));
+        return (new File(f, "bagit.txt")).exists();
     }
-
 }
