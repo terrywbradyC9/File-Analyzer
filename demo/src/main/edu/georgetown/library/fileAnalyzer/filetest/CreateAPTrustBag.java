@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
+
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
  * @author TBrady
@@ -78,9 +80,12 @@ class CreateAPTrustBag extends DefaultFileTest {
             "If this is a multi-part bag, set to the number of parts; otherwise set to 1", 1);
     private FTPropEnum pAccess = new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ACCESS, P_ACCESS,
             "Access condition within APTrust.", Access.values(), Access.Institution);
+    private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
+            "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
     
 	public CreateAPTrustBag(FTDriver dt) {
 		super(dt);
+        ftprops.add(pBagType);
 		FTPropString fps = new FTPropString(dt, this.getClass().getSimpleName(),  P_SRCORG, P_SRCORG,
                 "This should be the human readable name of the APTrust partner organization.", "");
 		fps.setFailOnEmpty(true);
@@ -124,6 +129,8 @@ class CreateAPTrustBag extends DefaultFileTest {
     public String getShortName(){return "APTBag";}
 
 	public Object fileTest(File f) {
+		boolean isZip = (this.getProperty(CreateBag.P_BAGTYPE) != BAG_TYPE.DIRECTORY);
+		
 		Stats s = getStats(f);
 		
 		String bagCount = String.format("%03d", pBagCount.getIntValue(1));
@@ -137,10 +144,11 @@ class CreateAPTrustBag extends DefaultFileTest {
         sb.append(bagCount);
         sb.append(".of");
         sb.append(bagTotal);
-        sb.append(".zip");
+        if (isZip) sb.append(".zip");
 		File newBag = new File(f.getParentFile(), sb.toString());
+		
 		//exists? 
-		s.setVal(BagStatsItems.Bag, getRelPath(newBag));
+		s.setVal(BagStatsItems.Bag, newBag.getName());
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 
@@ -169,10 +177,11 @@ class CreateAPTrustBag extends DefaultFileTest {
 		    bit.addInternalSenderIdentifier(this.getProperty(P_INTSENDID).toString());
 		    bit.setBagCount(String.format("%03d", Integer.parseInt(pBagCount.getValue().toString())));
 
-			//bag.write(new FileSystemWriter(bf), newBag);
-		    Writer writer = new ZipWriter(bf);
-			bag.write(writer, newBag);
-			bag.close();
+		    Writer writer = (isZip) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
+		    bag.write(writer, newBag);
+		    bag.close();
+
+		    aptinfo.delete();
 			s.setVal(BagStatsItems.Stat, STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 		} catch (IOException e) {
