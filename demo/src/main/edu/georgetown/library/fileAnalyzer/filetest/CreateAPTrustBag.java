@@ -4,7 +4,9 @@ import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagFactory;
 import gov.loc.repository.bagit.BagInfoTxt;
 import gov.loc.repository.bagit.transformer.impl.DefaultCompleter;
+import gov.loc.repository.bagit.writer.Writer;
 import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
+import gov.loc.repository.bagit.writer.impl.ZipWriter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
@@ -135,9 +137,10 @@ class CreateAPTrustBag extends DefaultFileTest {
         sb.append(bagCount);
         sb.append(".of");
         sb.append(bagTotal);
+        sb.append(".zip");
 		File newBag = new File(f.getParentFile(), sb.toString());
 		//exists? 
-		s.setVal(BagStatsItems.Bag, newBag.getAbsolutePath());
+		s.setVal(BagStatsItems.Bag, getRelPath(newBag));
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 
@@ -166,7 +169,9 @@ class CreateAPTrustBag extends DefaultFileTest {
 		    bit.addInternalSenderIdentifier(this.getProperty(P_INTSENDID).toString());
 		    bit.setBagCount(String.format("%03d", Integer.parseInt(pBagCount.getValue().toString())));
 
-			bag.write(new FileSystemWriter(bf), newBag);
+			//bag.write(new FileSystemWriter(bf), newBag);
+		    Writer writer = new ZipWriter(bf);
+			bag.write(writer, newBag);
 			bag.close();
 			s.setVal(BagStatsItems.Stat, STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
@@ -185,7 +190,8 @@ class CreateAPTrustBag extends DefaultFileTest {
 
 	public String getDescription() {
 		return "This rule will create a bag according to the APTrust Bag Standards: \n" +
-				"https://sites.google.com/a/aptrust.org/aptrust-wiki/technical-documentation/processing-ingest/aptrust-bagit-profile";
+				"https://sites.google.com/a/aptrust.org/aptrust-wiki/technical-documentation/processing-ingest/aptrust-bagit-profile \n" + 
+				"The bag will be created as a sibling directory using the institutionid and itemid as part of the filename.";
 	}
 	
 	@Override public boolean isTestDirectory() {

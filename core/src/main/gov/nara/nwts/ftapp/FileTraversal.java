@@ -55,7 +55,7 @@ public class FileTraversal {
 		if (f==null) return false;
 		File[] files = f.listFiles(fileFilter);
 		if (files == null) return true;
-		if (fileTest.processRoot() && fileTest.isTestDirectory()) {
+		if (fileTest.processRoot() && fileTest.isTestDirectory(f)) {
 			boolean test = true;
 			Pattern p = fileTest.getDirectoryPattern();
 			if (p != null){
@@ -73,7 +73,7 @@ public class FileTraversal {
 					return false; 
 				}
 				traverse(files[i], fileTest, max);
-				if (fileTest.isTestDirectory()) {
+				if (fileTest.isTestDirectory(files[i])) {
 					boolean test = true;
 					Pattern p = fileTest.getDirectoryPattern();
 					if (p != null){

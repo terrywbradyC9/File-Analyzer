@@ -20,12 +20,13 @@ import java.io.File;
  */
 class VerifyAPTrustBag extends DefaultFileTest { 
     public enum STAT {
-        VALID,
+    	VALID,
         INVALID, 
-        ERROR
+        ERROR,
+        NA
     }
     
-    private static enum BagStatsItems implements StatsItemEnum {
+    static enum BagStatsItems implements StatsItemEnum {
         Key(StatsItem.makeStringStatsItem("Bag Path", 200)),
         Stat(StatsItem.makeEnumStatsItem(STAT.class, "Bag Status")),
         Count(StatsItem.makeIntStatsItem("Item Count")),
@@ -54,13 +55,13 @@ class VerifyAPTrustBag extends DefaultFileTest {
     }
 
     public String toString() {
-        return "Verify APTrust Bag";
+        return "Verify APTrust Bag - Dir";
     }
     public String getKey(File f) {
         return this.getRelPath(f);
     }
     
-    public String getShortName(){return "Ver APT";}
+    public String getShortName(){return "Ver APT Dir";}
 
     
     public Object fileTest(File f) {
@@ -87,11 +88,14 @@ class VerifyAPTrustBag extends DefaultFileTest {
     }
 
     public String getDescription() {
-        return "This rule will validate the contents of an APTrust bag file.";
+        return "This rule will validate the contents of an APTrust bag directory.\n\n"
+        		+ "APTrust directories contain periods in their names.\n"
+        		+ "Either start this task at the folder you wish to validate or disable \n"
+        		+ "'assume directory names do not contain periods' on the advanced tab.";
     }
     
-    @Override public boolean isTestDirectory() {
-        return true;
+    @Override public boolean isTestDirectory(File f) {
+    	return hasDescendant(f, "bagit.txt");
     }
     @Override public boolean processRoot() {
         return true;
@@ -100,7 +104,10 @@ class VerifyAPTrustBag extends DefaultFileTest {
     @Override public boolean isTestFiles() {
         return false; 
     }
+
     @Override public boolean isTestable(File f) {
         return (new File(f, "bagit.txt")).exists();
     }
+
+    
 }

@@ -43,6 +43,7 @@ public interface FileTest {
     
     public boolean isTestFiles();
     public boolean isTestDirectory();
+    public boolean isTestDirectory(File f);
     public boolean processRoot();
     public Pattern getDirectoryPattern();
     
