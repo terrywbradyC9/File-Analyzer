@@ -2,6 +2,8 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagFactory;
+import gov.loc.repository.bagit.BagFile;
+import gov.loc.repository.bagit.BagInfoTxt;
 import gov.loc.repository.bagit.utilities.SimpleResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
@@ -12,7 +14,11 @@ import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
 
@@ -29,13 +35,15 @@ class VerifyBag extends DefaultFileTest {
         NA
     }
     
-    private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
-            "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
-
     static enum BagStatsItems implements StatsItemEnum {
         Key(StatsItem.makeStringStatsItem("Bag Path", 200)),
         Stat(StatsItem.makeEnumStatsItem(STAT.class, "Bag Status")),
         Count(StatsItem.makeIntStatsItem("Item Count")),
+        BagSourceOrg(StatsItem.makeStringStatsItem("Source Org",150)),
+        BagSenderDesc(StatsItem.makeStringStatsItem("Sender Desc",150)),
+        BagSenderId(StatsItem.makeStringStatsItem("Sender Id",150)),
+        BagCount(StatsItem.makeStringStatsItem("Bag Count",150)),
+        BagMisc(StatsItem.makeStringStatsItem("Bag Misc",150)),
         Message(StatsItem.makeStringStatsItem("Message",400)),
         ;
         StatsItem si;
@@ -58,7 +66,6 @@ class VerifyBag extends DefaultFileTest {
     long counter = 1000000;
     public VerifyBag(FTDriver dt) {
         super(dt);
-        ftprops.add(pBagType);
     }
 
     public String toString() {
@@ -78,9 +85,19 @@ class VerifyBag extends DefaultFileTest {
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 			SimpleResult result = bag.verifyValid();
 			if (result.isSuccess()) {
+				BagInfoTxt bit = bag.getBagInfoTxt();
+				
 			    s.setVal(BagStatsItems.Stat, STAT.VALID);
+			    s.setVal(BagStatsItems.Message, "");
+			    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
+			    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
+			    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
+			    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
+			    s.setVal(BagStatsItems.BagMisc, getBagMisc(bag));
+			    
+			    validateBagMetadata(f, s);
 			} else {
-			    s.setVal(BagStatsItems.Stat, STAT.INVALID);
+			    s.setVal(BagStatsItems.Stat, STAT.ERROR);
 			    for(String m: result.getMessages()) {
 			        s.appendVal(BagStatsItems.Message, m +" ");             
 			    }
@@ -91,6 +108,29 @@ class VerifyBag extends DefaultFileTest {
 		}
         return s.getVal(BagStatsItems.Count);
     }
+    
+    String getBagMisc(Bag bag) {
+    	StringBuilder sb = new StringBuilder();
+    	for(BagFile bf: bag.getTags()) {
+    		if (!miscBagFile(bf)) continue;
+    		InputStream is = bf.newInputStream();
+    		try (InputStreamReader isr = new InputStreamReader(is)) {
+    			BufferedReader br = new BufferedReader(isr);
+    			for(String s=br.readLine(); s!=null; s=br.readLine()) {
+    				if (sb.length() != 0) sb.append("; ");
+    				sb.append(s);
+    			}
+    		} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    	return sb.toString();
+    }
+    
+    public boolean miscBagFile(BagFile bf) {
+    	return false;
+    }
+    
     public Stats createStats(String key){ 
         return Generator.INSTANCE.create(key);
     }
@@ -99,7 +139,7 @@ class VerifyBag extends DefaultFileTest {
     }
 
     public String getDescription() {
-        return "This rule will scan for directories with names ending with '_bag'.  BagIt verifyvalid will be run on the bag.";
+        return "This rule will scan for directories with names ending with '_bag'.  BagIt verify valid will be run on the bag.";
     }
     
     @Override public boolean isTestDirectory(File f) {
@@ -118,6 +158,9 @@ class VerifyBag extends DefaultFileTest {
     }
     @Override public boolean isTestable(File f) {
         return hasBagFile(f) && f.getName().endsWith("_bag");
+    }
+    
+    public void validateBagMetadata(File f, Stats stats) {
     }
 
 }

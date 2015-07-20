@@ -2,7 +2,6 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
-import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
@@ -24,13 +23,6 @@ class VerifyBagZip extends VerifyBag {
     }
     public String getShortName(){return "Ver APT Zip";}
     
-    public Stats createStats(String key){ 
-        return Generator.INSTANCE.create(key);
-    }
-    public StatsItemConfig getStatsDetails() {
-        return details; 
-    }
-
     public String getDescription() {
         return "This rule will validate the contents of a bag zip file";
     }
@@ -47,8 +39,7 @@ class VerifyBagZip extends VerifyBag {
     }
 
     @Override public boolean isTestable(File f) {
-    	//TODO validate name
-        return true;
+    	return f.getName().toLowerCase().endsWith(".zip");
     }
 
 	public void initFilters() {

@@ -82,7 +82,7 @@ class CreateBag extends DefaultFileTest {
 		Stats s = getStats(f);
 		File newBag = (isZip) ? new File(f.getParentFile(), f.getName() + "_bag.zip") : new File(f.getParentFile(), f.getName() + "_bag");
 		//exists? 
-		s.setVal(BagStatsItems.Bag, newBag.getAbsolutePath());
+		s.setVal(BagStatsItems.Bag, newBag.getName());
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 		bag.addFileToPayload(f);

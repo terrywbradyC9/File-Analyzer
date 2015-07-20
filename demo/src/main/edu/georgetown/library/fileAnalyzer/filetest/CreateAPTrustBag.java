@@ -148,7 +148,7 @@ class CreateAPTrustBag extends DefaultFileTest {
 		File newBag = new File(f.getParentFile(), sb.toString());
 		
 		//exists? 
-		s.setVal(BagStatsItems.Bag, newBag.getName());
+		s.setVal(BagStatsItems.Bag, sb.toString());
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 

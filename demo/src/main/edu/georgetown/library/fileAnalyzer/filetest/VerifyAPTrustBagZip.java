@@ -1,14 +1,11 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
-import gov.loc.repository.bagit.Bag;
-import gov.loc.repository.bagit.BagFactory;
-import gov.loc.repository.bagit.utilities.SimpleResult;
+import java.io.File;
+
+import gov.loc.repository.bagit.BagFile;
 import gov.nara.nwts.ftapp.FTDriver;
-import gov.nara.nwts.ftapp.filter.ZipFilter;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-
-import java.io.File;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -39,4 +36,12 @@ class VerifyAPTrustBagZip extends VerifyBagZip {
         return "This rule will validate the contents of an APTrust bag zip file";
     }
     
+    @Override public boolean miscBagFile(BagFile bf) {
+    	return VerifyAPTrustBag.APTRUST_INFO.equals(bf.getFilepath());
+    }
+
+    @Override public void validateBagMetadata(File f, Stats stats) {
+    	VerifyAPTrustBag.validateAPTrustBagMetadata(f, stats);
+    }
+
 }
