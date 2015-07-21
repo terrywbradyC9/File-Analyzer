@@ -2,25 +2,18 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagFactory;
-import gov.loc.repository.bagit.BagFile;
 import gov.loc.repository.bagit.BagInfoTxt;
 import gov.loc.repository.bagit.utilities.SimpleResult;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
-import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -28,6 +21,7 @@ import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
  *
  */
 class VerifyBag extends DefaultFileTest { 
+	public static final String BAGIT = "bagit.txt";
     public enum STAT {
         VALID,
         INVALID, 
@@ -43,7 +37,6 @@ class VerifyBag extends DefaultFileTest {
         BagSenderDesc(StatsItem.makeStringStatsItem("Sender Desc",150)),
         BagSenderId(StatsItem.makeStringStatsItem("Sender Id",150)),
         BagCount(StatsItem.makeStringStatsItem("Bag Count",150)),
-        BagMisc(StatsItem.makeStringStatsItem("Bag Misc",150)),
         Message(StatsItem.makeStringStatsItem("Message",400)),
         ;
         StatsItem si;
@@ -77,6 +70,10 @@ class VerifyBag extends DefaultFileTest {
     
     public String getShortName(){return "Ver Bag";}
 
+    public InitializationStatus init() {
+    	details = StatsItemConfig.create(BagStatsItems.class);
+    	return new InitializationStatus();
+    }
     
     public Object fileTest(File f) {
         Stats s = getStats(f);
@@ -93,9 +90,8 @@ class VerifyBag extends DefaultFileTest {
 			    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
 			    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
 			    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
-			    s.setVal(BagStatsItems.BagMisc, getBagMisc(bag));
 			    
-			    validateBagMetadata(f, s);
+			    validateBagMetadata(bag, f, s);
 			} else {
 			    s.setVal(BagStatsItems.Stat, STAT.ERROR);
 			    for(String m: result.getMessages()) {
@@ -103,32 +99,11 @@ class VerifyBag extends DefaultFileTest {
 			    }
 			}
 		} catch (Exception e) {
+			//e.printStackTrace();
 	        s.setVal(BagStatsItems.Message, e.getMessage());
 		    s.setVal(BagStatsItems.Stat, STAT.NA);
 		}
         return s.getVal(BagStatsItems.Count);
-    }
-    
-    String getBagMisc(Bag bag) {
-    	StringBuilder sb = new StringBuilder();
-    	for(BagFile bf: bag.getTags()) {
-    		if (!miscBagFile(bf)) continue;
-    		InputStream is = bf.newInputStream();
-    		try (InputStreamReader isr = new InputStreamReader(is)) {
-    			BufferedReader br = new BufferedReader(isr);
-    			for(String s=br.readLine(); s!=null; s=br.readLine()) {
-    				if (sb.length() != 0) sb.append("; ");
-    				sb.append(s);
-    			}
-    		} catch (IOException e) {
-				e.printStackTrace();
-			}
-    	}
-    	return sb.toString();
-    }
-    
-    public boolean miscBagFile(BagFile bf) {
-    	return false;
     }
     
     public Stats createStats(String key){ 
@@ -143,7 +118,7 @@ class VerifyBag extends DefaultFileTest {
     }
     
     @Override public boolean isTestDirectory(File f) {
-    	return hasDescendant(f, "bagit.txt");
+    	return hasDescendant(f, BAGIT);
     }
     @Override public boolean processRoot() {
         return true;
@@ -154,13 +129,13 @@ class VerifyBag extends DefaultFileTest {
     }
 
     public boolean hasBagFile(File f) {
-        return (new File(f, "bagit.txt")).exists();
+        return (new File(f, BAGIT)).exists();
     }
     @Override public boolean isTestable(File f) {
         return hasBagFile(f) && f.getName().endsWith("_bag");
     }
     
-    public void validateBagMetadata(File f, Stats stats) {
+    public void validateBagMetadata(Bag bag, File f, Stats stats) {
     }
 
 }
