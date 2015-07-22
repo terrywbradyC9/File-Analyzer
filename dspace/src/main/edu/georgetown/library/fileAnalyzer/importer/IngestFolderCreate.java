@@ -616,8 +616,9 @@ public class IngestFolderCreate extends DefaultImporter {
             data = DelimitedFileReader.parseFile(refFile, "\t");
             if (data.size() > 0) {
                 Vector<String> cols = data.get(0);
-                for(int i=4; i<cols.size(); i++) {
+                for(int i=FIXED.COLLECTIONS.index; i<cols.size(); i++) {
                     String col = cols.get(i);
+                    if (col.equals(COLLECTIONS)) continue;
                     if (!metadataPropFile.isFieldInRegistry(col)) {
                         iStat.addFailMessage(col + " is not defined in the metadata registry");
                     }
