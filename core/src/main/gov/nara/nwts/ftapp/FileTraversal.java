@@ -63,7 +63,9 @@ public class FileTraversal {
 			    test = p.matcher(f.getAbsolutePath()).matches();
 			}
 			if (test) {
-				checkDirFile(f, fileTest);
+				if (!Files.isSymbolicLink(f.toPath()) || driver.followLinks()) {
+					checkDirFile(f, fileTest);
+				}
 			}
 			
 		}
@@ -81,7 +83,9 @@ public class FileTraversal {
 					    test = p.matcher(files[i].getAbsolutePath()).matches();
 					}
 					if (test) {
-						checkDirFile(files[i], fileTest);
+						if (!Files.isSymbolicLink(files[i].toPath()) || driver.followLinks()) {
+							checkDirFile(files[i], fileTest);
+						}
 					}
 				}
 				increment();
