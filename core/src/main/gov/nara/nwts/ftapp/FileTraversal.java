@@ -2,6 +2,7 @@ package gov.nara.nwts.ftapp;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.nio.file.Files;
 import java.util.regex.Pattern;
 
 
@@ -87,7 +88,11 @@ public class FileTraversal {
 			} else {
 				if (isCancelled()) return false; 
 				File thefile = files[i];
-				checkFile(thefile, fileTest);
+				
+				if (!Files.isSymbolicLink(thefile.toPath()) || driver.followLinks()) {
+					checkFile(thefile, fileTest);
+				}
+
 				fileTest.progress(getNumProcessed());
 				numProcessed++;
 				if (getNumProcessed() >= max) {

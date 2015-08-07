@@ -43,6 +43,7 @@ class CriteriaPanel extends MyPanel {
 	JComboBox<FileTest> actions;
 	JComboBox<Integer> limit;
 	JCheckBox ignorePeriods;
+	JCheckBox followLinks;
 	JCheckBox fcb;
 	JTextArea description;
 	JPanel propFilterPanel;
@@ -104,6 +105,10 @@ class CriteriaPanel extends MyPanel {
 		ignorePeriods.setSelected(true);
 		ignorePeriods.setText("Assume directory names do not contain periods (faster)");
 		adv1.add(ignorePeriods);
+		followLinks = new JCheckBox();
+		followLinks.setSelected(false);
+		followLinks.setText("Follow Links");
+		adv1.add(followLinks);
 
 		JPanel adv2 = new JPanel();
 		adv2.setBorder(BorderFactory.createTitledBorder("Auto-save Output directory"));
