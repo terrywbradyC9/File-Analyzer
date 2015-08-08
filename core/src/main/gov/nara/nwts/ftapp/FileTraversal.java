@@ -70,6 +70,9 @@ public class FileTraversal {
 			
 		}
 		for(int i=0; i<files.length; i++) {
+			if (Files.isSymbolicLink(files[i].toPath()) && !driver.followLinks()) {
+				continue;
+			}
 			if (files[i].isDirectory()) {
 				if (isCancelled()) return false; 
 				if (getNumProcessed() >= max) {
@@ -83,9 +86,7 @@ public class FileTraversal {
 					    test = p.matcher(files[i].getAbsolutePath()).matches();
 					}
 					if (test) {
-						if (!Files.isSymbolicLink(files[i].toPath()) || driver.followLinks()) {
-							checkDirFile(files[i], fileTest);
-						}
+						checkDirFile(files[i], fileTest);
 					}
 				}
 				increment();
