@@ -3,6 +3,8 @@ package gov.nara.nwts.ftapp;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 
@@ -22,6 +24,8 @@ public class FileTraversal {
 	protected FTDriver driver;
 	protected FilenameFilter fileFilter;
 	protected FilenameFilter dirnameFilter;
+	
+	protected HashSet<Path> alreadyVisited = new HashSet<Path>();
 	
 	public FileTest fileTest;
 	protected int max;
@@ -53,6 +57,7 @@ public class FileTraversal {
 		System.err.println("Stopping: " +max + " items found.");
 	}
 	public boolean traverse(File f, FileTest fileTest, int max) {
+		alreadyVisited = new HashSet<Path>();
 		if (f==null) return false;
 		File[] files = f.listFiles(fileFilter);
 		if (files == null) return true;
@@ -72,6 +77,14 @@ public class FileTraversal {
 		for(int i=0; i<files.length; i++) {
 			if (Files.isSymbolicLink(files[i].toPath()) && !driver.followLinks()) {
 				continue;
+			}
+			
+			if (driver.followLinks()) {
+				Path path = files[i].toPath().toAbsolutePath();
+				if (alreadyVisited.contains(path)) {
+					continue;
+				}
+				alreadyVisited.add(path);
 			}
 			if (files[i].isDirectory()) {
 				if (isCancelled()) return false; 
