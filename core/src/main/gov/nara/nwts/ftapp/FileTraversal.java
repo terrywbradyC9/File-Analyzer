@@ -2,8 +2,8 @@ package gov.nara.nwts.ftapp;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
@@ -25,7 +25,7 @@ public class FileTraversal {
 	protected FilenameFilter fileFilter;
 	protected FilenameFilter dirnameFilter;
 	
-	protected HashSet<Path> alreadyVisited = new HashSet<Path>();
+	protected HashSet<String> alreadyVisited = new HashSet<String>();
 	
 	public FileTest fileTest;
 	protected int max;
@@ -51,13 +51,13 @@ public class FileTraversal {
 	public void setTraversal(FileTest fileTest, int max) {
 		this.fileTest = fileTest;
 		this.max = max;
+		alreadyVisited = new HashSet<String>();
 	}
 	
 	public void reportCancel() {
 		System.err.println("Stopping: " +max + " items found.");
 	}
 	public boolean traverse(File f, FileTest fileTest, int max) {
-		alreadyVisited = new HashSet<Path>();
 		if (f==null) return false;
 		File[] files = f.listFiles(fileFilter);
 		if (files == null) return true;
@@ -75,16 +75,19 @@ public class FileTraversal {
 			
 		}
 		for(int i=0; i<files.length; i++) {
-			if (Files.isSymbolicLink(files[i].toPath()) && !driver.followLinks()) {
-				continue;
-			}
-			
 			if (driver.followLinks()) {
-				Path path = files[i].toPath().toAbsolutePath();
-				if (alreadyVisited.contains(path)) {
-					continue;
+				String path;
+				try {
+					path = files[i].getCanonicalPath().intern();
+					if (alreadyVisited.contains(path)) {
+						continue;
+					}
+					alreadyVisited.add(path);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				alreadyVisited.add(path);
+			} else if (Files.isSymbolicLink(files[i].toPath())) {
+				continue;
 			}
 			if (files[i].isDirectory()) {
 				if (isCancelled()) return false; 
@@ -107,9 +110,7 @@ public class FileTraversal {
 				if (isCancelled()) return false; 
 				File thefile = files[i];
 				
-				if (!Files.isSymbolicLink(thefile.toPath()) || driver.followLinks()) {
-					checkFile(thefile, fileTest);
-				}
+				checkFile(thefile, fileTest);
 
 				fileTest.progress(getNumProcessed());
 				numProcessed++;
