@@ -2,6 +2,9 @@ package gov.nara.nwts.ftapp;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 
@@ -21,6 +24,8 @@ public class FileTraversal {
 	protected FTDriver driver;
 	protected FilenameFilter fileFilter;
 	protected FilenameFilter dirnameFilter;
+	
+	protected HashSet<String> alreadyVisited = new HashSet<String>();
 	
 	public FileTest fileTest;
 	protected int max;
@@ -46,6 +51,7 @@ public class FileTraversal {
 	public void setTraversal(FileTest fileTest, int max) {
 		this.fileTest = fileTest;
 		this.max = max;
+		alreadyVisited = new HashSet<String>();
 	}
 	
 	public void reportCancel() {
@@ -62,11 +68,27 @@ public class FileTraversal {
 			    test = p.matcher(f.getAbsolutePath()).matches();
 			}
 			if (test) {
-				checkDirFile(f, fileTest);
+				if (!Files.isSymbolicLink(f.toPath()) || driver.followLinks()) {
+					checkDirFile(f, fileTest);
+				}
 			}
 			
 		}
 		for(int i=0; i<files.length; i++) {
+			if (driver.followLinks()) {
+				String path;
+				try {
+					path = files[i].getCanonicalPath().intern();
+					if (alreadyVisited.contains(path)) {
+						continue;
+					}
+					alreadyVisited.add(path);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (Files.isSymbolicLink(files[i].toPath())) {
+				continue;
+			}
 			if (files[i].isDirectory()) {
 				if (isCancelled()) return false; 
 				if (getNumProcessed() >= max) {
@@ -87,7 +109,9 @@ public class FileTraversal {
 			} else {
 				if (isCancelled()) return false; 
 				File thefile = files[i];
+				
 				checkFile(thefile, fileTest);
+
 				fileTest.progress(getNumProcessed());
 				numProcessed++;
 				if (getNumProcessed() >= max) {

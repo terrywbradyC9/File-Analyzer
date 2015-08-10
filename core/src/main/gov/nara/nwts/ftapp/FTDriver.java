@@ -51,6 +51,9 @@ public class FTDriver {
 	public String saveFile;
 	public File lastSavedFile;
 	public boolean overwrite = true;
+	public boolean followLinks() {
+		return false;
+	}
 	
 	public FileTestFilter myfilter;
 	public ResultFilter myresfilter;

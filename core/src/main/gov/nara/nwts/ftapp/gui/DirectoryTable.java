@@ -199,6 +199,10 @@ public class DirectoryTable extends FTDriver {
 		
 	}
 
+	public boolean followLinks() {
+		return this.criteriaPanel.followLinks.isSelected();
+	}
+	
 	/**
 	 * Reset the filter and property tabs based on the selected FileTest.
 	 */
