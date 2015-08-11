@@ -87,7 +87,6 @@ class CreateBag extends DefaultFileTest {
 		} else {
 			newBag = new File(f.getParentFile(), f.getName() + "_bag");
 		}
-		s.setVal(BagStatsItems.Bag, newBag.getName());
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 		bag.addFileToPayload(f);
@@ -103,9 +102,9 @@ class CreateBag extends DefaultFileTest {
 		    bag.write(writer, newBag);
 		    bag.close();
 		    if (bagType == BAG_TYPE.TAR) {
-		    	TarUtil.tarFolderAndDeleteFolder(newBag);
-				s.appendVal(BagStatsItems.Bag, ".tar");
+		    	newBag = TarUtil.tarFolderAndDeleteFolder(newBag);
 		    }
+			s.setVal(BagStatsItems.Bag, newBag.getName());
 			s.setVal(BagStatsItems.Stat, STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 		} catch (IOException e) {

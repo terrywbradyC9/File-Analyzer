@@ -5,22 +5,27 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 
 public class TarUtil {
-	public static void tarFolder(File folder) throws FileNotFoundException, IOException {
+	public static File tarFolder(File folder) throws FileNotFoundException, IOException {
 		File tarout = new File(folder.getParentFile(), folder.getName() + ".tar");
 		try(TarArchiveOutputStream tar = new TarArchiveOutputStream(new FileOutputStream(tarout))) {
 	        TarUtil.tarSubDirectory("", folder, tar);			
 		}
+		return tarout;
 	}
 
-	public static void tarFolderAndDeleteFolder(File folder) throws FileNotFoundException, IOException {
-		tarFolder(folder);
+	public static File tarFolderAndDeleteFolder(File folder) throws FileNotFoundException, IOException {
+		File out = tarFolder(folder);
 		FileUtils.deleteDirectory(folder);
+		return out;
 	}
 	
 	public static void tarSubDirectory(String basePath, File dir, TarArchiveOutputStream tar) throws IOException {
@@ -49,12 +54,18 @@ public class TarUtil {
 	}
 	
 	public static File untar(File f) throws IOException {
-		File temp = File.createTempFile(f.getName(), "untar");
-		//TarArchiveEntry entry = tarInput.getNextTarEntry();
-		//byte[] content = new byte[entry.getSize()];
-		//LOOP UNTIL entry.getSize() HAS BEEN READ {
-		//    tarInput.read(content, offset, content.length - offset);
-		//}
-		return temp;
+		Path temp = Files.createTempDirectory(f.getName());
+		temp.toFile().deleteOnExit();
+		TarArchiveInputStream taris = new TarArchiveInputStream(new FileInputStream(f));
+		for(TarArchiveEntry entry = taris.getNextTarEntry(); entry != null; entry =  taris.getNextTarEntry()){
+			Path fentry = temp.resolve(entry.getName());
+			if (entry.isDirectory()) {
+		        Files.createDirectory(fentry);
+			} else {
+		        Files.copy(taris, fentry);
+			}
+			fentry.toFile().deleteOnExit();
+		}
+		return temp.toFile();
 	}
 }

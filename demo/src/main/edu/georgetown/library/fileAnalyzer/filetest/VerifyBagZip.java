@@ -11,15 +11,15 @@ import java.io.File;
  * @author TBrady
  *
  */
-class VerifyBagTar extends VerifyBag { 
+class VerifyBagZip extends VerifyBag { 
     public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
 
-    public VerifyBagTar(FTDriver dt) {
+    public VerifyBagZip(FTDriver dt) {
         super(dt);
     }
 
     public String toString() {
-        return "Verify Bag - Tar";
+        return "Verify Bag - Zip";
     }
     public String getShortName(){return "Ver Bag Zip";}
     

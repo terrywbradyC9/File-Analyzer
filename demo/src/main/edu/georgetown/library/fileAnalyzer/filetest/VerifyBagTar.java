@@ -5,16 +5,19 @@ import gov.nara.nwts.ftapp.filter.TarFilter;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
+import java.io.IOException;
+
+import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
  * @author TBrady
  *
  */
-class VerifyBagZip extends VerifyBag { 
+class VerifyBagTar extends VerifyBag { 
     public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
 
-    public VerifyBagZip(FTDriver dt) {
+    public VerifyBagTar(FTDriver dt) {
         super(dt);
     }
 
@@ -42,8 +45,12 @@ class VerifyBagZip extends VerifyBag {
     	return f.getName().toLowerCase().endsWith(".tar");
     }
 
-	public void initFilters() {
+	@Override public void initFilters() {
 		filters.add(new TarFilter());
 	}
     
+	@Override public File prepareFile(File f) throws IOException {
+		return TarUtil.untar(f);
+    }
+   
 }
