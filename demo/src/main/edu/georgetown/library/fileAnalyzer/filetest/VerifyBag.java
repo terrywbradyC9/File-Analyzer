@@ -14,6 +14,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -75,32 +76,39 @@ class VerifyBag extends DefaultFileTest {
     	return new InitializationStatus();
     }
     
+    public File prepareFile(File f) throws IOException {
+    	return f;
+    }
+    
     public Object fileTest(File f) {
+    	String fname = f.getName();
         Stats s = getStats(f);
-        BagFactory bf = new BagFactory();
-        try (Bag bag = bf.createBag(f);) {
-			s.setVal(BagStatsItems.Count, bag.getPayload().size());
-			SimpleResult result = bag.verifyValid();
-			if (result.isSuccess()) {
-				BagInfoTxt bit = bag.getBagInfoTxt();
-				
-			    s.setVal(BagStatsItems.Stat, STAT.VALID);
-			    s.setVal(BagStatsItems.Message, "");
-			    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
-			    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
-			    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
-			    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
-			    
-			    validateBagMetadata(bag, f, s);
-			} else {
-			    s.setVal(BagStatsItems.Stat, STAT.ERROR);
-			    for(String m: result.getMessages()) {
-			        s.appendVal(BagStatsItems.Message, m +" ");             
-			    }
-			}
+        try {
+			f = prepareFile(f);
+			BagFactory bf = new BagFactory();
+			try (Bag bag = bf.createBag(f);) {
+				s.setVal(BagStatsItems.Count, bag.getPayload().size());
+				SimpleResult result = bag.verifyValid();
+				if (result.isSuccess()) {
+					BagInfoTxt bit = bag.getBagInfoTxt();
+					
+				    s.setVal(BagStatsItems.Stat, STAT.VALID);
+				    s.setVal(BagStatsItems.Message, "");
+				    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
+				    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
+				    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
+				    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
+				    
+				    validateBagMetadata(bag, fname, s);
+				} else {
+				    s.setVal(BagStatsItems.Stat, STAT.ERROR);
+				    for(String m: result.getMessages()) {
+				        s.appendVal(BagStatsItems.Message, m +" ");             
+				    }
+				}
+			} 
 		} catch (Exception e) {
-			//e.printStackTrace();
-	        s.setVal(BagStatsItems.Message, e.getMessage());
+		    s.setVal(BagStatsItems.Message, e.getMessage());
 		    s.setVal(BagStatsItems.Stat, STAT.NA);
 		}
         return s.getVal(BagStatsItems.Count);
@@ -135,7 +143,7 @@ class VerifyBag extends DefaultFileTest {
         return hasBagFile(f) && f.getName().endsWith("_bag");
     }
     
-    public void validateBagMetadata(Bag bag, File f, Stats stats) {
+    public void validateBagMetadata(Bag bag, String fname, Stats stats) {
     }
 
 }

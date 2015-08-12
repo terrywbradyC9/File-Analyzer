@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 
 import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
+import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -78,11 +79,14 @@ class CreateBag extends DefaultFileTest {
 
     
 	public Object fileTest(File f) {
-		boolean isZip = (this.getProperty(CreateBag.P_BAGTYPE) != BAG_TYPE.DIRECTORY);
+		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
 		Stats s = getStats(f);
-		File newBag = (isZip) ? new File(f.getParentFile(), f.getName() + "_bag.zip") : new File(f.getParentFile(), f.getName() + "_bag");
-		//exists? 
-		s.setVal(BagStatsItems.Bag, newBag.getName());
+		File newBag = null;
+		if (bagType == BAG_TYPE.ZIP) {
+			newBag = new File(f.getParentFile(), f.getName() + "_bag.zip");
+		} else {
+			newBag = new File(f.getParentFile(), f.getName() + "_bag");
+		}
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 		bag.addFileToPayload(f);
@@ -94,14 +98,19 @@ class CreateBag extends DefaultFileTest {
 			comp.setUpdatePayloadOxum(true);
 			comp.setGenerateTagManifest(true);
 			bag = comp.complete(bag);
-		    Writer writer = (isZip) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
+		    Writer writer = (bagType == BAG_TYPE.ZIP) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
 		    bag.write(writer, newBag);
 		    bag.close();
+		    if (bagType == BAG_TYPE.TAR) {
+		    	newBag = TarUtil.tarFolderAndDeleteFolder(newBag);
+		    }
+			s.setVal(BagStatsItems.Bag, newBag.getName());
 			s.setVal(BagStatsItems.Stat, STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 		} catch (IOException e) {
 			s.setVal(BagStatsItems.Stat, STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
+			e.printStackTrace();
 		}
 		return s.getVal(BagStatsItems.Count);
 	}

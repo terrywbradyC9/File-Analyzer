@@ -1,30 +1,33 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
-import gov.nara.nwts.ftapp.filter.ZipFilter;
+import gov.nara.nwts.ftapp.filter.TarFilter;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
+import java.io.IOException;
+
+import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
  * @author TBrady
  *
  */
-class VerifyBagZip extends VerifyBag { 
+class VerifyBagTar extends VerifyBag { 
     public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
 
-    public VerifyBagZip(FTDriver dt) {
+    public VerifyBagTar(FTDriver dt) {
         super(dt);
     }
 
     public String toString() {
-        return "Verify Bag - Zip";
+        return "Verify Bag - Tar";
     }
-    public String getShortName(){return "Ver Bag Zip";}
+    public String getShortName(){return "Ver Bag Tar";}
     
     public String getDescription() {
-        return "This rule will validate the contents of a bag zip file";
+        return "This rule will validate the contents of a bag tar file";
     }
     
     @Override public boolean isTestDirectory() {
@@ -39,11 +42,15 @@ class VerifyBagZip extends VerifyBag {
     }
 
     @Override public boolean isTestable(File f) {
-    	return f.getName().toLowerCase().endsWith(".zip");
+    	return f.getName().toLowerCase().endsWith(".tar");
     }
 
-	public void initFilters() {
-		filters.add(new ZipFilter());
+	@Override public void initFilters() {
+		filters.add(new TarFilter());
 	}
     
+	@Override public File prepareFile(File f) throws IOException {
+		return TarUtil.untar(f);
+    }
+   
 }

@@ -20,8 +20,8 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
         add(new CreateAPTrustBag(dt)); 
 		add(new VerifyBag(dt)); 
 		add(new VerifyBagZip(dt)); 
-        add(new VerifyAPTrustBag(dt)); 
-        add(new VerifyAPTrustBagZip(dt)); 
+		add(new VerifyBagTar(dt)); 
+        add(new VerifyAPTrustBagTar(dt)); 
 		removeFT(CounterValidation.class);
 		add(new CounterValidationXls(dt)); 
         add(new DemoFileTest(dt)); 

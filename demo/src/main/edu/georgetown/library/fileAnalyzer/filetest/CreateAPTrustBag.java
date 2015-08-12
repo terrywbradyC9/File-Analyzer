@@ -24,6 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
+import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -81,7 +82,7 @@ class CreateAPTrustBag extends DefaultFileTest {
     private FTPropEnum pAccess = new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ACCESS, P_ACCESS,
             "Access condition within APTrust.", Access.values(), Access.Institution);
     private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
-            "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
+            "Type of bag to create (TAR is the standard for APTrust)", BAG_TYPE.values(), BAG_TYPE.TAR);
     
 	public CreateAPTrustBag(FTDriver dt) {
 		super(dt);
@@ -129,7 +130,7 @@ class CreateAPTrustBag extends DefaultFileTest {
     public String getShortName(){return "APTBag";}
 
 	public Object fileTest(File f) {
-		boolean isZip = (this.getProperty(CreateBag.P_BAGTYPE) != BAG_TYPE.DIRECTORY);
+		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
 		
 		Stats s = getStats(f);
 		
@@ -144,11 +145,13 @@ class CreateAPTrustBag extends DefaultFileTest {
         sb.append(bagCount);
         sb.append(".of");
         sb.append(bagTotal);
-        if (isZip) sb.append(".zip");
-		File newBag = new File(f.getParentFile(), sb.toString());
+
+		File newBag = null;
+		if (bagType == BAG_TYPE.ZIP) {
+			sb.append(".zip");
+		}
+		newBag = new File(f.getParentFile(), sb.toString());
 		
-		//exists? 
-		s.setVal(BagStatsItems.Bag, sb.toString());
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 
@@ -177,11 +180,16 @@ class CreateAPTrustBag extends DefaultFileTest {
 		    bit.addInternalSenderIdentifier(this.getProperty(P_INTSENDID).toString());
 		    bit.setBagCount(String.format("%03d", Integer.parseInt(pBagCount.getValue().toString())));
 
-		    Writer writer = (isZip) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
+		    Writer writer = (bagType == BAG_TYPE.ZIP) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
 		    bag.write(writer, newBag);
 		    bag.close();
 
 		    aptinfo.delete();
+		    if (bagType == BAG_TYPE.TAR) {
+		    	newBag = TarUtil.tarFolderAndDeleteFolder(newBag);
+				s.appendVal(BagStatsItems.Bag, ".tar");
+		    }
+			s.setVal(BagStatsItems.Bag, newBag.getName());
 			s.setVal(BagStatsItems.Stat, STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 		} catch (IOException e) {
