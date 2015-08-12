@@ -82,7 +82,7 @@ class CreateAPTrustBag extends DefaultFileTest {
     private FTPropEnum pAccess = new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ACCESS, P_ACCESS,
             "Access condition within APTrust.", Access.values(), Access.Institution);
     private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
-            "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
+            "Type of bag to create (TAR is the standard for APTrust)", BAG_TYPE.values(), BAG_TYPE.TAR);
     
 	public CreateAPTrustBag(FTDriver dt) {
 		super(dt);
