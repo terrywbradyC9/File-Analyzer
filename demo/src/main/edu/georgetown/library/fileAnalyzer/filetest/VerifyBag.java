@@ -81,6 +81,7 @@ class VerifyBag extends DefaultFileTest {
     }
     
     public Object fileTest(File f) {
+    	String fname = f.getName();
         Stats s = getStats(f);
         try {
 			f = prepareFile(f);
@@ -98,7 +99,7 @@ class VerifyBag extends DefaultFileTest {
 				    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
 				    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
 				    
-				    validateBagMetadata(bag, f, s);
+				    validateBagMetadata(bag, fname, s);
 				} else {
 				    s.setVal(BagStatsItems.Stat, STAT.ERROR);
 				    for(String m: result.getMessages()) {
@@ -142,7 +143,7 @@ class VerifyBag extends DefaultFileTest {
         return hasBagFile(f) && f.getName().endsWith("_bag");
     }
     
-    public void validateBagMetadata(Bag bag, File f, Stats stats) {
+    public void validateBagMetadata(Bag bag, String fname, Stats stats) {
     }
 
 }

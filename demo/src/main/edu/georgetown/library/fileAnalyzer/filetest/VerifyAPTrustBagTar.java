@@ -14,6 +14,7 @@ import gov.loc.repository.bagit.BagFile;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
+import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
@@ -59,12 +60,22 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	details.addStatsItem(APT_ACCESS, StatsItem.makeStringStatsItem(APT_ACCESS));
     	return new InitializationStatus();
     }
+    public static enum Generator implements StatsGenerator {
+        INSTANCE;
+        class BagStats extends Stats {
+            public BagStats(String key) {
+                super(details, key);
+            }
+
+        }
+        public BagStats create(String key) {return new BagStats(key);}
+    }
     
-    @Override public void validateBagMetadata(Bag bag, File f, Stats stats) {
-    	validateAPTrustBagMetadata(bag, f, stats);
+    @Override public void validateBagMetadata(Bag bag, String fname, Stats stats) {
+    	validateAPTrustBagMetadata(bag, fname, stats);
     }
         
-    public static void validateAPTrustBagMetadata(Bag bag, File f, Stats s) {
+    public static void validateAPTrustBagMetadata(Bag bag, String fname, Stats s) {
 	    s.setVal(BagStatsItems.Stat, STAT.VALID);
 	    s.setVal(BagStatsItems.Message, "");
     	String source = s.getStringVal(BagStatsItems.BagSourceOrg,"");  	
@@ -89,7 +100,7 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
 			}
     	}
     	
-    	Matcher m = pAPT.matcher(f.getName());
+    	Matcher m = pAPT.matcher(fname);
     	if (m.matches()) {
     	    if (!scount.equals(m.group(1))) {
         	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
@@ -97,7 +108,7 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	    }
     	} else {
     	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, "APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total> where bag and total are 3 digits.)");     
+    	    s.appendVal(BagStatsItems.Message, "APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total>.tar where bag and total are 3 digits.)");     
     	}
 
     	boolean hasTitle = false;
