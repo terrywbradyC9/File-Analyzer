@@ -17,7 +17,9 @@ public class TarUtil {
 	public static File tarFolder(File folder) throws FileNotFoundException, IOException {
 		File tarout = new File(folder.getParentFile(), folder.getName() + ".tar");
 		try(TarArchiveOutputStream tar = new TarArchiveOutputStream(new FileOutputStream(tarout))) {
-	        TarUtil.tarSubDirectory("", folder, tar);			
+			TarArchiveEntry arch = new TarArchiveEntry(folder.getName() + "/");
+			tar.putArchiveEntry(arch);
+	        TarUtil.tarSubDirectory(folder.getName()+"/", folder, tar);			
 		}
 		return tarout;
 	}

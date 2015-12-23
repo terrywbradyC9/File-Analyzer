@@ -147,6 +147,7 @@ class CreateAPTrustBag extends DefaultFileTest {
         sb.append(bagTotal);
 
 		File newBag = null;
+		String bagDirname = sb.toString();
 		if (bagType == BAG_TYPE.ZIP) {
 			sb.append(".zip");
 		}
@@ -155,7 +156,9 @@ class CreateAPTrustBag extends DefaultFileTest {
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 
-		bag.addFileToPayload(f);
+		for(File payloadFile: f.listFiles()) {
+			bag.addFileToPayload(payloadFile);			
+		}
 		try {
 	        File aptinfo = new File(f, "aptrust-info.txt");
 	        BufferedWriter bw = new BufferedWriter(new FileWriter(aptinfo));
@@ -181,6 +184,10 @@ class CreateAPTrustBag extends DefaultFileTest {
 		    bit.setBagCount(String.format("%03d", Integer.parseInt(pBagCount.getValue().toString())));
 
 		    Writer writer = (bagType == BAG_TYPE.ZIP) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
+		    if (writer instanceof ZipWriter) {
+		    	//zip writer does not preserve periods in input directory name
+		    	((ZipWriter)writer).setBagDir(bagDirname);
+		    }
 		    bag.write(writer, newBag);
 		    bag.close();
 
