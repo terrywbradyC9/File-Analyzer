@@ -50,7 +50,11 @@ class VerifyBagTar extends VerifyBag {
 	}
     
 	@Override public File prepareFile(File f) throws IOException {
-		return TarUtil.untar(f);
+		File untarred = TarUtil.untar(f);
+		if (untarred.listFiles().length == 1) {
+			return untarred.listFiles()[0];
+		}
+		return untarred;
     }
    
 }

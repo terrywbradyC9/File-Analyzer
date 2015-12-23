@@ -89,7 +89,9 @@ class CreateBag extends DefaultFileTest {
 		}
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
-		bag.addFileToPayload(f);
+		for(File payloadFile: f.listFiles()) {
+			bag.addFileToPayload(payloadFile);			
+		}
 		try {
 			DefaultCompleter comp = new DefaultCompleter(bf);
 			comp.setGenerateBagInfoTxt(true);
@@ -99,6 +101,9 @@ class CreateBag extends DefaultFileTest {
 			comp.setGenerateTagManifest(true);
 			bag = comp.complete(bag);
 		    Writer writer = (bagType == BAG_TYPE.ZIP) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
+		    if (writer instanceof ZipWriter) {
+		    	((ZipWriter)writer).setBagDir(f.getName());
+		    }
 		    bag.write(writer, newBag);
 		    bag.close();
 		    if (bagType == BAG_TYPE.TAR) {
