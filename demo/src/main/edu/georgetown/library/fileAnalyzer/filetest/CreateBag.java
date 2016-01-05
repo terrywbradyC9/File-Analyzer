@@ -7,6 +7,7 @@ import gov.loc.repository.bagit.writer.Writer;
 import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
 import gov.loc.repository.bagit.writer.impl.ZipWriter;
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -34,9 +35,12 @@ class CreateBag extends DefaultFileTest {
 	}
 	
     public static final String P_BAGTYPE = "bag-type";
+    public static final String P_TOPFOLDER = "top-folder";
     
     private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
             "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
+    private FTPropEnum pTopFolder = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_TOPFOLDER, CreateBag.P_TOPFOLDER,
+            "Retain containing folder in payload", YN.values(), YN.Y);
 
 	private static enum BagStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Source", 200)),
@@ -66,6 +70,7 @@ class CreateBag extends DefaultFileTest {
 	public CreateBag(FTDriver dt) {
 		super(dt);
         ftprops.add(pBagType);
+        ftprops.add(pTopFolder);
 	}
 
 	public String toString() {
@@ -80,6 +85,7 @@ class CreateBag extends DefaultFileTest {
     
 	public Object fileTest(File f) {
 		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
+		boolean retainTop = ((YN)this.getProperty(CreateBag.P_TOPFOLDER) == YN.Y);
 		Stats s = getStats(f);
 		File newBag = null;
 		if (bagType == BAG_TYPE.ZIP) {
@@ -89,8 +95,13 @@ class CreateBag extends DefaultFileTest {
 		}
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
-		for(File payloadFile: f.listFiles()) {
-			bag.addFileToPayload(payloadFile);			
+		
+		if (retainTop) {
+			bag.addFileToPayload(f);
+		} else {
+			for(File payloadFile: f.listFiles()) {
+				bag.addFileToPayload(payloadFile);			
+			}			
 		}
 		try {
 			DefaultCompleter comp = new DefaultCompleter(bf);

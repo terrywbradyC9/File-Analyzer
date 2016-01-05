@@ -8,6 +8,7 @@ import gov.loc.repository.bagit.writer.Writer;
 import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
 import gov.loc.repository.bagit.writer.impl.ZipWriter;
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropInt;
@@ -83,10 +84,13 @@ class CreateAPTrustBag extends DefaultFileTest {
             "Access condition within APTrust.", Access.values(), Access.Institution);
     private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
             "Type of bag to create (TAR is the standard for APTrust)", BAG_TYPE.values(), BAG_TYPE.TAR);
+    private FTPropEnum pTopFolder = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_TOPFOLDER, CreateBag.P_TOPFOLDER,
+            "Retain containing folder in payload", YN.values(), YN.Y);
     
 	public CreateAPTrustBag(FTDriver dt) {
 		super(dt);
         ftprops.add(pBagType);
+        ftprops.add(pTopFolder);
 		FTPropString fps = new FTPropString(dt, this.getClass().getSimpleName(),  P_SRCORG, P_SRCORG,
                 "This should be the human readable name of the APTrust partner organization.", "");
 		fps.setFailOnEmpty(true);
@@ -131,6 +135,7 @@ class CreateAPTrustBag extends DefaultFileTest {
 
 	public Object fileTest(File f) {
 		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
+		boolean retainTop = ((YN)this.getProperty(CreateBag.P_TOPFOLDER) == YN.Y);
 		
 		Stats s = getStats(f);
 		
@@ -156,8 +161,12 @@ class CreateAPTrustBag extends DefaultFileTest {
 		BagFactory bf = new BagFactory();
 		Bag bag = bf.createBag();
 
-		for(File payloadFile: f.listFiles()) {
-			bag.addFileToPayload(payloadFile);			
+		if (retainTop) {
+			bag.addFileToPayload(f);
+		} else {
+			for(File payloadFile: f.listFiles()) {
+				bag.addFileToPayload(payloadFile);			
+			}			
 		}
 		try {
 	        File aptinfo = new File(f, "aptrust-info.txt");
