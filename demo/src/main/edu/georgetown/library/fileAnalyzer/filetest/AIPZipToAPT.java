@@ -248,7 +248,7 @@ class AIPZipToAPT extends DefaultFileTest {
 		
 		String title = xp.evaluate("//mods:title", doc);
 		aptHelper.setTitle(title);
-		String intSendDesc = xp.evaluate("mods:abstract", doc);
+		String intSendDesc = xp.evaluate("//mods:abstract", doc);
 		aptHelper.setInstitutionalSenderDesc(intSendDesc);
 		
 	}
