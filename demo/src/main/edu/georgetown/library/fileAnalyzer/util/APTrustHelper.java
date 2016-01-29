@@ -74,21 +74,21 @@ public class APTrustHelper extends TarBagHelper {
 	}    
    
     @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsExcpetion {
-    	if (instId == null) sb.append("Institution Id cannot be null\n");
-    	if (instId.isEmpty()) sb.append("Institution Id cannot be empty\n");
-    	if (itemUid == null) sb.append("Item Identifier cannot be null\n");
-    	if (itemUid.isEmpty()) sb.append("Item Identifier cannot be empty\n");
-    	if (ibagCount == null) sb.append("Bag count must be set\n");
-    	if (ibagTotal == null) sb.append("Bag total must be set\n");
-    	if (access == null) sb.append("Access type must be set\n");
-    	if (srcOrg == null) sb.append("Source Organization cannot be null\n");
-    	if (srcOrg.isEmpty()) sb.append("Source Organization cannot be empty\n");
-    	if (intSendDesc == null) sb.append("Institution Sender Description cannot be null\n");
-    	if (intSendDesc.isEmpty()) sb.append("Institution Sender Description cannot be empty\n");
-    	if (intSendId == null) sb.append("Institution Sender Id cannot be null\n");
-    	if (intSendId.isEmpty()) sb.append("Institution Sender Id cannot be empty\n");
-    	if (title == null) sb.append("Title cannot be null\n");
-    	if (title.isEmpty()) sb.append("Title cannot be empty\n");
+    	if (instId == null) sb.append("Institution Id cannot be null. \n");
+    	if (instId.isEmpty()) sb.append("Institution Id cannot be empty. \n");
+    	if (itemUid == null) sb.append("Item Identifier cannot be null. \n");
+    	if (itemUid.isEmpty()) sb.append("Item Identifier cannot be empty. \n");
+    	if (ibagCount == null) sb.append("Bag count must be set. \n");
+    	if (ibagTotal == null) sb.append("Bag total must be set. \n");
+    	if (access == null) sb.append("Access type must be set. \n");
+    	if (srcOrg == null) sb.append("Source Organization cannot be null. \n");
+    	if (srcOrg.isEmpty()) sb.append("Source Organization cannot be empty. \n");
+    	if (intSendDesc == null) sb.append("Institution Sender Description cannot be null. \n");
+    	//if (intSendDesc.isEmpty()) sb.append("Institution Sender Description cannot be empty. \n");
+    	if (intSendId == null) sb.append("Institution Sender Id cannot be null. \n");
+    	if (intSendId.isEmpty()) sb.append("Institution Sender Id cannot be empty. \n");
+    	if (title == null) sb.append("Title cannot be null. \n");
+    	if (title.isEmpty()) sb.append("Title cannot be empty. \n");
     }
         
     @Override public void createBagFile() throws IncompleteSettingsExcpetion {
@@ -122,7 +122,7 @@ public class APTrustHelper extends TarBagHelper {
         bw.close();
         bag.addFileAsTag(aptinfo);
 	    
-        generateBagInfoFiles();
+        super.generateBagInfoFiles();
 
 	    BagInfoTxt bit = bag.getBagInfoTxt();
         bit.addSourceOrganization(srcOrg);

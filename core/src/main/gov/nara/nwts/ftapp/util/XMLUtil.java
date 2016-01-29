@@ -4,8 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -29,6 +33,7 @@ public class XMLUtil {
 	public static DocumentBuilder db_ns;
 	public static TransformerFactory tf;
 	public static XPathFactory xf;
+	public static XPathFactory xf_ns;
 	public static XPath xp;
 	
 	static {
@@ -119,4 +124,35 @@ public class XMLUtil {
 		    t.transform(new DOMSource(d), sr);
 		}
 	}
+	
+	public class SimpleNamespaceContext implements NamespaceContext {
+
+	    private final Map<String, String> PREF_MAP = new HashMap<String, String>();
+
+	    public void add(String prefix, String uri) {
+	        PREF_MAP.put(prefix, uri);       
+	    }
+
+	    public String getNamespaceURI(String prefix) {
+	        return PREF_MAP.get(prefix);
+	    }
+
+	    public String getPrefix(String uri) {
+	    	for(String p: PREF_MAP.keySet()) {
+	    		if (p.equals(uri)) return p;
+	    	}
+	        return null;
+	    }
+
+	    public Iterator<String> getPrefixes(String uri) {
+	    	ArrayList<String> list = new ArrayList<String>();
+	    	for(String p: PREF_MAP.keySet()) {
+	    		if (p.equals(uri)) list.add(p);
+	    	}
+	    	
+	        return list.iterator();
+	    }
+
+	}
+	
 }

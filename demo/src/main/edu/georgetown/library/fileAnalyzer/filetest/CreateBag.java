@@ -1,11 +1,6 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.loc.repository.bagit.Bag;
-import gov.loc.repository.bagit.BagFactory;
-import gov.loc.repository.bagit.transformer.impl.DefaultCompleter;
-import gov.loc.repository.bagit.writer.Writer;
-import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
-import gov.loc.repository.bagit.writer.impl.ZipWriter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
@@ -23,7 +18,6 @@ import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper.IncompleteSettingsExcpetion;
 import edu.georgetown.library.fileAnalyzer.util.TarBagHelper;
-import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 import edu.georgetown.library.fileAnalyzer.util.ZipBagHelper;
 
 /**
