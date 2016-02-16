@@ -18,6 +18,8 @@ public class DemoActionRegistry extends DSpaceActionRegistry {
 		add(new YearbookNameValidationTest(dt)); 
 		add(new CreateBag(dt)); 
         add(new CreateAPTrustBag(dt)); 
+        add(new AIPZipToAPT(dt)); 
+        add(new AIPDirToAPT(dt)); 
 		add(new VerifyBag(dt)); 
 		add(new VerifyBagZip(dt)); 
 		add(new VerifyBagTar(dt)); 

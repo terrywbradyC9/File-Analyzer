@@ -1,11 +1,6 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.loc.repository.bagit.Bag;
-import gov.loc.repository.bagit.BagFactory;
-import gov.loc.repository.bagit.transformer.impl.DefaultCompleter;
-import gov.loc.repository.bagit.writer.Writer;
-import gov.loc.repository.bagit.writer.impl.FileSystemWriter;
-import gov.loc.repository.bagit.writer.impl.ZipWriter;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
@@ -20,7 +15,10 @@ import java.io.File;
 import java.io.IOException;
 
 import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
-import edu.georgetown.library.fileAnalyzer.util.TarUtil;
+import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
+import edu.georgetown.library.fileAnalyzer.util.FABagHelper.IncompleteSettingsExcpetion;
+import edu.georgetown.library.fileAnalyzer.util.TarBagHelper;
+import edu.georgetown.library.fileAnalyzer.util.ZipBagHelper;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -28,12 +26,6 @@ import edu.georgetown.library.fileAnalyzer.util.TarUtil;
  *
  */
 class CreateBag extends DefaultFileTest { 
-	public enum STAT {
-		VALID,
-		INVALID, 
-		ERROR
-	}
-	
     public static final String P_BAGTYPE = "bag-type";
     public static final String P_TOPFOLDER = "top-folder";
     
@@ -45,7 +37,7 @@ class CreateBag extends DefaultFileTest {
 	private static enum BagStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Source", 200)),
 		Bag(StatsItem.makeStringStatsItem("Bag", 200)),
-		Stat(StatsItem.makeEnumStatsItem(STAT.class, "Bag Status")),
+		Stat(StatsItem.makeEnumStatsItem(FABagHelper.STAT.class, "Bag Status")),
 		Count(StatsItem.makeIntStatsItem("Item Count")),
 		Message(StatsItem.makeStringStatsItem("Message", 200)),
 		;
@@ -87,14 +79,16 @@ class CreateBag extends DefaultFileTest {
 		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
 		boolean retainTop = ((YN)this.getProperty(CreateBag.P_TOPFOLDER) == YN.Y);
 		Stats s = getStats(f);
-		File newBag = null;
-		if (bagType == BAG_TYPE.ZIP) {
-			newBag = new File(f.getParentFile(), f.getName() + "_bag.zip");
+		FABagHelper bagHelp;
+		if (bagType == BAG_TYPE.TAR) {
+			bagHelp = new TarBagHelper(f);
+		} else if (bagType == BAG_TYPE.ZIP) {
+			bagHelp = new ZipBagHelper(f);
 		} else {
-			newBag = new File(f.getParentFile(), f.getName() + "_bag");
+			bagHelp = new FABagHelper(f);
 		}
-		BagFactory bf = new BagFactory();
-		Bag bag = bf.createBag();
+		
+		Bag bag = bagHelp.getBag();
 		
 		if (retainTop) {
 			bag.addFileToPayload(f);
@@ -103,28 +97,21 @@ class CreateBag extends DefaultFileTest {
 				bag.addFileToPayload(payloadFile);			
 			}			
 		}
+		
 		try {
-			DefaultCompleter comp = new DefaultCompleter(bf);
-			comp.setGenerateBagInfoTxt(true);
-			comp.setUpdateBaggingDate(true);
-			comp.setUpdateBagSize(true);
-			comp.setUpdatePayloadOxum(true);
-			comp.setGenerateTagManifest(true);
-			bag = comp.complete(bag);
-		    Writer writer = (bagType == BAG_TYPE.ZIP) ? new ZipWriter(bf) : new FileSystemWriter(bf); 
-		    if (writer instanceof ZipWriter) {
-		    	((ZipWriter)writer).setBagDir(f.getName());
-		    }
-		    bag.write(writer, newBag);
-		    bag.close();
-		    if (bagType == BAG_TYPE.TAR) {
-		    	newBag = TarUtil.tarFolderAndDeleteFolder(newBag);
-		    }
-			s.setVal(BagStatsItems.Bag, newBag.getName());
-			s.setVal(BagStatsItems.Stat, STAT.VALID);
+			bagHelp.createBagFile();
+			bagHelp.generateBagInfoFiles();
+			bagHelp.writeBagFile();
+
+			s.setVal(BagStatsItems.Bag, bagHelp.getFinalBagName());
+			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.VALID);
 			s.setVal(BagStatsItems.Count, bag.getPayload().size());
 		} catch (IOException e) {
-			s.setVal(BagStatsItems.Stat, STAT.ERROR);
+			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
+			s.setVal(BagStatsItems.Message, e.getMessage());
+			e.printStackTrace();
+		} catch (IncompleteSettingsExcpetion e) {
+			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
 			e.printStackTrace();
 		}
