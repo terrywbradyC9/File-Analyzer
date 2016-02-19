@@ -7,6 +7,7 @@ import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropInt;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -17,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
-import edu.georgetown.library.fileAnalyzer.util.FABagHelper.IncompleteSettingsExcpetion;
+import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 
@@ -99,7 +100,20 @@ class CreateAPTrustBag extends DefaultFileTest {
         ftprops.add(pAccess);
 	}
 
-	public String toString() {
+    @Override public InitializationStatus init() {
+        InitializationStatus istat = super.init();
+        try {
+            FABagHelper.validateBagCount(
+                this.getProperty(APTrustHelper.P_BAGCOUNT).toString(), 
+                this.getProperty(APTrustHelper.P_BAGTOTAL).toString() 
+            );                    
+        } catch(IncompleteSettingsException e) {
+            istat.addFailMessage(e.getMessage());                    
+        }
+        return istat;
+    }
+
+    public String toString() {
 		return "Create APTrust Bag";
 	}
 	public String getKey(File f) {
@@ -135,7 +149,7 @@ class CreateAPTrustBag extends DefaultFileTest {
     			}			
     		}
     		
-    		aptHelper.createBagFile();
+    		aptHelper.createBagFile();  
     		aptHelper.generateBagInfoFiles();
     		aptHelper.writeBagFile();
     		
@@ -145,7 +159,7 @@ class CreateAPTrustBag extends DefaultFileTest {
 		} catch (IOException e) {
 			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
-		} catch (IncompleteSettingsExcpetion e) {
+		} catch (IncompleteSettingsException e) {
 			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
 		}

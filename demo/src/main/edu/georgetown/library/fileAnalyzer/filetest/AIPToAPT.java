@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.STAT;
-import edu.georgetown.library.fileAnalyzer.util.FABagHelper.IncompleteSettingsExcpetion;
+import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 
@@ -120,7 +120,7 @@ abstract class AIPToAPT extends DefaultFileTest {
 			stat.setVal(BagStatsItems.Stat, STAT.ERROR);
 			stat.setVal(BagStatsItems.Message, e.getLocalizedMessage());
 			e.printStackTrace();
-		} catch (IncompleteSettingsExcpetion e) {
+		} catch (IncompleteSettingsException e) {
 			stat.setVal(BagStatsItems.Stat, STAT.INVALID);
 			stat.setVal(BagStatsItems.Message, e.getLocalizedMessage());
 			e.printStackTrace();

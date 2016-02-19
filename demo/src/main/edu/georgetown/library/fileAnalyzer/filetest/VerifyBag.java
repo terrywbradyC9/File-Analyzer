@@ -15,6 +15,9 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+
+import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -38,6 +41,7 @@ class VerifyBag extends DefaultFileTest {
         BagSenderDesc(StatsItem.makeStringStatsItem("Sender Desc",150)),
         BagSenderId(StatsItem.makeStringStatsItem("Sender Id",150)),
         BagCount(StatsItem.makeStringStatsItem("Bag Count",150)),
+        BagTotal(StatsItem.makeStringStatsItem("Bag Total",150)),
         Message(StatsItem.makeStringStatsItem("Message",400)),
         ;
         StatsItem si;
@@ -97,7 +101,17 @@ class VerifyBag extends DefaultFileTest {
 				    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
 				    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
 				    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
-				    s.setVal(BagStatsItems.BagCount, bit.getBagCount());
+				    
+				    String countstr = bit.getBagCount() == null ? "" : bit.getBagCount().trim();
+				    
+				    Matcher m = FABagHelper.pBagCountStr.matcher(countstr); 
+				    if (m.matches()) {
+	                    s.setVal(BagStatsItems.BagCount, m.group(1));
+                        s.setVal(BagStatsItems.BagTotal, m.group(2));
+				    } else {				        
+                        s.setVal(BagStatsItems.BagCount, countstr);
+                        s.setVal(BagStatsItems.BagTotal, "");
+				    }
 				    
 				    validateBagMetadata(bag, fname, s);
 				} else {

@@ -5,6 +5,8 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
+import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
@@ -13,10 +15,11 @@ import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
 
 import edu.georgetown.library.fileAnalyzer.BAG_TYPE;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
-import edu.georgetown.library.fileAnalyzer.util.FABagHelper.IncompleteSettingsExcpetion;
+import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.TarBagHelper;
 import edu.georgetown.library.fileAnalyzer.util.ZipBagHelper;
 
@@ -28,11 +31,14 @@ import edu.georgetown.library.fileAnalyzer.util.ZipBagHelper;
 class CreateBag extends DefaultFileTest { 
     public static final String P_BAGTYPE = "bag-type";
     public static final String P_TOPFOLDER = "top-folder";
+    public static final String P_BAGCOUNT = "bag-count";
     
     private FTPropEnum pBagType = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_BAGTYPE, CreateBag.P_BAGTYPE,
             "Type of bag to create", BAG_TYPE.values(), BAG_TYPE.DIRECTORY);
     private FTPropEnum pTopFolder = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_TOPFOLDER, CreateBag.P_TOPFOLDER,
             "Retain containing folder in payload", YN.values(), YN.Y);
+    private FTPropString pBagCount = new FTPropString(dt, this.getClass().getSimpleName(), FABagHelper.P_BAGCOUNTSTR, FABagHelper.P_BAGCOUNTSTR,
+            "Bag Count and Total: 1 of 1, 1 of 4, 2 of 4, 3 of ?", "");
 
 	private static enum BagStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Source", 200)),
@@ -63,6 +69,7 @@ class CreateBag extends DefaultFileTest {
 		super(dt);
         ftprops.add(pBagType);
         ftprops.add(pTopFolder);
+        ftprops.add(pBagCount);
 	}
 
 	public String toString() {
@@ -74,6 +81,23 @@ class CreateBag extends DefaultFileTest {
 	
     public String getShortName(){return "Bag";}
 
+    @Override public InitializationStatus init() {
+        InitializationStatus istat = super.init();
+        String bagcountstr = this.getProperty(FABagHelper.P_BAGCOUNTSTR).toString().trim();
+        if (!bagcountstr.isEmpty()) {
+            Matcher m = FABagHelper.pBagCountStr.matcher(bagcountstr);
+            if (!m.matches()) {
+                istat.addFailMessage("Bag Count String must be empty or formatted like 1 of 1, 1 of 2, 2 of 4, 3 of ?: " + bagcountstr);            
+            } else {
+                try {
+                    FABagHelper.validateBagCount(m.group(1), m.group(2));                    
+                } catch(IncompleteSettingsException e) {
+                    istat.addFailMessage(e.getMessage());                    
+                }
+            }
+        }
+        return istat;
+    }
     
 	public Object fileTest(File f) {
 		BAG_TYPE bagType = (BAG_TYPE)this.getProperty(CreateBag.P_BAGTYPE);
@@ -101,6 +125,10 @@ class CreateBag extends DefaultFileTest {
 		try {
 			bagHelp.createBagFile();
 			bagHelp.generateBagInfoFiles();
+	        String countstr = this.getProperty(FABagHelper.P_BAGCOUNTSTR).toString();
+	        if (!countstr.isEmpty()) {
+	            bagHelp.setBagCountStr(countstr);           
+	        }
 			bagHelp.writeBagFile();
 
 			s.setVal(BagStatsItems.Bag, bagHelp.getFinalBagName());
@@ -110,7 +138,7 @@ class CreateBag extends DefaultFileTest {
 			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
 			e.printStackTrace();
-		} catch (IncompleteSettingsExcpetion e) {
+		} catch (IncompleteSettingsException e) {
 			s.setVal(BagStatsItems.Stat, FABagHelper.STAT.ERROR);
 			s.setVal(BagStatsItems.Message, e.getMessage());
 			e.printStackTrace();
