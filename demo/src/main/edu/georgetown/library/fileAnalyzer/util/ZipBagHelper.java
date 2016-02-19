@@ -11,18 +11,18 @@ public class ZipBagHelper extends FABagHelper {
     	super(source);
     }
     
-    @Override public void createBagFile() throws IncompleteSettingsExcpetion {
+    @Override public void createBagFile() throws IncompleteSettingsException {
     	validate();
-		newBag = new File(parent, source.getName() + "_bag.zip");
+		data.newBag = new File(data.parent, data.source.getName() + "_bag.zip");
     }
     
-    @Override public void writeBagFile() throws IOException, IncompleteSettingsExcpetion {
+    @Override public void writeBagFile() throws IOException, IncompleteSettingsException {
     	validate();
-    	if (newBag == null) throw new IncompleteSettingsExcpetion("Bag File must be created - call createBagFile()");
-	    ZipWriter writer = new ZipWriter(bf); 
-	    writer.setBagDir(source.getName());
-	    bag.write(writer, newBag);
-	    bag.close();
+    	if (data.newBag == null) throw new IncompleteSettingsException("Bag File must be created - call createBagFile()");
+	    ZipWriter writer = new ZipWriter(data.bf); 
+	    writer.setBagDir(data.source.getName());
+	    data.bag.write(writer, data.newBag);
+	    data.bag.close();
     }
     
 }

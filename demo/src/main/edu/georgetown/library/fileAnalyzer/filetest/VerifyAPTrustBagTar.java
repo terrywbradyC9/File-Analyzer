@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
+import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagFile;
 import gov.nara.nwts.ftapp.FTDriver;
@@ -28,7 +30,8 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
 	public static final String APT_TITLE = "APT Title";
 	public static final String APT_ACCESS = "APT Access";
 	
-    static Pattern pAPT = Pattern.compile("^.+\\..+\\.b(\\d{3,3})\\.of(\\d{3,3})\\.tar$");
+    static Pattern pAPTMulti = Pattern.compile("^.+\\..+\\.b(\\d{3,3})\\.of(\\d{3,3})\\.tar$");
+    static Pattern pAPT = Pattern.compile("^.+\\..+\\.tar$");
     static Pattern pTitle = Pattern.compile("^Title:\\s*(.*)$");
     static Pattern pAccess = Pattern.compile("^Access:\\s*(Consortia|Restricted|Institution)\\s*$");
     
@@ -84,31 +87,39 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	    s.appendVal(BagStatsItems.Message, "Source Org should not be null. "); 
     	}
     	
-    	int count = -1;
+        int total = -1;
+        int count = -1;
     	String scount = s.getStringVal(BagStatsItems.BagCount, "");    	
-    	if (scount.isEmpty()) {
-    	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, "Bag Count should not be null. "); 
-    	} else {
-    		try {
-				count = Integer.parseInt(scount);
-				scount = String.format("%03d", count);
-			} catch (NumberFormatException e) {
-				scount = "";
-	    	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-	    	    s.appendVal(BagStatsItems.Message, "Bag Count should be numeric. "); 
-			}
-    	}
+        String stotal = s.getStringVal(BagStatsItems.BagTotal, "");
+        
+        try {
+            FABagHelper.validateBagCount(scount, stotal);
+            total = Integer.parseInt(stotal);
+            count = Integer.parseInt(scount);
+        } catch (IncompleteSettingsException e) {
+            s.setVal(BagStatsItems.Stat, STAT.INVALID);
+            s.appendVal(BagStatsItems.Message, "Invalid Bag Count. " + e.getMessage());             
+        }
     	
-    	Matcher m = pAPT.matcher(fname);
+    	Matcher m = pAPTMulti.matcher(fname);
     	if (m.matches()) {
-    	    if (!scount.equals(m.group(1))) {
+    	    if (!String.format("%03d", count).equals(m.group(1))) {
         	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-        	    s.appendVal(BagStatsItems.Message, String.format("Bag count %s mismatch in bag file name %s. ", scount, m.group(1)));     
+        	    s.appendVal(BagStatsItems.Message, String.format("Bag number (%s) mismatch in bag file name %s. ", scount, m.group(1)));     
     	    }
+            if (!String.format("%03d", total).equals(m.group(2))) {
+                s.setVal(BagStatsItems.Stat, STAT.INVALID);
+                s.appendVal(BagStatsItems.Message, String.format("Bag total (%s) mismatch in bag file name %s. ", scount, m.group(2)));     
+            }
+        } else if (total == 1) {
+            m = pAPT.matcher(fname);                
+            if (!m.matches()) {
+                s.setVal(BagStatsItems.Stat, STAT.INVALID);
+                s.appendVal(BagStatsItems.Message, "Single (Non-multipart) APTrust Bags must be named <instid>.<itemid>.tar.)");                     
+            }
     	} else {
     	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, "APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total>.tar where bag and total are 3 digits.)");     
+    	    s.appendVal(BagStatsItems.Message, "Multipart APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total>.tar where bag and total are 3 digits.)");     
     	}
 
     	boolean hasTitle = false;

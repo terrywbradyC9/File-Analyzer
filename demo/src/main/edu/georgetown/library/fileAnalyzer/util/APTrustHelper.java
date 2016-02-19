@@ -99,7 +99,7 @@ public class APTrustHelper extends TarBagHelper {
 		this.title = title;
 	}    
    
-    @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsExcpetion {
+    @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsException {
     	if (instId == null) sb.append("Institution Id cannot be null. \n");
     	if (instId.isEmpty()) sb.append("Institution Id cannot be empty. \n");
     	if (itemUid == null) sb.append("Item Identifier cannot be null. \n");
@@ -117,7 +117,7 @@ public class APTrustHelper extends TarBagHelper {
     	if (title.isEmpty()) sb.append("Title cannot be empty. \n");
     }
         
-    @Override public void createBagFile() throws IncompleteSettingsExcpetion {
+    @Override public void createBagFile() throws IncompleteSettingsException {
     	validate();
 		String bagCount = String.format("%03d", ibagCount);
         String bagTotal = String.format("%03d", ibagTotal);
@@ -126,39 +126,41 @@ public class APTrustHelper extends TarBagHelper {
 		sb.append(instId);
 		sb.append(".");
         sb.append(itemUid);
-        sb.append(".b");
-        sb.append(bagCount);
-        sb.append(".of");
-        sb.append(bagTotal);
+        if ((ibagCount > 1) || (ibagTotal > 1)) {
+            sb.append(".b");
+            sb.append(bagCount);
+            sb.append(".of");
+            sb.append(bagTotal);            
+        }
 
-		newBag = new File(parent, sb.toString());
+		data.newBag = new File(data.parent, sb.toString());
     }
     
     public Bag getBag() {
-    	return bag;
+    	return data.bag;
     }
     
-    @Override public void generateBagInfoFiles() throws IOException, IncompleteSettingsExcpetion {
+    @Override public void generateBagInfoFiles() throws IOException, IncompleteSettingsException {
     	validate();
-    	if (newBag == null) throw new IncompleteSettingsExcpetion("Bag File must be created - call createBagFile()");
-        aptinfo = new File(parent, "aptrust-info.txt");
+    	if (data.newBag == null) throw new IncompleteSettingsException("Bag File must be created - call createBagFile()");
+        aptinfo = new File(data.parent, "aptrust-info.txt");
         BufferedWriter bw = new BufferedWriter(new FileWriter(aptinfo));
         bw.write(String.format("Title: %s%n", title));
         bw.write(String.format("Access: %s%n", access));
         bw.close();
-        bag.addFileAsTag(aptinfo);
+        data.bag.addFileAsTag(aptinfo);
 	    
         super.generateBagInfoFiles();
 
-	    BagInfoTxt bit = bag.getBagInfoTxt();
+	    BagInfoTxt bit = data.bag.getBagInfoTxt();
         bit.addSourceOrganization(srcOrg);
 	    bit.addInternalSenderDescription(intSendDesc);
 	    bit.addInternalSenderIdentifier(intSendId);
-	    bit.setBagCount(String.format("%03d", ibagCount));
+	    bit.setBagCount(String.format("%d of %d", ibagCount, ibagTotal));
     }
     
-    @Override public void writeBagFile() throws IOException, IncompleteSettingsExcpetion {
-    	if (aptinfo == null) throw new IncompleteSettingsExcpetion("Aptinfo File must be created - call generateBagInfoFiles()");
+    @Override public void writeBagFile() throws IOException, IncompleteSettingsException {
+    	if (aptinfo == null) throw new IncompleteSettingsException("Aptinfo File must be created - call generateBagInfoFiles()");
     	super.writeBagFile();
 	    aptinfo.delete();
     }

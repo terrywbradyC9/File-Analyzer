@@ -11,10 +11,10 @@ public class TarBagHelper extends FABagHelper {
     	super(source);
     }
     
-    @Override public void writeBagFile() throws IOException, IncompleteSettingsExcpetion {
+    @Override public void writeBagFile() throws IOException, IncompleteSettingsException {
     	super.writeBagFile();
 
-    	newBag = TarUtil.tarFolderAndDeleteFolder(newBag);
+    	data.newBag = TarUtil.tarFolderAndDeleteFolder(data.newBag);
     }
     
 }
