@@ -88,12 +88,14 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	}
     	
         int total = -1;
+        int count = -1;
     	String scount = s.getStringVal(BagStatsItems.BagCount, "");    	
         String stotal = s.getStringVal(BagStatsItems.BagTotal, "");
         
         try {
             FABagHelper.validateBagCount(scount, stotal);
             total = Integer.parseInt(stotal);
+            count = Integer.parseInt(scount);
         } catch (IncompleteSettingsException e) {
             s.setVal(BagStatsItems.Stat, STAT.INVALID);
             s.appendVal(BagStatsItems.Message, "Invalid Bag Count. " + e.getMessage());             
@@ -101,10 +103,14 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	
     	Matcher m = pAPTMulti.matcher(fname);
     	if (m.matches()) {
-    	    if (!scount.equals(m.group(1))) {
+    	    if (!String.format("%03d", count).equals(m.group(1))) {
         	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-        	    s.appendVal(BagStatsItems.Message, String.format("Bag count %s mismatch in bag file name %s. ", scount, m.group(1)));     
+        	    s.appendVal(BagStatsItems.Message, String.format("Bag number (%s) mismatch in bag file name %s. ", scount, m.group(1)));     
     	    }
+            if (!String.format("%03d", total).equals(m.group(2))) {
+                s.setVal(BagStatsItems.Stat, STAT.INVALID);
+                s.appendVal(BagStatsItems.Message, String.format("Bag total (%s) mismatch in bag file name %s. ", scount, m.group(2)));     
+            }
         } else if (total == 1) {
             m = pAPT.matcher(fname);                
             if (!m.matches()) {
