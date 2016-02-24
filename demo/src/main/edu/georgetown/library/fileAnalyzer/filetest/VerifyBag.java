@@ -96,24 +96,29 @@ class VerifyBag extends DefaultFileTest {
 				if (result.isSuccess()) {
 					BagInfoTxt bit = bag.getBagInfoTxt();
 					
-				    s.setVal(BagStatsItems.Stat, STAT.VALID);
-				    s.setVal(BagStatsItems.Message, "");
-				    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
-				    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
-				    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
+					if (bit == null) {
+                        s.setVal(BagStatsItems.Stat, STAT.INVALID);
+                        s.setVal(BagStatsItems.Message, "Bag Info Not Found. ");					    
+					} else {
+	                    s.setVal(BagStatsItems.Stat, STAT.VALID);
+	                    s.setVal(BagStatsItems.Message, "");
+	                    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
+	                    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
+	                    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
+	                    
+	                    String countstr = bit.getBagCount() == null ? "" : bit.getBagCount().trim();
+	                    
+	                    Matcher m = FABagHelper.pBagCountStr.matcher(countstr); 
+	                    if (m.matches()) {
+	                        s.setVal(BagStatsItems.BagCount, m.group(1));
+	                        s.setVal(BagStatsItems.BagTotal, m.group(2));
+	                    } else {                        
+	                        s.setVal(BagStatsItems.BagCount, countstr);
+	                        s.setVal(BagStatsItems.BagTotal, "");
+	                    }
+	                    validateBagMetadata(bag, fname, s);					    
+					}
 				    
-				    String countstr = bit.getBagCount() == null ? "" : bit.getBagCount().trim();
-				    
-				    Matcher m = FABagHelper.pBagCountStr.matcher(countstr); 
-				    if (m.matches()) {
-	                    s.setVal(BagStatsItems.BagCount, m.group(1));
-                        s.setVal(BagStatsItems.BagTotal, m.group(2));
-				    } else {				        
-                        s.setVal(BagStatsItems.BagCount, countstr);
-                        s.setVal(BagStatsItems.BagTotal, "");
-				    }
-				    
-				    validateBagMetadata(bag, fname, s);
 				} else {
 				    s.setVal(BagStatsItems.Stat, STAT.ERROR);
 				    for(String m: result.getMessages()) {
@@ -122,7 +127,8 @@ class VerifyBag extends DefaultFileTest {
 				}
 			} 
 		} catch (Exception e) {
-		    s.setVal(BagStatsItems.Message, e.getMessage());
+		    e.printStackTrace();
+		    s.setVal(BagStatsItems.Message, "Bag Error: " + e.getClass().getName() +" " + e.getMessage());
 		    s.setVal(BagStatsItems.Stat, STAT.NA);
 		}
         return s.getVal(BagStatsItems.Count);
