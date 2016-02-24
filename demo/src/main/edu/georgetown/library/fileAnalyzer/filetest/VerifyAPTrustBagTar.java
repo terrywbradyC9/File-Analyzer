@@ -33,7 +33,7 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     static Pattern pAPTMulti = Pattern.compile("^.+\\..+\\.b(\\d{3,3})\\.of(\\d{3,3})\\.tar$");
     static Pattern pAPT = Pattern.compile("^.+\\..+\\.tar$");
     static Pattern pTitle = Pattern.compile("^Title:\\s*(.*)$");
-    static Pattern pAccess = Pattern.compile("^Access:\\s*(Consortia|Restricted|Institution)\\s*$");
+    static Pattern pAccess = Pattern.compile("^Access:\\s*([Cc]onsortia|[Rr]estricted|[Ii]nstitution)\\s*$");
     
     public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
 

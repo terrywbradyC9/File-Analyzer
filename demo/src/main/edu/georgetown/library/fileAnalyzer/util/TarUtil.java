@@ -60,11 +60,15 @@ public class TarUtil {
 		Path temp = Files.createTempDirectory(f.getName());
 		temp.toFile().deleteOnExit();
 		TarArchiveInputStream taris = new TarArchiveInputStream(new FileInputStream(f));
+		
 		for(TarArchiveEntry entry = taris.getNextTarEntry(); entry != null; entry =  taris.getNextTarEntry()){
 			Path fentry = temp.resolve(entry.getName());
 			if (entry.isDirectory()) {
 		        Files.createDirectory(fentry);
 			} else {
+			    if (fentry.getParent() != null) {
+			        Files.createDirectories(fentry.getParent());
+			    }
 		        Files.copy(taris, fentry);
 			}
 			fentry.toFile().deleteOnExit();
