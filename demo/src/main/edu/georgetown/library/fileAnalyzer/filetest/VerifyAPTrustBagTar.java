@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.georgetown.library.fileAnalyzer.stats.DetailedBagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import gov.loc.repository.bagit.Bag;
@@ -35,7 +36,7 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     static Pattern pTitle = Pattern.compile("^Title:\\s*(.*)$");
     static Pattern pAccess = Pattern.compile("^Access:\\s*([Cc]onsortia|[Rr]estricted|[Ii]nstitution)\\s*$");
     
-    public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
+    public static StatsItemConfig details = StatsItemConfig.create(DetailedBagStatsItems.class);
 
     public String getDescription() {
         return "This rule will validate the contents of an APTrust tar file";
@@ -58,7 +59,7 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     }
 
     public InitializationStatus init() {
-    	details = StatsItemConfig.create(BagStatsItems.class);
+    	details = StatsItemConfig.create(DetailedBagStatsItems.class);
     	details.addStatsItem(APT_TITLE, StatsItem.makeStringStatsItem(APT_TITLE));
     	details.addStatsItem(APT_ACCESS, StatsItem.makeStringStatsItem(APT_ACCESS));
     	return new InitializationStatus();
@@ -79,47 +80,47 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     }
         
     public static void validateAPTrustBagMetadata(Bag bag, String fname, Stats s) {
-	    s.setVal(BagStatsItems.Stat, STAT.VALID);
-	    s.setVal(BagStatsItems.Message, "");
-    	String source = s.getStringVal(BagStatsItems.BagSourceOrg,"");  	
+	    s.setVal(DetailedBagStatsItems.Stat, STAT.VALID);
+	    s.setVal(DetailedBagStatsItems.Message, "");
+    	String source = s.getStringVal(DetailedBagStatsItems.BagSourceOrg,"");  	
     	if (source.isEmpty()) {
-    	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, "Source Org should not be null. "); 
+    	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+    	    s.appendVal(DetailedBagStatsItems.Message, "Source Org should not be null. "); 
     	}
     	
         int total = -1;
         int count = -1;
-    	String scount = s.getStringVal(BagStatsItems.BagCount, "");    	
-        String stotal = s.getStringVal(BagStatsItems.BagTotal, "");
+    	String scount = s.getStringVal(DetailedBagStatsItems.BagCount, "");    	
+        String stotal = s.getStringVal(DetailedBagStatsItems.BagTotal, "");
         
         try {
             FABagHelper.validateBagCount(scount, stotal);
             total = Integer.parseInt(stotal);
             count = Integer.parseInt(scount);
         } catch (IncompleteSettingsException e) {
-            s.setVal(BagStatsItems.Stat, STAT.INVALID);
-            s.appendVal(BagStatsItems.Message, "Invalid Bag Count. " + e.getMessage());             
+            s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+            s.appendVal(DetailedBagStatsItems.Message, "Invalid Bag Count. " + e.getMessage());             
         }
     	
     	Matcher m = pAPTMulti.matcher(fname);
     	if (m.matches()) {
     	    if (!String.format("%03d", count).equals(m.group(1))) {
-        	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-        	    s.appendVal(BagStatsItems.Message, String.format("Bag number (%s) mismatch in bag file name %s. ", scount, m.group(1)));     
+        	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+        	    s.appendVal(DetailedBagStatsItems.Message, String.format("Bag number (%s) mismatch in bag file name %s. ", scount, m.group(1)));     
     	    }
             if (!String.format("%03d", total).equals(m.group(2))) {
-                s.setVal(BagStatsItems.Stat, STAT.INVALID);
-                s.appendVal(BagStatsItems.Message, String.format("Bag total (%s) mismatch in bag file name %s. ", scount, m.group(2)));     
+                s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+                s.appendVal(DetailedBagStatsItems.Message, String.format("Bag total (%s) mismatch in bag file name %s. ", scount, m.group(2)));     
             }
         } else if (total == 1) {
             m = pAPT.matcher(fname);                
             if (!m.matches()) {
-                s.setVal(BagStatsItems.Stat, STAT.INVALID);
-                s.appendVal(BagStatsItems.Message, "Single (Non-multipart) APTrust Bags must be named <instid>.<itemid>.tar.)");                     
+                s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+                s.appendVal(DetailedBagStatsItems.Message, "Single (Non-multipart) APTrust Bags must be named <instid>.<itemid>.tar.)");                     
             }
     	} else {
-    	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, "Multipart APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total>.tar where bag and total are 3 digits.)");     
+    	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+    	    s.appendVal(DetailedBagStatsItems.Message, "Multipart APTrust Bags must be named <instid>.<itemid>.b<bag>.of<total>.tar where bag and total are 3 digits.)");     
     	}
 
     	boolean hasTitle = false;
@@ -158,17 +159,17 @@ class VerifyAPTrustBagTar extends VerifyBagTar {
     	
     	if (hasApt) {
         	if (!hasTitle) {
-           	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-        	    s.appendVal(BagStatsItems.Message, String.format("%s file must contain a title. ", APTRUST_INFO));     		    		
+           	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+        	    s.appendVal(DetailedBagStatsItems.Message, String.format("%s file must contain a title. ", APTRUST_INFO));     		    		
         	}
 
         	if (!hasAccess) {
-           	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-        	    s.appendVal(BagStatsItems.Message, String.format("%s must have access set to Consortia, Restricted, or Institution. ", APTRUST_INFO));     		    		
+           	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+        	    s.appendVal(DetailedBagStatsItems.Message, String.format("%s must have access set to Consortia, Restricted, or Institution. ", APTRUST_INFO));     		    		
         	}
     	} else {
-       	    s.setVal(BagStatsItems.Stat, STAT.INVALID);
-    	    s.appendVal(BagStatsItems.Message, String.format("%s file does not exist. ", APTRUST_INFO));     		    		
+       	    s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+    	    s.appendVal(DetailedBagStatsItems.Message, String.format("%s file does not exist. ", APTRUST_INFO));     		    		
     	}
     	
     }

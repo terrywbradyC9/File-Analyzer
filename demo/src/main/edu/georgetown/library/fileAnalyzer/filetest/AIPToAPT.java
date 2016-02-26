@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
-import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.BagStatsItems;
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.STAT;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;

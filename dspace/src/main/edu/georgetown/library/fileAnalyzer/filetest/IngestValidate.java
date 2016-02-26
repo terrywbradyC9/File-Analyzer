@@ -11,7 +11,7 @@ import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
-import gov.nara.nwts.ftapp.util.XMLUtil;
+import edu.georgetown.library.fileAnalyzer.util.XMLUtil;
 
 import edu.georgetown.library.fileAnalyzer.filetest.IngestValidate.Generator.DSpaceStats;
 import edu.georgetown.library.fileAnalyzer.importer.IngestFolderCreate;
@@ -361,6 +361,7 @@ public class IngestValidate extends DefaultFileTest {
 						other = "[" + s + "]";
 					}
 				}
+				br.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

@@ -35,8 +35,8 @@ import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import gov.nara.nwts.ftapp.stats.StatsItemEnum;
-import gov.nara.nwts.ftapp.util.XMLUtil;
-import gov.nara.nwts.ftapp.util.ZipUtil;
+import edu.georgetown.library.fileAnalyzer.util.XMLUtil;
+import edu.georgetown.library.fileAnalyzer.util.ZipUtil;
 
 public class ProquestToIngest extends DefaultFileTest {
 	

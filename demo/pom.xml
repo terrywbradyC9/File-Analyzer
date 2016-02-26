@@ -21,7 +21,11 @@
 	</properties>
 
 	<dependencies>
-
+        <dependency>
+            <groupId>edu.georgetown.library</groupId>
+            <artifactId>FileAnalyzerCoreUtils</artifactId>
+            <version>2.0</version>
+        </dependency>
 		<dependency>
 			<groupId>edu.georgetown.library</groupId>
 			<artifactId>CoreFileAnalyzer</artifactId>
@@ -32,6 +36,11 @@
 			<artifactId>DSpaceFileAnalyzer</artifactId>
 			<version>2.0</version>
 		</dependency>
+        <dependency>
+            <groupId>edu.georgetown.library</groupId>
+            <artifactId>FileAnalyzerBagUtils</artifactId>
+            <version>2.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-app</artifactId>
