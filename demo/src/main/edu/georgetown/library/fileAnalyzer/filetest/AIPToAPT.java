@@ -20,6 +20,7 @@ import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.STAT;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
+import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 
 
@@ -92,7 +93,7 @@ abstract class AIPToAPT extends DefaultFileTest {
 		}
 	}
 	
-    abstract public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException;
+	abstract public AIPToAPTHelper getAIPToAPTHelper();
 	
 	@Override
 	public Object fileTest(File f) {
@@ -105,11 +106,9 @@ abstract class AIPToAPT extends DefaultFileTest {
 		aptHelper.setBagTotal(1);
 		
 		try {
-			int count = fillBag(f, aptHelper);
+		    AIPToAPTHelper aipToAptHelper = getAIPToAPTHelper();
+            int count = aipToAptHelper.bag(f, aptHelper);
 			stat.setVal(BagStatsItems.Count, count);
-			aptHelper.createBagFile();
-			aptHelper.generateBagInfoFiles();
-			aptHelper.writeBagFile();
 			stat.setVal(BagStatsItems.Bag, aptHelper.getFinalBagName());
 			stat.setVal(BagStatsItems.Stat, STAT.VALID);
 		} catch (FileNotFoundException e) {

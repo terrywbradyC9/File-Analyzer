@@ -1,22 +1,16 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
-import gov.loc.repository.bagit.Bag;
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
-import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
+import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
+import edu.georgetown.library.fileAnalyzer.util.AIPZipToAPTHelper;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -83,38 +77,9 @@ class AIPZipToAPT extends AIPToAPT {
 		}
 	}
 	
-	@Override public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException{
-        byte[] buf = new byte[4096];
-        File zout = outdir;
-        Bag bag = aptHelper.getBag();
-        int count = 0;
-
-        try(
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(f));
-        ) {
-            for(ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry()){
-                if (ze.getName().startsWith("__MACOSX")) continue;
-                if (ze.getName().endsWith(".DS_Store")) continue;
-                
-                File ztemp = new File(ze.getName());
-                File zeout = new File(zout, ztemp.getName());
-                if (ze.isDirectory()) continue;
-                
-                try(FileOutputStream fos = new FileOutputStream(zeout)) {
-                    for(int i=zis.read(buf); i > -1; i=zis.read(buf)) {
-                        fos.write(buf, 0, i);
-                    }
-                }
-                
-                if (ze.getName().equals(METSXML)) {
-                    aptHelper.parseMetsFile(zeout);
-                }
-                
-                bag.addFileToPayload(zeout);
-                count++;
-            }
-        }
-        return count;
-	}
+    @Override
+    public AIPToAPTHelper getAIPToAPTHelper() {
+        return new AIPZipToAPTHelper(outdir);
+    }
 	
 }

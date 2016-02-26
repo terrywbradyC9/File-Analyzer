@@ -1,14 +1,10 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
-import gov.loc.repository.bagit.Bag;
 import gov.nara.nwts.ftapp.FTDriver;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
-import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
+import edu.georgetown.library.fileAnalyzer.util.AIPDirToAPTHelper;
+import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 
 
 /**
@@ -47,25 +43,8 @@ class AIPDirToAPT extends AIPToAPT {
     }
 
     @Override
-    public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException {
-        Bag bag = aptHelper.getBag();
-        for(File cf: f.listFiles()) {
-            bag.addFileToPayload(cf);
-        }
-        findMetadata(f, aptHelper);
-        return bag.getPayload().size();
-    }
-
-    public void findMetadata(File f, APTrustHelper aptHelper) throws IOException, InvalidMetadataException {
-        if (f.isDirectory()) {
-            for(File cf: f.listFiles()) {
-                findMetadata(cf, aptHelper);
-            }
-        } else {
-            if (f.getName().equals(METSXML)) {
-                aptHelper.parseMetsFile(f);
-            }
-        }
+    public AIPToAPTHelper getAIPToAPTHelper() {
+        return new AIPDirToAPTHelper();
     }
 
 }
