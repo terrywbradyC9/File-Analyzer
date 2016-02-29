@@ -39,20 +39,23 @@ public class AIPToAPTCmd {
 
         if (convType == CONVTYPE.ZIP) {
             if (!name.toLowerCase().endsWith(".zip")) {
-                fail(String.format("Name (%s) must end with .zip", name));
+                usage();
+                fail(String.format("AIP_Zip file (%s) must end with .zip", name));
             }
             if (!input.isFile()) {
-                fail(String.format("File (%s) must be a regular file", name));            
+                usage();
+                fail(String.format("AIP_Zip File (%s) must be a regular file", name));            
             }            
         } else {
             if (!input.isDirectory()) {
-                fail(String.format("File (%s) must be a directory", name));            
+                usage();
+                fail(String.format("AIP_Dir (%s) must be a directory", name));            
             }                        
         }
         return input;
     }
     
-    public static final void convertCommand(String main, CommandLine cmdLine) throws IOException, IncompleteSettingsException, InvalidMetadataException {
+    public static final int convertCommand(CommandLine cmdLine) throws IOException, IncompleteSettingsException, InvalidMetadataException {
         CONVTYPE convType;
         AIPToAPTHelper aipHelper = null;
         if (cmdLine.hasOption("zip")) {
@@ -77,7 +80,7 @@ public class AIPToAPTCmd {
         String sendId = cmdLine.getOptionValue("srcorg","SendId");
         
         if (cmdLine.getArgs().length == 0){
-            usage(main);
+            usage();
             fail("Specify the name of the AIP file/folder");            
         }
         
@@ -89,23 +92,28 @@ public class AIPToAPTCmd {
         aptHelper.setBagCount(1);
         aptHelper.setBagTotal(1);
 
-        aipHelper.bag(input, aptHelper);        
+        int count = aipHelper.bag(input, aptHelper);
+        if (count == 0) {
+            fail(String.format("No items written to bag file (%s)", aptHelper.getFinalBagName()));
+        }
+        System.out.println(String.format("Bag Complete: %d item(s) written to bag (%s)", count, aptHelper.getFinalBagName()));
+        return count;
     }
     
     
     public static final void main(String[] args) {
         CommandLine cmdLine = parseAipCommandLine(CMD, args);
         try {
-            convertCommand(CMD, cmdLine);
+            convertCommand(cmdLine);
         } catch (IOException | IncompleteSettingsException | InvalidMetadataException e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
     }
 
-    public static void usage(String main) {
-        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Dir>", main));
-        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Zip>", main));
+    public static void usage() {
+        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Dir>", CMD));
+        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Zip>", CMD));
     }
     
     public static CommandLine parseAipCommandLine(String main, String[] args) {
@@ -132,14 +140,14 @@ public class AIPToAPTCmd {
         try {
             CommandLine cmdLine = clParse.parse(opts, args);
             if (cmdLine.hasOption("h")) {
-                usage(main);
-                formatter.printHelp(main, opts);
+                usage();
+                formatter.printHelp(CMD, opts);
                 System.exit(0);
             }
             return cmdLine;
         } catch (ParseException e) {
-            usage(main);
-            formatter.printHelp(main, opts);
+            usage();
+            formatter.printHelp(CMD, opts);
             fail("Invalid Options");
         }
         return null;
