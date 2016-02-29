@@ -4,7 +4,6 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
-import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -12,8 +11,6 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
 import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
@@ -70,28 +67,6 @@ abstract class AIPToAPT extends DefaultFileTest {
 		return f.getName();
 	}
 
-	File outdir;
-
-	public static final String AIPEXTRACT = "aipextract_";
-	public static final String METSXML = "mets.xml";
-	
-	@Override public InitializationStatus init() {
-		InitializationStatus istat = super.init();
-		try {
-			Path outpath = Files.createTempDirectory(AIPEXTRACT);
-			outdir = outpath.toFile();
-			outdir.deleteOnExit();
-		} catch (IOException e) {
-			istat.addFailMessage(e.getMessage());
-		}
-		return istat;
-	}
-	
-	@Override public void cleanup(int count) {
-		if (outdir != null) {
-			outdir.delete();
-		}
-	}
 	
 	abstract public AIPToAPTHelper getAIPToAPTHelper();
 	

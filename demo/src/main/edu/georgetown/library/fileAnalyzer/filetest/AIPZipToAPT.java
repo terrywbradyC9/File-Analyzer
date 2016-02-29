@@ -6,8 +6,6 @@ import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.AIPZipToAPTHelper;
@@ -56,15 +54,10 @@ class AIPZipToAPT extends AIPToAPT {
 
 	File outdir;
 
-	public static final String AIPEXTRACT = "aipextract_";
-	public static final String METSXML = "mets.xml";
-	
 	@Override public InitializationStatus init() {
 		InitializationStatus istat = super.init();
 		try {
-			Path outpath = Files.createTempDirectory(AIPEXTRACT);
-			outdir = outpath.toFile();
-			outdir.deleteOnExit();
+		    outdir = AIPZipToAPTHelper.createTempDir();
 		} catch (IOException e) {
 			istat.addFailMessage(e.getMessage());
 		}
