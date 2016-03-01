@@ -6,6 +6,8 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
 
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
+
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
  * @author TBrady

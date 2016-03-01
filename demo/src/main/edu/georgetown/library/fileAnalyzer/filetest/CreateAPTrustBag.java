@@ -10,9 +10,7 @@ import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
-import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +18,7 @@ import java.io.IOException;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 
 /**
@@ -29,18 +28,6 @@ import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
  */
 class CreateAPTrustBag extends DefaultFileTest {  
 	
-	private static enum BagStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Source", 200)),
-		Bag(StatsItem.makeStringStatsItem("Bag", 200)),
-		Stat(StatsItem.makeEnumStatsItem(FABagHelper.STAT.class, "Bag Status")),
-		Count(StatsItem.makeIntStatsItem("Item Count")),
-		Message(StatsItem.makeStringStatsItem("Message", 200)),
-		;
-		StatsItem si;
-		BagStatsItems(StatsItem si) {this.si=si;}
-		public StatsItem si() {return si;}
-	}
-
 	public static enum Generator implements StatsGenerator {
 		INSTANCE;
 		class BagStats extends Stats {

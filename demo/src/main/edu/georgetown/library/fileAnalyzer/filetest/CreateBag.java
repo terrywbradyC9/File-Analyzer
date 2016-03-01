@@ -9,9 +9,7 @@ import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
-import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +20,7 @@ import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.TarBagHelper;
 import edu.georgetown.library.fileAnalyzer.util.ZipBagHelper;
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 
 /**
  * Extract all metadata fields from a TIF or JPG using categorized tag defintions.
@@ -39,18 +38,6 @@ class CreateBag extends DefaultFileTest {
             "Retain containing folder in payload", YN.values(), YN.Y);
     private FTPropString pBagCount = new FTPropString(dt, this.getClass().getSimpleName(), FABagHelper.P_BAGCOUNTSTR, FABagHelper.P_BAGCOUNTSTR,
             "Bag Count and Total: 1 of 1, 1 of 4, 2 of 4, 3 of ?", "");
-
-	private static enum BagStatsItems implements StatsItemEnum {
-		Key(StatsItem.makeStringStatsItem("Source", 200)),
-		Bag(StatsItem.makeStringStatsItem("Bag", 200)),
-		Stat(StatsItem.makeEnumStatsItem(FABagHelper.STAT.class, "Bag Status")),
-		Count(StatsItem.makeIntStatsItem("Item Count")),
-		Message(StatsItem.makeStringStatsItem("Message", 200)),
-		;
-		StatsItem si;
-		BagStatsItems(StatsItem si) {this.si=si;}
-		public StatsItem si() {return si;}
-	}
 
 	public static enum Generator implements StatsGenerator {
 		INSTANCE;

@@ -7,6 +7,7 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import java.io.File;
 import java.io.IOException;
 
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.TarUtil;
 
 /**

@@ -9,14 +9,13 @@ import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
-import gov.nara.nwts.ftapp.stats.StatsItem;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 
+import edu.georgetown.library.fileAnalyzer.stats.DetailedBagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.FABagHelper;
 
 /**
@@ -33,22 +32,6 @@ class VerifyBag extends DefaultFileTest {
         NA
     }
     
-    static enum BagStatsItems implements StatsItemEnum {
-        Key(StatsItem.makeStringStatsItem("Bag Path", 200)),
-        Stat(StatsItem.makeEnumStatsItem(STAT.class, "Bag Status")),
-        Count(StatsItem.makeIntStatsItem("Item Count")),
-        BagSourceOrg(StatsItem.makeStringStatsItem("Source Org",150)),
-        BagSenderDesc(StatsItem.makeStringStatsItem("Sender Desc",150)),
-        BagSenderId(StatsItem.makeStringStatsItem("Sender Id",150)),
-        BagCount(StatsItem.makeStringStatsItem("Bag Count",150)),
-        BagTotal(StatsItem.makeStringStatsItem("Bag Total",150)),
-        Message(StatsItem.makeStringStatsItem("Message",400)),
-        ;
-        StatsItem si;
-        BagStatsItems(StatsItem si) {this.si=si;}
-        public StatsItem si() {return si;}
-    }
-
     public static enum Generator implements StatsGenerator {
         INSTANCE;
         class BagStats extends Stats {
@@ -59,7 +42,7 @@ class VerifyBag extends DefaultFileTest {
         }
         public BagStats create(String key) {return new BagStats(key);}
     }
-    public static StatsItemConfig details = StatsItemConfig.create(BagStatsItems.class);
+    public static StatsItemConfig details = StatsItemConfig.create(DetailedBagStatsItems.class);
 
     long counter = 1000000;
     public VerifyBag(FTDriver dt) {
@@ -76,7 +59,7 @@ class VerifyBag extends DefaultFileTest {
     public String getShortName(){return "Ver Bag";}
 
     public InitializationStatus init() {
-    	details = StatsItemConfig.create(BagStatsItems.class);
+    	details = StatsItemConfig.create(DetailedBagStatsItems.class);
     	return new InitializationStatus();
     }
     
@@ -91,47 +74,47 @@ class VerifyBag extends DefaultFileTest {
 			f = prepareFile(f);
 			BagFactory bf = new BagFactory();
 			try (Bag bag = bf.createBag(f);) {
-				s.setVal(BagStatsItems.Count, bag.getPayload().size());
+				s.setVal(DetailedBagStatsItems.Count, bag.getPayload().size());
 				SimpleResult result = bag.verifyValid();
 				if (result.isSuccess()) {
 					BagInfoTxt bit = bag.getBagInfoTxt();
 					
 					if (bit == null) {
-                        s.setVal(BagStatsItems.Stat, STAT.INVALID);
-                        s.setVal(BagStatsItems.Message, "Bag Info Not Found. ");					    
+                        s.setVal(DetailedBagStatsItems.Stat, STAT.INVALID);
+                        s.setVal(DetailedBagStatsItems.Message, "Bag Info Not Found. ");					    
 					} else {
-	                    s.setVal(BagStatsItems.Stat, STAT.VALID);
-	                    s.setVal(BagStatsItems.Message, "");
-	                    s.setVal(BagStatsItems.BagSourceOrg, bit.getSourceOrganization());
-	                    s.setVal(BagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
-	                    s.setVal(BagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
+	                    s.setVal(DetailedBagStatsItems.Stat, STAT.VALID);
+	                    s.setVal(DetailedBagStatsItems.Message, "");
+	                    s.setVal(DetailedBagStatsItems.BagSourceOrg, bit.getSourceOrganization());
+	                    s.setVal(DetailedBagStatsItems.BagSenderDesc, bit.getInternalSenderDescription());
+	                    s.setVal(DetailedBagStatsItems.BagSenderId, bit.getInternalSenderIdentifier());
 	                    
 	                    String countstr = bit.getBagCount() == null ? "" : bit.getBagCount().trim();
 	                    
 	                    Matcher m = FABagHelper.pBagCountStr.matcher(countstr); 
 	                    if (m.matches()) {
-	                        s.setVal(BagStatsItems.BagCount, m.group(1));
-	                        s.setVal(BagStatsItems.BagTotal, m.group(2));
+	                        s.setVal(DetailedBagStatsItems.BagCount, m.group(1));
+	                        s.setVal(DetailedBagStatsItems.BagTotal, m.group(2));
 	                    } else {                        
-	                        s.setVal(BagStatsItems.BagCount, countstr);
-	                        s.setVal(BagStatsItems.BagTotal, "");
+	                        s.setVal(DetailedBagStatsItems.BagCount, countstr);
+	                        s.setVal(DetailedBagStatsItems.BagTotal, "");
 	                    }
 	                    validateBagMetadata(bag, fname, s);					    
 					}
 				    
 				} else {
-				    s.setVal(BagStatsItems.Stat, STAT.ERROR);
+				    s.setVal(DetailedBagStatsItems.Stat, STAT.ERROR);
 				    for(String m: result.getMessages()) {
-				        s.appendVal(BagStatsItems.Message, m +" ");             
+				        s.appendVal(DetailedBagStatsItems.Message, m +" ");             
 				    }
 				}
 			} 
 		} catch (Exception e) {
 		    e.printStackTrace();
-		    s.setVal(BagStatsItems.Message, "Bag Error: " + e.getClass().getName() +" " + e.getMessage());
-		    s.setVal(BagStatsItems.Stat, STAT.NA);
+		    s.setVal(DetailedBagStatsItems.Message, "Bag Error: " + e.getClass().getName() +" " + e.getMessage());
+		    s.setVal(DetailedBagStatsItems.Stat, STAT.NA);
 		}
-        return s.getVal(BagStatsItems.Count);
+        return s.getVal(DetailedBagStatsItems.Count);
     }
     
     public Stats createStats(String key){ 

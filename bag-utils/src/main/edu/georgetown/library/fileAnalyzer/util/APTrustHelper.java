@@ -13,10 +13,8 @@ import org.xml.sax.SAXException;
 
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagInfoTxt;
-import gov.nara.nwts.ftapp.stats.StatsItem;
-import gov.nara.nwts.ftapp.stats.StatsItemEnum;
-import gov.nara.nwts.ftapp.util.XMLUtil;
-import gov.nara.nwts.ftapp.util.XMLUtil.SimpleNamespaceContext;
+import edu.georgetown.library.fileAnalyzer.util.XMLUtil;
+import edu.georgetown.library.fileAnalyzer.util.XMLUtil.SimpleNamespaceContext;
 
 public class APTrustHelper extends TarBagHelper {
     public static final String P_INSTID = "inst-id";
@@ -35,17 +33,6 @@ public class APTrustHelper extends TarBagHelper {
         ERROR
     }
     public enum Access {Consortia, Restricted, Institution;}
-    public static enum BagStatsItems implements StatsItemEnum {
-        Key(StatsItem.makeStringStatsItem("Source", 300)),
-        Bag(StatsItem.makeStringStatsItem("Bag", 300)),
-        Stat(StatsItem.makeEnumStatsItem(STAT.class, "Bag Status")),
-        Count(StatsItem.makeIntStatsItem("Item Count")),
-        Message(StatsItem.makeStringStatsItem("Message", 400)),
-        ;
-        StatsItem si;
-        BagStatsItems(StatsItem si) {this.si=si;}
-        public StatsItem si() {return si;}
-    }
 
     File aptinfo;
     

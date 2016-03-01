@@ -4,7 +4,6 @@ import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
-import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
 import gov.nara.nwts.ftapp.stats.StatsItemConfig;
@@ -12,14 +11,13 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
-import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.BagStatsItems;
+import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.STAT;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
+import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 
 
@@ -69,30 +67,8 @@ abstract class AIPToAPT extends DefaultFileTest {
 		return f.getName();
 	}
 
-	File outdir;
-
-	public static final String AIPEXTRACT = "aipextract_";
-	public static final String METSXML = "mets.xml";
 	
-	@Override public InitializationStatus init() {
-		InitializationStatus istat = super.init();
-		try {
-			Path outpath = Files.createTempDirectory(AIPEXTRACT);
-			outdir = outpath.toFile();
-			outdir.deleteOnExit();
-		} catch (IOException e) {
-			istat.addFailMessage(e.getMessage());
-		}
-		return istat;
-	}
-	
-	@Override public void cleanup(int count) {
-		if (outdir != null) {
-			outdir.delete();
-		}
-	}
-	
-    abstract public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException;
+	abstract public AIPToAPTHelper getAIPToAPTHelper();
 	
 	@Override
 	public Object fileTest(File f) {
@@ -105,11 +81,9 @@ abstract class AIPToAPT extends DefaultFileTest {
 		aptHelper.setBagTotal(1);
 		
 		try {
-			int count = fillBag(f, aptHelper);
+		    AIPToAPTHelper aipToAptHelper = getAIPToAPTHelper();
+            int count = aipToAptHelper.bag(f, aptHelper);
 			stat.setVal(BagStatsItems.Count, count);
-			aptHelper.createBagFile();
-			aptHelper.generateBagInfoFiles();
-			aptHelper.writeBagFile();
 			stat.setVal(BagStatsItems.Bag, aptHelper.getFinalBagName());
 			stat.setVal(BagStatsItems.Stat, STAT.VALID);
 		} catch (FileNotFoundException e) {
