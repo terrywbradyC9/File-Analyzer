@@ -171,8 +171,7 @@ public class APTrustHelper extends TarBagHelper {
             
             String title = xp.evaluate("//mods:title", doc);
             setTitle(title);
-            String intSendDesc = xp.evaluate("//mods:abstract", doc);
-            setInstitutionalSenderDesc(intSendDesc);
+            setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
         } catch (SAXException e) {
             throw new InvalidMetadataException(e.getMessage());
         } catch (XPathExpressionException e) {
