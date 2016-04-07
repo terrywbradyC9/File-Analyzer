@@ -2,8 +2,9 @@ package edu.georgetown.library.fileAnalyzer.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -75,7 +76,8 @@ public class APTrustHelper extends TarBagHelper {
 	}
 
 	public void setInstitutionalSenderDesc(String intSendDesc) {
-		this.intSendDesc = intSendDesc;
+	    //bagit seems to have an issue with trailing periods in this field
+		this.intSendDesc = intSendDesc.replaceAll("\\.+\\s*$", "");
 	}
 
 	public void setInstitutionalSenderId(String intSendId) {
@@ -131,7 +133,7 @@ public class APTrustHelper extends TarBagHelper {
     	validate();
     	if (data.newBag == null) throw new IncompleteSettingsException("Bag File must be created - call createBagFile()");
         aptinfo = new File(data.parent, "aptrust-info.txt");
-        BufferedWriter bw = new BufferedWriter(new FileWriter(aptinfo));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aptinfo),"UTF-8"));
         bw.write(String.format("Title: %s%n", title));
         bw.write(String.format("Access: %s%n", access));
         bw.close();
