@@ -78,6 +78,7 @@ public class AIPToAPTCmd {
         }
         String srcOrg = cmdLine.getOptionValue("srcorg","SrcOrg");
         String sendId = cmdLine.getOptionValue("srcorg","SendId");
+        String minstr = cmdLine.getOptionValue("min", "1");
         
         if (cmdLine.getArgs().length == 0){
             usage();
@@ -91,10 +92,19 @@ public class AIPToAPTCmd {
         aptHelper.setSourceOrg(srcOrg);
         aptHelper.setBagCount(1);
         aptHelper.setBagTotal(1);
+        
+        int minCount = 1;
+        try {
+            minCount = Integer.parseInt(minstr);            
+        } catch(NumberFormatException e) {
+            fail("Option -min must be numberic");
+        }
 
         int count = aipHelper.bag(input, aptHelper);
         if (count == 0) {
             fail(String.format("No items written to bag file (%s)", aptHelper.getFinalBagName()));
+        } else if (count < minCount) {
+            fail(String.format("Bag file (%s) must have at least (%d) files", aptHelper.getFinalBagName(), minCount));
         }
         System.out.println(String.format("Bag Complete: %d item(s) written to bag (%s)", count, aptHelper.getFinalBagName()));
         return count;
@@ -112,8 +122,8 @@ public class AIPToAPTCmd {
     }
 
     public static void usage() {
-        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Dir>", CMD));
-        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId <AIP_Zip>", CMD));
+        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId [-min 1] <AIP_Dir>", CMD));
+        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId [-min 1] <AIP_Zip>", CMD));
     }
     
     public static CommandLine parseAipCommandLine(String main, String[] args) {
@@ -134,6 +144,7 @@ public class AIPToAPTCmd {
         opts.getOption("srcorg").setRequired(true);
         opts.addOption("sendid", true, "SenderId");
         opts.getOption("sendid").setRequired(true);
+        opts.addOption("min", true, "Min number of files requried");
         opts.addOption("h", false, "Help Info");
         
         HelpFormatter formatter = new HelpFormatter();
