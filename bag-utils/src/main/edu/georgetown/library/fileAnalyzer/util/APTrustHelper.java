@@ -2,14 +2,18 @@ package edu.georgetown.library.fileAnalyzer.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 import gov.loc.repository.bagit.Bag;
 import gov.loc.repository.bagit.BagInfoTxt;
@@ -87,21 +91,39 @@ public class APTrustHelper extends TarBagHelper {
 	}    
    
     @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsException {
-    	if (instId == null) sb.append("Institution Id cannot be null. \n");
-    	if (instId.isEmpty()) sb.append("Institution Id cannot be empty. \n");
-    	if (itemUid == null) sb.append("Item Identifier cannot be null. \n");
-    	if (itemUid.isEmpty()) sb.append("Item Identifier cannot be empty. \n");
+    	if (instId == null) {
+    	    sb.append("Institution Id cannot be null. \n");
+    	} else if (instId.isEmpty()) {
+    	    sb.append("Institution Id cannot be empty. \n");
+    	}
+    	if (itemUid == null) {
+    	    sb.append("Item Identifier cannot be null. \n");
+    	} else if (itemUid.isEmpty()) {
+    	    sb.append("Item Identifier cannot be empty. \n");
+    	}
     	if (ibagCount == null) sb.append("Bag count must be set. \n");
     	if (ibagTotal == null) sb.append("Bag total must be set. \n");
     	if (access == null) sb.append("Access type must be set. \n");
-    	if (srcOrg == null) sb.append("Source Organization cannot be null. \n");
-    	if (srcOrg.isEmpty()) sb.append("Source Organization cannot be empty. \n");
-    	if (intSendDesc == null) sb.append("Institution Sender Description cannot be null. \n");
-    	//if (intSendDesc.isEmpty()) sb.append("Institution Sender Description cannot be empty. \n");
-    	if (intSendId == null) sb.append("Institution Sender Id cannot be null. \n");
-    	if (intSendId.isEmpty()) sb.append("Institution Sender Id cannot be empty. \n");
-    	if (title == null) sb.append("Title cannot be null. \n");
-    	if (title.isEmpty()) sb.append("Title cannot be empty. \n");
+    	if (srcOrg == null) {
+    	    sb.append("Source Organization cannot be null. \n");
+    	} else if (srcOrg.isEmpty()) {
+    	    sb.append("Source Organization cannot be empty. \n");
+    	}
+    	if (intSendDesc == null) {
+    	    sb.append("Institution Sender Description cannot be null. \n");
+    	} else if (intSendDesc.isEmpty()) {
+    	    //sb.append("Institution Sender Description cannot be empty. \n");
+    	}
+    	if (intSendId == null) {
+    	    sb.append("Institution Sender Id cannot be null. \n");
+    	} else if (intSendId.isEmpty()) {
+    	    sb.append("Institution Sender Id cannot be empty. \n");
+    	}
+    	if (title == null) {
+    	    sb.append("Title cannot be null. \n");
+    	} else if (title.isEmpty()) {
+    	    sb.append("Title cannot be empty. \n");
+    	}
     }
         
     @Override public void createBagFile() throws IncompleteSettingsException {
@@ -131,7 +153,7 @@ public class APTrustHelper extends TarBagHelper {
     	validate();
     	if (data.newBag == null) throw new IncompleteSettingsException("Bag File must be created - call createBagFile()");
         aptinfo = new File(data.parent, "aptrust-info.txt");
-        BufferedWriter bw = new BufferedWriter(new FileWriter(aptinfo));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(aptinfo),"UTF-8"));
         bw.write(String.format("Title: %s%n", title));
         bw.write(String.format("Access: %s%n", access));
         bw.close();
@@ -170,6 +192,8 @@ public class APTrustHelper extends TarBagHelper {
             String title = xp.evaluate("//mods:title", doc);
             setTitle(title);
             String intSendDesc = xp.evaluate("//mods:abstract", doc);
+            intSendDesc = org.apache.commons.codec.binary.StringUtils.newStringUsAscii(intSendDesc.getBytes());
+            
             setInstitutionalSenderDesc(intSendDesc);
         } catch (SAXException e) {
             throw new InvalidMetadataException(e.getMessage());
