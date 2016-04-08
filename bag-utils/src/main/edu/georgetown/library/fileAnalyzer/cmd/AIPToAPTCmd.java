@@ -122,8 +122,8 @@ public class AIPToAPTCmd {
     }
 
     public static void usage() {
-        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId [-min 1] <AIP_Dir>", CMD));
-        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg -sendid SenderId [-min 1] <AIP_Zip>", CMD));
+        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] <AIP_Dir>", CMD));
+        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] <AIP_Zip>", CMD));
     }
     
     public static CommandLine parseAipCommandLine(String main, String[] args) {
@@ -142,8 +142,6 @@ public class AIPToAPTCmd {
         opts.addOptionGroup(optGrp2);
         opts.addOption("srcorg", true, "Src Organization");
         opts.getOption("srcorg").setRequired(true);
-        opts.addOption("sendid", true, "SenderId");
-        opts.getOption("sendid").setRequired(true);
         opts.addOption("min", true, "Min number of files requried");
         opts.addOption("h", false, "Help Info");
         
