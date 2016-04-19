@@ -12,6 +12,7 @@ File Analyzer Wiki: https://github.com/Georgetown-University-Libraries/File-Anal
 #### Demonstration Videos
 [![Demonstration Video](https://i.ytimg.com/vi/kVi_k-HdH_4/1.jpg)](http://www.youtube.com/watch?v=kVi_k-HdH_4)
 [![Demonstration Video](https://i.ytimg.com/vi/1I8n60ZrwHo/1.jpg)](http://www.youtube.com/watch?v=1I8n60ZrwHo)
+[![Demonstration Video](https://i.ytimg.com/vi_webp/5zYA04P0HPk/mqdefault.webp)](http://www.youtube.com/watch?v=5zYA04P0HPk)
 
 ## History
 
