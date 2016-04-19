@@ -170,7 +170,10 @@ public class APTrustHelper extends TarBagHelper {
             xp.setNamespaceContext(nsContext);
             
             String title = xp.evaluate("//mods:title", doc);
-            setTitle(title);
+            if (title!=null) {
+                title.replaceAll(":", " "); //bagging fails if a colon is present
+                setTitle(title);                
+            }
             setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
         } catch (SAXException e) {
             throw new InvalidMetadataException(e.getMessage());
