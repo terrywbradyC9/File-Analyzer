@@ -167,13 +167,14 @@ public class APTrustHelper extends TarBagHelper {
             XPath xp = XMLUtil.xf.newXPath();
             SimpleNamespaceContext nsContext = new XMLUtil().new SimpleNamespaceContext();
             nsContext.add("mods", "http://www.loc.gov/mods/v3");
+            nsContext.add("mets", "http://www.loc.gov/METS/");
             xp.setNamespaceContext(nsContext);
             
-            String title = xp.evaluate("//mods:title", doc);
-            if (title!=null) {
-                title.replaceAll(":", " "); //bagging fails if a colon is present
-                setTitle(title);                
+            String title = xp.evaluate("/mets:mets/mets:dmdSec/mets:mdWrap/mets:xmlData/mods:mods/mods:titleInfo/mods:title", doc);
+            if (title == null || title.isEmpty()) {
+                title = "No title found";
             }
+            setTitle(title);                
             setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
         } catch (SAXException e) {
             throw new InvalidMetadataException(e.getMessage());
