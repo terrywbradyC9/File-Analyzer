@@ -88,6 +88,11 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 			.create(DSpace2MarcStatsItems.class);
 	public static String P_DC = "Generate DC";
 	public static String P_START = "Accession Start";
+	
+	MarcUtil marcUtil;
+    public MarcUtil getMarcUtil() {
+        return new MarcUtil();
+    }
 
 	public DSpaceMetadata2Marc(FTDriver dt) {
 		super(dt);
@@ -98,20 +103,8 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 		this.ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),
 				P_START, P_START,
 				"Accession Start Date in YYYY-MM-DD format", "2013-03-01"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_NAME, MarcUtil.P_UNIV_NAME,
-				"University Name", "My University"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_LOC, MarcUtil.P_UNIV_LOC,
-				"University Location", "My University Location"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_SCHEMA, MarcUtil.P_EMBARGO_SCHEMA,
-				"Embargo Schema Prefix", "local"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_ELEMENT, MarcUtil.P_EMBARGO_ELEMENT,
-				"Embargo Element", "embargo"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_TERMS, MarcUtil.P_EMBARGO_TERMS,
-				"Embargo Policy Qualifier", "terms"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_CUSTOM, MarcUtil.P_EMBARGO_CUSTOM,
-				"Embargo Custom Date Qualifier", "custom-date"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_LIFT, MarcUtil.P_EMBARGO_LIFT,
-				"Embargo Lift Date Qualifier", "lift-date"));
+		marcUtil = getMarcUtil();
+		marcUtil.addProps(dt, ftprops);
 	}
 
 	public String toString() {
@@ -245,7 +238,7 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 					+ key.replace("/", "_") + ".xml");
 			try {
 				XMLUtil.doTransform(d, f, GUProquestURIResolver.INSTANCE,
-						"dc2marc.xsl", MarcUtil.getXslParm(this.ftprops));
+						"dc2marc.xsl", marcUtil.getXslParm(this.ftprops));
 				Document md = XMLUtil.db.parse(f);
 				collDocRoot.appendChild(collDoc.importNode(md.getDocumentElement(), true));
 			} catch (TransformerException e) {

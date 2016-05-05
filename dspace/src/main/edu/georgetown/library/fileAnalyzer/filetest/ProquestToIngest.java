@@ -28,7 +28,6 @@ import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
-import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
@@ -80,6 +79,12 @@ public class ProquestToIngest extends DefaultFileTest {
 	static String PS_FOLDERS = "folders";
 	static String P_ZIP = "zip ingest";
 	
+    MarcUtil marcUtil;
+    
+    public MarcUtil getMarcUtil() {
+        return new MarcUtil();
+    }
+	
 	public ProquestToIngest(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_MARC, P_MARC,
@@ -87,21 +92,9 @@ public class ProquestToIngest extends DefaultFileTest {
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_FOLDERS, PS_FOLDERS,
 				"Group ETD's into folders by academic department", YN.values(), YN.Y));	
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ZIP, P_ZIP,
-				"Create zip files for ingest folders", YN.values(), YN.N));	
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_NAME, MarcUtil.P_UNIV_NAME,
-				"University Name", "My University"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_LOC, MarcUtil.P_UNIV_LOC,
-				"University Location", "My University Location"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_SCHEMA, MarcUtil.P_EMBARGO_SCHEMA,
-				"Embargo Schema Prefix", "local"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_ELEMENT, MarcUtil.P_EMBARGO_ELEMENT,
-				"Embargo Element", "embargo"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_TERMS, MarcUtil.P_EMBARGO_TERMS,
-				"Embargo Policy Qualifier", "terms"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_CUSTOM, MarcUtil.P_EMBARGO_CUSTOM,
-				"Embargo Custom Date Qualifier", "custom-date"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_LIFT, MarcUtil.P_EMBARGO_LIFT,
-				"Embargo Lift Date Qualifier", "lift-date"));
+				"Create zip files for ingest folders", YN.values(), YN.N));
+		marcUtil = getMarcUtil();
+		marcUtil.addProps(dt, ftprops);
 	}
 	
 	public static final String PQEXTRACT = "pqextract_";
@@ -182,18 +175,18 @@ public class ProquestToIngest extends DefaultFileTest {
 						}
 						
 						File dc = new File(zout, "dublin_core.xml");
-						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", MarcUtil.getXslParm(this.ftprops));
+						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", marcUtil.getXslParm(this.ftprops));
 
 						if (this.getProperty(P_MARC).equals(YN.Y)) {
 							File marc = new File(zout, "marc.xml");
-							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", MarcUtil.getXslParm(this.ftprops));							
+							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", marcUtil.getXslParm(this.ftprops));							
 						}
 						
 						if (d.getDocumentElement().hasAttribute("embargo_code")) {
 							String s = d.getDocumentElement().getAttribute("embargo_code");
 							if (!s.equals("0")) {
 								File gu = new File(zout, "metadata_" + getProperty(MarcUtil.P_EMBARGO_SCHEMA, "local") + ".xml");
-								XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, "proquest2ingest-local.xsl", MarcUtil.getXslParm(this.ftprops));	
+								XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, "proquest2ingest-local.xsl", marcUtil.getXslParm(this.ftprops));	
 								
 								Document gd =  XMLUtil.db.parse(gu);
 								nl = gd.getElementsByTagName("dcvalue");
