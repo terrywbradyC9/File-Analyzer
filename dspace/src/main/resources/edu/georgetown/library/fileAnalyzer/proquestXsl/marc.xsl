@@ -7,6 +7,7 @@
         <xsl:param name="pCreated" />
         <xsl:param name="pCreator" />
         <xsl:param name="pCreatorSuff" />
+        <xsl:param name="pCreatorOrcid" />
         <xsl:param name="pTitle" />
         <xsl:param name="pnAltTitle" />
         <xsl:param name="pPages" />
@@ -73,6 +74,11 @@
                 <marc:subfield code="e">author</marc:subfield>
                 
                 <marc:subfield code="4">aut</marc:subfield>
+                <xsl:if test="$pCreatorOrcid">
+                    <marc:subfield code="0">
+                        <xsl:value-of select="concat('(orcid)',$pCreatorOrcid)" />
+                    </marc:subfield>
+                </xsl:if>
             </marc:datafield>
             <marc:datafield tag="245" ind1="1" ind2="0">
                 <marc:subfield code="a">

@@ -28,7 +28,6 @@ import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
-import gov.nara.nwts.ftapp.ftprop.FTPropString;
 import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.stats.Stats;
 import gov.nara.nwts.ftapp.stats.StatsGenerator;
@@ -56,9 +55,10 @@ public class ProquestToIngest extends DefaultFileTest {
 		Items(StatsItem.makeIntStatsItem("Num Items")),
 		Size(StatsItem.makeLongStatsItem("Total Size")),
 		XmlStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "XML Status", OVERALL_STAT.INIT).setWidth(40)),
-		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",80)),
+		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",130)),
 		EmbargoCustom(StatsItem.makeStringStatsItem("Embargo Custom",80)),
-		ThirdPartySearch(StatsItem.makeEnumStatsItem(YN.class, "3rd Party Search",YN.N)),
+        OtherRestriction(StatsItem.makeStringStatsItem("Other Restriction")),
+		Orcid(StatsItem.makeStringStatsItem("ORCID", 140)),
 		Title(StatsItem.makeStringStatsItem("Title",350)),
 		Message(StatsItem.makeStringStatsItem("Status Note", 300)),
 		;
@@ -80,6 +80,12 @@ public class ProquestToIngest extends DefaultFileTest {
 	static String PS_FOLDERS = "folders";
 	static String P_ZIP = "zip ingest";
 	
+    MarcUtil marcUtil;
+    
+    public MarcUtil getMarcUtil() {
+        return new MarcUtil();
+    }
+	
 	public ProquestToIngest(FTDriver dt) {
 		super(dt);
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_MARC, P_MARC,
@@ -87,21 +93,9 @@ public class ProquestToIngest extends DefaultFileTest {
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_FOLDERS, PS_FOLDERS,
 				"Group ETD's into folders by academic department", YN.values(), YN.Y));	
 		this.ftprops.add(new FTPropEnum(dt, this.getClass().getSimpleName(),  P_ZIP, P_ZIP,
-				"Create zip files for ingest folders", YN.values(), YN.N));	
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_NAME, MarcUtil.P_UNIV_NAME,
-				"University Name", "My University"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_UNIV_LOC, MarcUtil.P_UNIV_LOC,
-				"University Location", "My University Location"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_SCHEMA, MarcUtil.P_EMBARGO_SCHEMA,
-				"Embargo Schema Prefix", "local"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_ELEMENT, MarcUtil.P_EMBARGO_ELEMENT,
-				"Embargo Element", "embargo"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_TERMS, MarcUtil.P_EMBARGO_TERMS,
-				"Embargo Policy Qualifier", "terms"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_CUSTOM, MarcUtil.P_EMBARGO_CUSTOM,
-				"Embargo Custom Date Qualifier", "custom-date"));
-		ftprops.add(new FTPropString(dt, this.getClass().getSimpleName(),  MarcUtil.P_EMBARGO_LIFT, MarcUtil.P_EMBARGO_LIFT,
-				"Embargo Lift Date Qualifier", "lift-date"));
+				"Create zip files for ingest folders", YN.values(), YN.N));
+		marcUtil = getMarcUtil();
+		marcUtil.addProps(dt, ftprops);
 	}
 	
 	public static final String PQEXTRACT = "pqextract_";
@@ -109,6 +103,7 @@ public class ProquestToIngest extends DefaultFileTest {
 	private Vector<File> outdirs = new Vector<>();
 	
 	public InitializationStatus init() {
+        marcUtil.setProps(ftprops);
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		outdir = new File(getRoot(), PQEXTRACT+df.format(new Date()));
 		outdir.mkdir();		
@@ -129,7 +124,87 @@ public class ProquestToIngest extends DefaultFileTest {
 	public boolean isTestable(File f) {
 		return !getKey(f).contains("\\"+PQEXTRACT);
 	}
+	
+	public boolean hasEmbargoInXml(Document d) {
+        if (d.getDocumentElement().hasAttribute("embargo_code")) {
+            String s = d.getDocumentElement().getAttribute("embargo_code");
+            return !s.equals("0");
+        }
+        return false;    
+	}
+	
+	//To be overridden
+	public boolean evaluateEmbargoInFileList() {return false;}
+    public void writeFileListEmbargo(File zout, Stats stats) {}
+	
+	public String getLocalXslName() {return "proquest2ingest-local.xsl";}
+	
+	File getLocalSchemaFile(File zout) {
+	    return new File(zout, "metadata_" + marcUtil.getLocalSchema() + ".xml");
+	}
+	private void setLocalMetadata(Document d, File zout, Stats stats) throws TransformerException, IOException, SAXException {
+        File gu = getLocalSchemaFile(zout);
+        XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, getLocalXslName(), marcUtil.getXslParm());   
+        Document gd =  XMLUtil.db.parse(gu);
+        NodeList nl = gd.getElementsByTagName("dcvalue");
+        for(int i=0; i<nl.getLength(); i++) {
+            Element elem = (Element)nl.item(i);
+            if (!elem.getAttribute("element").equals("embargo")) continue;
+            if (elem.getAttribute("qualifier").equals("terms")) {
+                stats.setVal(ProquestStatsItems.EmbargoTerms, elem.getTextContent());
+            } else if (elem.getAttribute("qualifier").equals("custom-date")) {
+                stats.setVal(ProquestStatsItems.EmbargoCustom, elem.getTextContent());
+            }
+        }
+	}
+	
+	
+	public boolean checkSkipFile(ZipEntry ze) {
+        if (ze.getName().startsWith("__MACOSX")) return true;
+        if (ze.getName().endsWith(".DS_Store")) return true;
+        return false;
+	}
+	
+	public boolean isCheckThirdPartySearchEnabled() {
+	    return true;
+	}
 
+	public void checkThirdPartySearch(Document d, Stats stats) {
+        if (d.getDocumentElement().hasAttribute("third_party_search")) {
+            String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
+            if (tpsearch.equals("Y")) {
+                stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);
+                stats.setVal(ProquestStatsItems.OtherRestriction, "Restrict from 3rd Party Search");                                             
+            }
+        }
+	}
+
+    public void extractMetadata(Document d, Stats stats) {
+        NodeList nl = d.getElementsByTagName("DISS_title");
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            stats.setVal(ProquestStatsItems.Title, elem.getTextContent());
+        }
+        nl = d.getElementsByTagName("DISS_orcid");
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            stats.setVal(ProquestStatsItems.Orcid, elem.getTextContent());
+        }
+    }
+
+    public String getDept(Document d, Stats stats) {
+        NodeList nl = d.getElementsByTagName("DISS_inst_contact");
+        String dept = "TBD";
+        
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            dept = elem.getTextContent();
+            stats.setVal(ProquestStatsItems.Dept, dept);
+        }
+        return dept;
+    }
+
+	
 	public Object fileTest(File f) {
 		String key = getKey(f);
 		Stats stats = (Stats)this.getStats(key);
@@ -150,8 +225,7 @@ public class ProquestToIngest extends DefaultFileTest {
 		) {
 			
 			for(ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry()){
-				if (ze.getName().startsWith("__MACOSX")) continue;
-				if (ze.getName().endsWith(".DS_Store")) continue;
+			    if (checkSkipFile(ze)) continue;
 				File ztemp = new File(ze.getName());
 				File zeout = new File(zout, ztemp.getName());
 				if (ze.isDirectory()) continue;
@@ -168,57 +242,23 @@ public class ProquestToIngest extends DefaultFileTest {
 						bXmlFound = true;
 						Document d = XMLUtil.db.parse(zeout);
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.PASS);
-						NodeList nl = d.getElementsByTagName("DISS_title");
-						if (nl.getLength() == 1) {
-							Element elem = (Element)nl.item(0);
-							stats.setVal(ProquestStatsItems.Title, elem.getTextContent());
-						}
-						nl = d.getElementsByTagName("DISS_inst_contact");
-						
-						if (nl.getLength() == 1) {
-							Element elem = (Element)nl.item(0);
-							dept = elem.getTextContent();
-							stats.setVal(ProquestStatsItems.Dept, dept);
-						}
 						
 						File dc = new File(zout, "dublin_core.xml");
-						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", MarcUtil.getXslParm(this.ftprops));
+						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", marcUtil.getXslParm());
 
 						if (this.getProperty(P_MARC).equals(YN.Y)) {
 							File marc = new File(zout, "marc.xml");
-							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", MarcUtil.getXslParm(this.ftprops));							
+							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", marcUtil.getXslParm());							
 						}
+						extractMetadata(d, stats);
+                        dept = getDept(d, stats);
 						
-						if (d.getDocumentElement().hasAttribute("embargo_code")) {
-							String s = d.getDocumentElement().getAttribute("embargo_code");
-							if (!s.equals("0")) {
-								File gu = new File(zout, "metadata_" + getProperty(MarcUtil.P_EMBARGO_SCHEMA, "local") + ".xml");
-								XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, "proquest2ingest-local.xsl", MarcUtil.getXslParm(this.ftprops));	
-								
-								Document gd =  XMLUtil.db.parse(gu);
-								nl = gd.getElementsByTagName("dcvalue");
-								for(int i=0; i<nl.getLength(); i++) {
-									Element elem = (Element)nl.item(i);
-									if (!elem.getAttribute("element").equals("embargo")) continue;
-									if (elem.getAttribute("qualifier").equals("terms")) {
-										stats.setVal(ProquestStatsItems.EmbargoTerms, elem.getTextContent());
-									} else if (elem.getAttribute("qualifier").equals("custom-date")) {
-										stats.setVal(ProquestStatsItems.EmbargoCustom, elem.getTextContent());
-									}
-								}
-							}
+						if (hasEmbargoInXml(d)) {
+						    this.setLocalMetadata(d, zout, stats);
 						}
-						if (d.getDocumentElement().hasAttribute("third_party_search")) {
-							String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
-							if (tpsearch.equals("Y")) {
-								stats.setVal(ProquestStatsItems.ThirdPartySearch, YN.Y);
-							}
-						}
-						
-						if (stats.getVal(ProquestStatsItems.ThirdPartySearch) != YN.Y) {
-							stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);
-							stats.setVal(ProquestStatsItems.Message, "Restrict from 3rd Party Search");												
-						}
+                        if (isCheckThirdPartySearchEnabled()) {
+                            this.checkThirdPartySearch(d, stats);
+                        }
 					} catch (SAXException e) {
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.FAIL);
 						stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
@@ -236,6 +276,9 @@ public class ProquestToIngest extends DefaultFileTest {
 				zcount++;
 
 			}
+	        if (evaluateEmbargoInFileList()) {
+	            writeFileListEmbargo(zout, stats);
+	        }
 		} catch (ZipException e) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, e.getMessage());					
@@ -246,6 +289,7 @@ public class ProquestToIngest extends DefaultFileTest {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, "Error unzipping the file perhaps due to unexpected characters in file name.\nProcess manually.");					
 		}
+		
 		
 		stats.setVal(ProquestStatsItems.Items, zcount);
 		stats.setVal(ProquestStatsItems.Size, bytes);

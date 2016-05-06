@@ -17,6 +17,9 @@
         	<xsl:with-param name="pCreator">
         	    <xsl:apply-templates select="//dcvalue[@element='creator']" mode="lfm"/>
         	</xsl:with-param>
+            <xsl:with-param name="pCreatorOrcid">
+                <xsl:apply-templates select="//dcvalue[@element='identifier'][@qualifier='orcid']"/>
+            </xsl:with-param>
         	<xsl:with-param name="pCreatorSuff">
         	    <xsl:apply-templates select="//dcvalue[@element='creator']" mode="suff"/>
         	</xsl:with-param>
