@@ -20,7 +20,10 @@ public class MarcUtil {
 	
 	public static SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhhmmss.SS");
 	
+    HashMap<String,Object> pmap;
 	public MarcUtil() {
+	    pmap = new HashMap<String,Object>();
+        pmap.put("recdate", df.format(new Date()));
 	}
 	
 	public void addProps(FTDriver dt, ArrayList<FTProp> ftprops) {
@@ -40,14 +43,27 @@ public class MarcUtil {
                 "Embargo Lift Date Qualifier", "lift-date"));       	    
 	}
 	
-	public HashMap<String, Object> getXslParm(ArrayList<FTProp> props) {
-		HashMap<String,Object> pmap = new HashMap<String,Object>();
-		pmap.put("recdate", df.format(new Date()));
-		for(FTProp prop: props) {
-			String key = prop.getShortName();
-			pmap.put(key, prop.getValue());
-		}
+	public void setProps(ArrayList<FTProp> props) {
+        for(FTProp prop: props) {
+            String key = prop.getShortName();
+            pmap.put(key, prop.getValue());
+        }	    
+	}
+	
+	public HashMap<String, Object> getXslParm() {
 		return pmap;
 	}
 	
+	public String getLocalSchema() {
+	    return pmap.containsKey(P_EMBARGO_SCHEMA) ? pmap.get(P_EMBARGO_SCHEMA).toString() : "local"; 
+	}
+    public String getEmbargoElement() {
+        return pmap.containsKey(P_EMBARGO_ELEMENT) ? pmap.get(P_EMBARGO_ELEMENT).toString() : "embargo"; 
+    }
+    public String getEmbargoTerms() {
+        return pmap.containsKey(P_EMBARGO_TERMS) ? pmap.get(P_EMBARGO_TERMS).toString() : "terms"; 
+    }
+    public String getEmbargoLift() {
+        return pmap.containsKey(P_EMBARGO_LIFT) ? pmap.get(P_EMBARGO_LIFT).toString() : "lift-date"; 
+    }
 }

@@ -102,6 +102,7 @@ public class ProquestToIngest extends DefaultFileTest {
 	private Vector<File> outdirs = new Vector<>();
 	
 	public InitializationStatus init() {
+        marcUtil.setProps(ftprops);
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		outdir = new File(getRoot(), PQEXTRACT+df.format(new Date()));
 		outdir.mkdir();		
@@ -121,6 +122,46 @@ public class ProquestToIngest extends DefaultFileTest {
 	
 	public boolean isTestable(File f) {
 		return !getKey(f).contains("\\"+PQEXTRACT);
+	}
+	
+	public boolean hasEmbargoInXml(Document d) {
+        if (d.getDocumentElement().hasAttribute("embargo_code")) {
+            String s = d.getDocumentElement().getAttribute("embargo_code");
+            return !s.equals("0");
+        }
+        return false;    
+	}
+	
+	//To be overridden
+	public boolean evaluateEmbargoInFileList() {return false;}
+    public void writeFileListEmbargo(File zout, Stats stats) {}
+	
+	public String getLocalXslName() {return "proquest2ingest-local.xsl";}
+	
+	private File getLocalSchemaFile(File zout) {
+	    return new File(zout, "metadata_" + marcUtil.getLocalSchema() + ".xml");
+	}
+	private void setLocalMetadata(Document d, File zout, Stats stats) throws TransformerException, IOException, SAXException {
+        File gu = getLocalSchemaFile(zout);
+        XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, getLocalXslName(), marcUtil.getXslParm());   
+        Document gd =  XMLUtil.db.parse(gu);
+        NodeList nl = gd.getElementsByTagName("dcvalue");
+        for(int i=0; i<nl.getLength(); i++) {
+            Element elem = (Element)nl.item(i);
+            if (!elem.getAttribute("element").equals("embargo")) continue;
+            if (elem.getAttribute("qualifier").equals("terms")) {
+                stats.setVal(ProquestStatsItems.EmbargoTerms, elem.getTextContent());
+            } else if (elem.getAttribute("qualifier").equals("custom-date")) {
+                stats.setVal(ProquestStatsItems.EmbargoCustom, elem.getTextContent());
+            }
+        }
+	}
+	
+	
+	public boolean checkSkipFile(ZipEntry ze) {
+        if (ze.getName().startsWith("__MACOSX")) return true;
+        if (ze.getName().endsWith(".DS_Store")) return true;
+        return false;
 	}
 
 	public Object fileTest(File f) {
@@ -143,8 +184,7 @@ public class ProquestToIngest extends DefaultFileTest {
 		) {
 			
 			for(ZipEntry ze = zis.getNextEntry(); ze != null; ze = zis.getNextEntry()){
-				if (ze.getName().startsWith("__MACOSX")) continue;
-				if (ze.getName().endsWith(".DS_Store")) continue;
+			    if (checkSkipFile(ze)) continue;
 				File ztemp = new File(ze.getName());
 				File zeout = new File(zout, ztemp.getName());
 				if (ze.isDirectory()) continue;
@@ -175,31 +215,15 @@ public class ProquestToIngest extends DefaultFileTest {
 						}
 						
 						File dc = new File(zout, "dublin_core.xml");
-						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", marcUtil.getXslParm(this.ftprops));
+						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", marcUtil.getXslParm());
 
 						if (this.getProperty(P_MARC).equals(YN.Y)) {
 							File marc = new File(zout, "marc.xml");
-							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", marcUtil.getXslParm(this.ftprops));							
+							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", marcUtil.getXslParm());							
 						}
 						
-						if (d.getDocumentElement().hasAttribute("embargo_code")) {
-							String s = d.getDocumentElement().getAttribute("embargo_code");
-							if (!s.equals("0")) {
-								File gu = new File(zout, "metadata_" + getProperty(MarcUtil.P_EMBARGO_SCHEMA, "local") + ".xml");
-								XMLUtil.doTransform(d, gu, GUProquestURIResolver.INSTANCE, "proquest2ingest-local.xsl", marcUtil.getXslParm(this.ftprops));	
-								
-								Document gd =  XMLUtil.db.parse(gu);
-								nl = gd.getElementsByTagName("dcvalue");
-								for(int i=0; i<nl.getLength(); i++) {
-									Element elem = (Element)nl.item(i);
-									if (!elem.getAttribute("element").equals("embargo")) continue;
-									if (elem.getAttribute("qualifier").equals("terms")) {
-										stats.setVal(ProquestStatsItems.EmbargoTerms, elem.getTextContent());
-									} else if (elem.getAttribute("qualifier").equals("custom-date")) {
-										stats.setVal(ProquestStatsItems.EmbargoCustom, elem.getTextContent());
-									}
-								}
-							}
+						if (hasEmbargoInXml(d)) {
+						    this.setLocalMetadata(d, zout, stats);
 						}
 						if (d.getDocumentElement().hasAttribute("third_party_search")) {
 							String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
@@ -229,6 +253,9 @@ public class ProquestToIngest extends DefaultFileTest {
 				zcount++;
 
 			}
+	        if (evaluateEmbargoInFileList()) {
+	            writeFileListEmbargo(zout, stats);
+	        }
 		} catch (ZipException e) {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, e.getMessage());					
@@ -239,6 +266,7 @@ public class ProquestToIngest extends DefaultFileTest {
 			stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
 			stats.setVal(ProquestStatsItems.Message, "Error unzipping the file perhaps due to unexpected characters in file name.\nProcess manually.");					
 		}
+		
 		
 		stats.setVal(ProquestStatsItems.Items, zcount);
 		stats.setVal(ProquestStatsItems.Size, bytes);

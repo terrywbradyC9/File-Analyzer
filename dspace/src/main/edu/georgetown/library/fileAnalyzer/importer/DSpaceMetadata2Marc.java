@@ -172,7 +172,7 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 		Vector<Integer>accCol = new Vector<Integer>();
 		Vector<Integer>compCol = new Vector<Integer>();
 		
-		String embargo_element = this.getProperty(MarcUtil.P_EMBARGO_SCHEMA) + "." + this.getProperty(MarcUtil.P_EMBARGO_ELEMENT) + ".";
+		String embargo_element = marcUtil.getLocalSchema() + "." + marcUtil.getEmbargoElement() + ".";
 		
 		for (int i = 0; i < headers.size(); i++) {
 			String head = headers.get(i);
@@ -180,9 +180,9 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 				colMap.put(i, DSpace2MarcStatsItems.Author);
 			else if (head.startsWith("dc.title"))
 				colMap.put(i, DSpace2MarcStatsItems.Title);
-			else if (head.startsWith(embargo_element + this.getProperty(MarcUtil.P_EMBARGO_TERMS)))
+			else if (head.startsWith(embargo_element + marcUtil.getEmbargoTerms()))
 				colMap.put(i, DSpace2MarcStatsItems.EmbargoTerms);
-			else if (head.startsWith(embargo_element + this.getProperty(MarcUtil.P_EMBARGO_LIFT)))
+			else if (head.startsWith(embargo_element + marcUtil.getEmbargoLift()))
 				colMap.put(i, DSpace2MarcStatsItems.EmbargoLift);
 			else if (head.startsWith("dc.identifier.uri")) {
 				colMap.put(i, DSpace2MarcStatsItems.Url);
@@ -238,7 +238,7 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 					+ key.replace("/", "_") + ".xml");
 			try {
 				XMLUtil.doTransform(d, f, GUProquestURIResolver.INSTANCE,
-						"dc2marc.xsl", marcUtil.getXslParm(this.ftprops));
+						"dc2marc.xsl", marcUtil.getXslParm());
 				Document md = XMLUtil.db.parse(f);
 				collDocRoot.appendChild(collDoc.importNode(md.getDocumentElement(), true));
 			} catch (TransformerException e) {
