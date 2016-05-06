@@ -7,6 +7,7 @@
   <xsl:param name="university-loc">University Location</xsl:param>
 
   <xsl:template match="/*">
+    <xsl:variable name="pCreatorOrcid" select="//DISS_author/DISS_orcid"/>
     <xsl:variable name="pCreator" select="//DISS_author/DISS_name"/>
     <xsl:variable name="pCreated" select="//DISS_comp_date"/>
     <xsl:variable name="pTitle" select="//DISS_title"/>
@@ -48,6 +49,11 @@
           <xsl:apply-templates select="$pCreator"/>
         </xsl:with-param>
       </xsl:call-template>
+
+      <xsl:apply-templates select="$pCreatorOrcid" mode="val">
+        <xsl:with-param name="element">identifier</xsl:with-param>
+        <xsl:with-param name="qualifier">orcid</xsl:with-param>
+      </xsl:apply-templates>
 
       <xsl:call-template name="val">
         <xsl:with-param name="element">format</xsl:with-param>

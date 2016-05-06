@@ -55,9 +55,10 @@ public class ProquestToIngest extends DefaultFileTest {
 		Items(StatsItem.makeIntStatsItem("Num Items")),
 		Size(StatsItem.makeLongStatsItem("Total Size")),
 		XmlStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "XML Status", OVERALL_STAT.INIT).setWidth(40)),
-		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",80)),
+		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",130)),
 		EmbargoCustom(StatsItem.makeStringStatsItem("Embargo Custom",80)),
-		ThirdPartySearch(StatsItem.makeEnumStatsItem(YN.class, "3rd Party Search",YN.N)),
+        OtherRestriction(StatsItem.makeStringStatsItem("Other Restriction")),
+		Orcid(StatsItem.makeStringStatsItem("ORCID", 140)),
 		Title(StatsItem.makeStringStatsItem("Title",350)),
 		Message(StatsItem.makeStringStatsItem("Status Note", 300)),
 		;
@@ -138,7 +139,7 @@ public class ProquestToIngest extends DefaultFileTest {
 	
 	public String getLocalXslName() {return "proquest2ingest-local.xsl";}
 	
-	private File getLocalSchemaFile(File zout) {
+	File getLocalSchemaFile(File zout) {
 	    return new File(zout, "metadata_" + marcUtil.getLocalSchema() + ".xml");
 	}
 	private void setLocalMetadata(Document d, File zout, Stats stats) throws TransformerException, IOException, SAXException {
@@ -163,7 +164,47 @@ public class ProquestToIngest extends DefaultFileTest {
         if (ze.getName().endsWith(".DS_Store")) return true;
         return false;
 	}
+	
+	public boolean isCheckThirdPartySearchEnabled() {
+	    return true;
+	}
 
+	public void checkThirdPartySearch(Document d, Stats stats) {
+        if (d.getDocumentElement().hasAttribute("third_party_search")) {
+            String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
+            if (tpsearch.equals("Y")) {
+                stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);
+                stats.setVal(ProquestStatsItems.OtherRestriction, "Restrict from 3rd Party Search");                                             
+            }
+        }
+	}
+
+    public void extractMetadata(Document d, Stats stats) {
+        NodeList nl = d.getElementsByTagName("DISS_title");
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            stats.setVal(ProquestStatsItems.Title, elem.getTextContent());
+        }
+        nl = d.getElementsByTagName("DISS_orcid");
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            stats.setVal(ProquestStatsItems.Orcid, elem.getTextContent());
+        }
+    }
+
+    public String getDept(Document d, Stats stats) {
+        NodeList nl = d.getElementsByTagName("DISS_inst_contact");
+        String dept = "TBD";
+        
+        if (nl.getLength() == 1) {
+            Element elem = (Element)nl.item(0);
+            dept = elem.getTextContent();
+            stats.setVal(ProquestStatsItems.Dept, dept);
+        }
+        return dept;
+    }
+
+	
 	public Object fileTest(File f) {
 		String key = getKey(f);
 		Stats stats = (Stats)this.getStats(key);
@@ -201,18 +242,6 @@ public class ProquestToIngest extends DefaultFileTest {
 						bXmlFound = true;
 						Document d = XMLUtil.db.parse(zeout);
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.PASS);
-						NodeList nl = d.getElementsByTagName("DISS_title");
-						if (nl.getLength() == 1) {
-							Element elem = (Element)nl.item(0);
-							stats.setVal(ProquestStatsItems.Title, elem.getTextContent());
-						}
-						nl = d.getElementsByTagName("DISS_inst_contact");
-						
-						if (nl.getLength() == 1) {
-							Element elem = (Element)nl.item(0);
-							dept = elem.getTextContent();
-							stats.setVal(ProquestStatsItems.Dept, dept);
-						}
 						
 						File dc = new File(zout, "dublin_core.xml");
 						XMLUtil.doTransform(d, dc, GUProquestURIResolver.INSTANCE, "proquest2ingest-dc.xsl", marcUtil.getXslParm());
@@ -221,21 +250,15 @@ public class ProquestToIngest extends DefaultFileTest {
 							File marc = new File(zout, "marc.xml");
 							XMLUtil.doTransform(d, marc, GUProquestURIResolver.INSTANCE, "proquest2marc.xsl", marcUtil.getXslParm());							
 						}
+						extractMetadata(d, stats);
+                        dept = getDept(d, stats);
 						
 						if (hasEmbargoInXml(d)) {
 						    this.setLocalMetadata(d, zout, stats);
 						}
-						if (d.getDocumentElement().hasAttribute("third_party_search")) {
-							String tpsearch = d.getDocumentElement().getAttribute("third_party_search");
-							if (tpsearch.equals("Y")) {
-								stats.setVal(ProquestStatsItems.ThirdPartySearch, YN.Y);
-							}
-						}
-						
-						if (stats.getVal(ProquestStatsItems.ThirdPartySearch) != YN.Y) {
-							stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.REVIEW);
-							stats.setVal(ProquestStatsItems.Message, "Restrict from 3rd Party Search");												
-						}
+                        if (isCheckThirdPartySearchEnabled()) {
+                            this.checkThirdPartySearch(d, stats);
+                        }
 					} catch (SAXException e) {
 						stats.setVal(ProquestStatsItems.XmlStat, OVERALL_STAT.FAIL);
 						stats.setVal(ProquestStatsItems.OverallStat, OVERALL_STAT.FAIL);
