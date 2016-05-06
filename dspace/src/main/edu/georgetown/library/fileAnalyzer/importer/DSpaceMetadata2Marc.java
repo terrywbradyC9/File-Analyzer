@@ -24,6 +24,7 @@ import gov.nara.nwts.ftapp.Timer;
 import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
+import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 import gov.nara.nwts.ftapp.importer.DefaultImporter;
 import gov.nara.nwts.ftapp.importer.DelimitedFileReader;
 import gov.nara.nwts.ftapp.stats.Stats;
@@ -62,6 +63,7 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 		AccessionDate(StatsItem.makeStringStatsItem("Accession", 100)),
 		CompDate(StatsItem.makeStringStatsItem("Comp Date", 100)),
 		Author(StatsItem.makeStringStatsItem("Author", 250)), 
+        Orcid(StatsItem.makeStringStatsItem("ORCID", 140)), 
 		Title(StatsItem.makeStringStatsItem("Title", 250)), 
 		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms", 100)), 
 		EmbargoLift(StatsItem.makeStringStatsItem("Embargo Lift", 100)), ;
@@ -178,6 +180,8 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 			String head = headers.get(i);
 			if (head.startsWith("dc.creator"))
 				colMap.put(i, DSpace2MarcStatsItems.Author);
+            else if (head.startsWith("dc.identifier.orcid"))
+                colMap.put(i, DSpace2MarcStatsItems.Orcid);
 			else if (head.startsWith("dc.title"))
 				colMap.put(i, DSpace2MarcStatsItems.Title);
 			else if (head.startsWith(embargo_element + marcUtil.getEmbargoTerms()))
@@ -257,5 +261,10 @@ public class DSpaceMetadata2Marc extends DefaultImporter {
 		XMLUtil.serialize(collDoc, collFile);
 		return new ActionResult(selectedFile, selectedFile.getName(),
 				this.toString(), details, types, true, timer.getDuration());
+	}
+	
+	@Override public InitializationStatus initValidate(File refFile) {
+        marcUtil.setProps(ftprops);
+        return super.initValidate(refFile);
 	}
 }
