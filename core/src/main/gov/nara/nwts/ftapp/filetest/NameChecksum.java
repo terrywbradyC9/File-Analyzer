@@ -29,7 +29,7 @@ public class NameChecksum extends DefaultFileTest {
 	HashMap<String, List<ChecksumStats>> keymap;
 	public static final String ALGORITHM = "Algorithm";
 	public static final String KEY = "Key";
-	static enum KEYTYPE {NAME, PATH;}
+	public static enum KEYTYPE {NAME, PATH;}
 	
 	static enum Algorithm {
 		MD5("MD5"),
