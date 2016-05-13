@@ -14,6 +14,8 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,10 +57,12 @@ public class ProquestToIngest extends DefaultFileTest {
 		Items(StatsItem.makeIntStatsItem("Num Items")),
 		Size(StatsItem.makeLongStatsItem("Total Size")),
 		XmlStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "XML Status", OVERALL_STAT.INIT).setWidth(40)),
+        EmbargoStat(StatsItem.makeEnumStatsItem(YN.class, "Embargo?", YN.N).setWidth(80)),
 		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",130)),
 		EmbargoCustom(StatsItem.makeStringStatsItem("Embargo Custom",80)),
         OtherRestriction(StatsItem.makeStringStatsItem("Other Restriction")),
 		Orcid(StatsItem.makeStringStatsItem("ORCID", 140)),
+        Author(StatsItem.makeStringStatsItem("Author",180)),
 		Title(StatsItem.makeStringStatsItem("Title",350)),
 		Message(StatsItem.makeStringStatsItem("Status Note", 300)),
 		;
@@ -152,6 +156,7 @@ public class ProquestToIngest extends DefaultFileTest {
             if (!elem.getAttribute("element").equals("embargo")) continue;
             if (elem.getAttribute("qualifier").equals("terms")) {
                 stats.setVal(ProquestStatsItems.EmbargoTerms, elem.getTextContent());
+                stats.setVal(ProquestStatsItems.EmbargoStat, YN.Y);
             } else if (elem.getAttribute("qualifier").equals("custom-date")) {
                 stats.setVal(ProquestStatsItems.EmbargoCustom, elem.getTextContent());
             }
@@ -184,6 +189,14 @@ public class ProquestToIngest extends DefaultFileTest {
         if (nl.getLength() == 1) {
             Element elem = (Element)nl.item(0);
             stats.setVal(ProquestStatsItems.Title, elem.getTextContent());
+        }
+        XPath xp = XMLUtil.xf.newXPath();
+        try {
+            stats.setVal(ProquestStatsItems.Author, "--");
+            String author = xp.evaluate("concat(/DISS_submission/DISS_authorship/DISS_author/DISS_name/DISS_surname/text(),', ',/DISS_submission/DISS_authorship/DISS_author/DISS_name/DISS_fname/text())", d);
+            stats.setVal(ProquestStatsItems.Author, author);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
         }
         nl = d.getElementsByTagName("DISS_orcid");
         if (nl.getLength() == 1) {
