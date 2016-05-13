@@ -53,12 +53,12 @@ public class ProquestToIngest extends DefaultFileTest {
 	public static enum ProquestStatsItems implements StatsItemEnum {
 		Key(StatsItem.makeStringStatsItem("Zip File Name").setWidth(400)),
 		OverallStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "Status", OVERALL_STAT.INIT).setWidth(40)),
-		Dept(StatsItem.makeStringStatsItem("Department").setWidth(150)),
+		Dept(StatsItem.makeStringStatsItem("Department").setWidth(150).makeFilter(true)),
 		Items(StatsItem.makeIntStatsItem("Num Items")),
 		Size(StatsItem.makeLongStatsItem("Total Size")),
 		XmlStat(StatsItem.makeEnumStatsItem(OVERALL_STAT.class, "XML Status", OVERALL_STAT.INIT).setWidth(40)),
         EmbargoStat(StatsItem.makeEnumStatsItem(YN.class, "Embargo?", YN.N).setWidth(80)),
-		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",130)),
+		EmbargoTerms(StatsItem.makeStringStatsItem("Embargo Terms",130).makeFilter(true)),
 		EmbargoCustom(StatsItem.makeStringStatsItem("Embargo Custom",80)),
         OtherRestriction(StatsItem.makeStringStatsItem("Other Restriction")),
 		Orcid(StatsItem.makeStringStatsItem("ORCID", 140)),
@@ -366,6 +366,9 @@ public class ProquestToIngest extends DefaultFileTest {
 		return zcount;
 	}
 
+    public void refineResults() {
+        getStatsDetails().createFilters(this.dt.types);
+    }
 	public String getShortName() {
 		return "ProQuest";
 	}
