@@ -13,7 +13,10 @@ public class AIPDirToAPTHelper extends AIPToAPTHelper {
     }
     
     @Override
-    public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException {
+    public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException, InvalidFilenameException {
+        if (!testForAptCompliantFilenames(f, aptHelper.allowSourceRename)) {
+            throw new InvalidFilenameException(errorMessage.toString());
+        }
         Bag bag = aptHelper.getBag();
         for(File cf: f.listFiles()) {
             bag.addFileToPayload(cf);
@@ -21,7 +24,7 @@ public class AIPDirToAPTHelper extends AIPToAPTHelper {
         findMetadata(f, aptHelper);
         return bag.getPayload().size();
     }
-
+    
     public void findMetadata(File f, APTrustHelper aptHelper) throws IOException, InvalidMetadataException {
         if (f.isDirectory()) {
             for(File cf: f.listFiles()) {
@@ -33,6 +36,5 @@ public class AIPDirToAPTHelper extends AIPToAPTHelper {
             }
         }
     }
-
 
 }

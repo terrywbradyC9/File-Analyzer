@@ -17,6 +17,7 @@ import edu.georgetown.library.fileAnalyzer.util.AIPZipToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
+import edu.georgetown.library.fileAnalyzer.util.InvalidFilenameException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
 
 public class AIPToAPTCmd {
@@ -55,7 +56,7 @@ public class AIPToAPTCmd {
         return input;
     }
     
-    public static final int convertCommand(CommandLine cmdLine) throws IOException, IncompleteSettingsException, InvalidMetadataException {
+    public static final int convertCommand(CommandLine cmdLine) throws IOException, IncompleteSettingsException, InvalidMetadataException, InvalidFilenameException {
         CONVTYPE convType;
         AIPToAPTHelper aipHelper = null;
         if (cmdLine.hasOption("zip")) {
@@ -79,6 +80,7 @@ public class AIPToAPTCmd {
         String srcOrg = cmdLine.getOptionValue("srcorg","SrcOrg");
         String sendId = cmdLine.getOptionValue("srcorg","SendId");
         String minstr = cmdLine.getOptionValue("min", "1");
+        boolean allowRename = cmdLine.hasOption("rename");
         
         if (cmdLine.getArgs().length == 0){
             usage();
@@ -86,7 +88,7 @@ public class AIPToAPTCmd {
         }
         
         File input = testInputFile(convType, cmdLine.getArgs()[0]);
-        APTrustHelper aptHelper = new APTrustHelper(input);
+        APTrustHelper aptHelper = new APTrustHelper(input, allowRename);
         aptHelper.setAccessType(access);
         aptHelper.setInstitutionId(sendId);
         aptHelper.setSourceOrg(srcOrg);
@@ -115,15 +117,15 @@ public class AIPToAPTCmd {
         CommandLine cmdLine = parseAipCommandLine(CMD, args);
         try {
             convertCommand(cmdLine);
-        } catch (IOException | IncompleteSettingsException | InvalidMetadataException e) {
+        } catch (IOException | IncompleteSettingsException | InvalidMetadataException | InvalidFilenameException e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
     }
 
     public static void usage() {
-        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] <AIP_Dir>", CMD));
-        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] <AIP_Zip>", CMD));
+        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] <AIP_Dir>", CMD));
+        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] <AIP_Zip>", CMD));
     }
     
     public static CommandLine parseAipCommandLine(String main, String[] args) {
@@ -143,6 +145,7 @@ public class AIPToAPTCmd {
         opts.addOption("srcorg", true, "Src Organization");
         opts.getOption("srcorg").setRequired(true);
         opts.addOption("min", true, "Min number of files requried");
+        opts.addOption("rename", false, "Allow source files to be renamed");
         opts.addOption("h", false, "Help Info");
         
         HelpFormatter formatter = new HelpFormatter();

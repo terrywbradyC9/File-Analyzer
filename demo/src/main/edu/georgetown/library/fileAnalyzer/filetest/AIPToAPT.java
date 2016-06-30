@@ -1,6 +1,7 @@
 package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
+import gov.nara.nwts.ftapp.YN;
 import gov.nara.nwts.ftapp.filetest.DefaultFileTest;
 import gov.nara.nwts.ftapp.ftprop.FTPropEnum;
 import gov.nara.nwts.ftapp.ftprop.FTPropString;
@@ -16,6 +17,7 @@ import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.Access;
 import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper.STAT;
 import edu.georgetown.library.fileAnalyzer.util.IncompleteSettingsException;
+import edu.georgetown.library.fileAnalyzer.util.InvalidFilenameException;
 import edu.georgetown.library.fileAnalyzer.util.InvalidMetadataException;
 import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.APTrustHelper;
@@ -47,11 +49,14 @@ abstract class AIPToAPT extends DefaultFileTest {
     	return details; 
     }
 
+    private FTPropEnum pAllowRename = new FTPropEnum(dt, this.getClass().getSimpleName(),  APTrustHelper.P_ALLOW_RENAME, APTrustHelper.P_ALLOW_RENAME,
+            "Allow file rename for APT Compliance", YN.values(), YN.Y);
     private FTPropEnum pAccess = new FTPropEnum(dt, this.getClass().getSimpleName(),  APTrustHelper.P_ACCESS, APTrustHelper.P_ACCESS,
             "Access condition within APTrust.", Access.values(), Access.Institution);
 
     public AIPToAPT(FTDriver dt) {
         super(dt);
+        ftprops.add(pAllowRename);
 		FTPropString fps = new FTPropString(dt, this.getClass().getSimpleName(),  APTrustHelper.P_SRCORG, APTrustHelper.P_SRCORG,
                 "This should be the human readable name of the APTrust partner organization.", "");
 		fps.setFailOnEmpty(true);
@@ -72,8 +77,10 @@ abstract class AIPToAPT extends DefaultFileTest {
 	
 	@Override
 	public Object fileTest(File f) {
-		Stats stat = getStats(f);
-		APTrustHelper aptHelper = new APTrustHelper(f);
+        boolean allowRename = ((YN)this.getProperty(APTrustHelper.P_ALLOW_RENAME) == YN.Y);
+
+        Stats stat = getStats(f);
+		APTrustHelper aptHelper = new APTrustHelper(f, allowRename);
 		aptHelper.setAccessType((Access)pAccess.getValue());
 		aptHelper.setInstitutionId(this.getProperty(APTrustHelper.P_INSTID).toString());
 		aptHelper.setSourceOrg(this.getProperty(APTrustHelper.P_SRCORG).toString());
@@ -102,7 +109,11 @@ abstract class AIPToAPT extends DefaultFileTest {
 			stat.setVal(BagStatsItems.Stat, STAT.INVALID);
 			stat.setVal(BagStatsItems.Message, e.getLocalizedMessage());
 			e.printStackTrace();
-		}
+		} catch (InvalidFilenameException e) {
+            stat.setVal(BagStatsItems.Stat, STAT.INVALID);
+            stat.setVal(BagStatsItems.Message, e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 		// TODO Auto-generated method stub
 		return null;
 	}

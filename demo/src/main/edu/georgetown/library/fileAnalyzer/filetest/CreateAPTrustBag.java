@@ -50,9 +50,12 @@ class CreateAPTrustBag extends DefaultFileTest {
             "Access condition within APTrust.", APTrustHelper.Access.values(), APTrustHelper.Access.Institution);
     private FTPropEnum pTopFolder = new FTPropEnum(dt, this.getClass().getSimpleName(),  CreateBag.P_TOPFOLDER, CreateBag.P_TOPFOLDER,
             "Retain containing folder in payload", YN.values(), YN.Y);
+    private FTPropEnum pAllowRename = new FTPropEnum(dt, this.getClass().getSimpleName(),  APTrustHelper.P_ALLOW_RENAME, APTrustHelper.P_ALLOW_RENAME,
+            "Allow file rename for APT Compliance", YN.values(), YN.Y);
     
 	public CreateAPTrustBag(FTDriver dt) {
 		super(dt);
+        ftprops.add(pAllowRename);
         ftprops.add(pTopFolder);
 		FTPropString fps = new FTPropString(dt, this.getClass().getSimpleName(), APTrustHelper.P_SRCORG, APTrustHelper.P_SRCORG,
                 "This should be the human readable name of the APTrust partner organization.", "");
@@ -111,11 +114,12 @@ class CreateAPTrustBag extends DefaultFileTest {
 
 	public Object fileTest(File f) {
 		boolean retainTop = ((YN)this.getProperty(CreateBag.P_TOPFOLDER) == YN.Y);
+        boolean allowRename = ((YN)this.getProperty(APTrustHelper.P_ALLOW_RENAME) == YN.Y);
 		
 		Stats s = getStats(f);
 		
         try {
-    		APTrustHelper aptHelper = new APTrustHelper(f);
+    		APTrustHelper aptHelper = new APTrustHelper(f, allowRename);
     		aptHelper.setAccessType((Access)pAccess.getValue());
     		aptHelper.setBagCount(pBagCount.getIntValue(1));
     		aptHelper.setBagTotal(pBagTotal.getIntValue(1));

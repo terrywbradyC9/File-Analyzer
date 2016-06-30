@@ -26,7 +26,7 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
         return outdir;        
     }
 
-    @Override public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException{
+    @Override public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException, InvalidFilenameException{
         byte[] buf = new byte[4096];
         File zout = outdir;
         Bag bag = aptHelper.getBag();
@@ -49,6 +49,10 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
                     }
                 }
                 
+                if (!testForAptCompliantFilenames(zeout, aptHelper.allowSourceRename)) {
+                    throw new InvalidFilenameException(errorMessage.toString());
+                }
+
                 if (ze.getName().equals(METSXML)) {
                     aptHelper.parseMetsFile(zeout);
                 }
@@ -60,4 +64,7 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
         return count;
     }
 
+    @Override public void cleanup()  {
+        outdir.delete();
+    }
 }

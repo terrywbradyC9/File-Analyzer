@@ -27,6 +27,7 @@ public class APTrustHelper extends TarBagHelper {
     public static final String P_INTSENDID = "internal-sender-id";
     public static final String P_TITLE = "title";
     public static final String P_ACCESS = "access";
+    public static final String P_ALLOW_RENAME = "allow-rename";
     
     public enum STAT {
         VALID,
@@ -36,9 +37,11 @@ public class APTrustHelper extends TarBagHelper {
     public enum Access {Consortia, Restricted, Institution;}
 
     File aptinfo;
+    boolean allowSourceRename;
     
-    public APTrustHelper(File parent) {
+    public APTrustHelper(File parent, boolean allowSourceRename) {
     	super(parent);
+    	this.allowSourceRename = allowSourceRename;
     }
     
     private String instId = null;
