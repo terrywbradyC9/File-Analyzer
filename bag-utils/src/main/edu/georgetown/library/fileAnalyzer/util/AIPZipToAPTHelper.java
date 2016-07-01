@@ -5,8 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -49,9 +53,7 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
                     }
                 }
                 
-                if (!testForAptCompliantFilenames(zeout, aptHelper.allowSourceRename)) {
-                    throw new InvalidFilenameException(errorMessage.toString());
-                }
+                zeout = testForAptCompliantFilenames(zeout, aptHelper.allowSourceRename);
 
                 if (ze.getName().equals(METSXML)) {
                     aptHelper.parseMetsFile(zeout);
@@ -65,6 +67,33 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
     }
 
     @Override public void cleanup()  {
-        outdir.delete();
+        SimpleFileVisitor<Path> fv = new SimpleFileVisitor<Path>(){
+            @Override
+            public FileVisitResult visitFile(Path file,
+                    BasicFileAttributes attrs) throws IOException {
+
+                System.out.println("Deleting file: " + file);
+                Files.delete(file);
+                return super.visitFile(file, attrs);
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir,
+                    IOException exc) throws IOException {
+
+                System.out.println("Deleting dir: " + dir);
+                if (exc == null) {
+                    Files.delete(dir);
+                    return super.postVisitDirectory(dir, exc);
+                } else {
+                    throw exc;
+                }
+            }
+        };
+        try {
+            Files.walkFileTree(outdir.toPath(), fv);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

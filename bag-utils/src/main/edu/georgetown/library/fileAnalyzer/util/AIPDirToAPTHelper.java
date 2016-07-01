@@ -14,9 +14,8 @@ public class AIPDirToAPTHelper extends AIPToAPTHelper {
     
     @Override
     public int fillBag(File f, APTrustHelper aptHelper) throws FileNotFoundException, IOException, InvalidMetadataException, InvalidFilenameException {
-        if (!testForAptCompliantFilenames(f, aptHelper.allowSourceRename)) {
-            throw new InvalidFilenameException(errorMessage.toString());
-        }
+        f = testForAptCompliantFilenames(f, aptHelper.allowSourceRename);
+
         Bag bag = aptHelper.getBag();
         for(File cf: f.listFiles()) {
             bag.addFileToPayload(cf);

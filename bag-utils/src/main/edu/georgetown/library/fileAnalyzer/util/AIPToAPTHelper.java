@@ -30,10 +30,13 @@ public abstract class AIPToAPTHelper {
         //no action by default
     };
 
-    public boolean testForAptCompliantFilenames(File f, boolean rename) {
+    public File testForAptCompliantFilenames(File f, boolean rename) throws InvalidFilenameException {
         this.errorMessage.setLength(0);
-        testFile(f.getParentFile(), f, rename);
-        return errorMessage.length() == 0;
+        f = testFile(f.getParentFile(), f, rename);
+        if (errorMessage.length() != 0) {
+            throw new InvalidFilenameException(errorMessage.toString());
+        }
+        return f;
     }
 
     
@@ -61,7 +64,7 @@ public abstract class AIPToAPTHelper {
         return makeUnique(f, ++seq);
     }
     
-    private void testFile(File root, File f, boolean rename) {
+    private File testFile(File root, File f, boolean rename) {
         Path p = root.toPath().resolve(f.toPath());
         if (p.toString().length() > APTFILE_MAX) {
             errorMessage.append(String.format("File Path too long: [%s]; \n", p.toString()));
@@ -83,5 +86,6 @@ public abstract class AIPToAPTHelper {
                 testFile(root, cf, rename);
             }
         } 
+        return f;
     }
 }
