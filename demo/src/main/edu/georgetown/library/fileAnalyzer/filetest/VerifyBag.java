@@ -125,7 +125,7 @@ class VerifyBag extends DefaultFileTest {
     }
 
     public String getDescription() {
-        return "This rule will scan for directories with names ending with '_bag'.  BagIt verify valid will be run on the bag.";
+        return "This test a root directory provide it has a descendant bag file.  BagIt verify valid will be run on the bag.";
     }
     
     @Override public boolean isTestDirectory(File f) {
@@ -143,7 +143,8 @@ class VerifyBag extends DefaultFileTest {
         return (new File(f, BAGIT)).exists();
     }
     @Override public boolean isTestable(File f) {
-        return hasBagFile(f) && f.getName().endsWith("_bag");
+        //return hasBagFile(f) && f.getName().endsWith("_bag");
+        return hasBagFile(f);
     }
     
     public void validateBagMetadata(Bag bag, String fname, Stats stats) {

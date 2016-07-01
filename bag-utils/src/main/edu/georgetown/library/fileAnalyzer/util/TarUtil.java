@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -69,7 +70,11 @@ public class TarUtil {
 			    if (fentry.getParent() != null) {
 			        Files.createDirectories(fentry.getParent());
 			    }
-		        Files.copy(taris, fentry);
+		        try {
+                    Files.copy(taris, fentry);
+                } catch (FileAlreadyExistsException e) {
+                    System.err.println("WARNING: "+e.getMessage()+" "+e.getMessage());
+                }
 			}
 			fentry.toFile().deleteOnExit();
 		}
