@@ -6,6 +6,9 @@ import gov.nara.nwts.ftapp.stats.StatsItemConfig;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+
+import org.apache.commons.io.FileUtils;
 
 import edu.georgetown.library.fileAnalyzer.stats.BagStatsItems;
 import edu.georgetown.library.fileAnalyzer.util.TarUtil;
@@ -57,5 +60,12 @@ class VerifyBagTar extends VerifyBag {
 		}
 		return untarred;
     }
-   
+
+    @Override public void cleanupPreparedFile(File f) throws IOException {
+        if (f == null) return;
+        if (!f.isDirectory()) return;
+        FileUtils.deleteDirectory(f);
+        Files.deleteIfExists(f.toPath());
+    }
+
 }

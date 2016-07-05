@@ -108,11 +108,18 @@ class VerifyBag extends DefaultFileTest {
 				        s.appendVal(DetailedBagStatsItems.Message, m +" ");             
 				    }
 				}
+				bag.close();
 			} 
 		} catch (Exception e) {
 		    e.printStackTrace();
 		    s.setVal(DetailedBagStatsItems.Message, "Bag Error: " + e.getClass().getName() +" " + e.getMessage());
 		    s.setVal(DetailedBagStatsItems.Stat, STAT.NA);
+		} finally {
+		    try {
+                cleanupPreparedFile(f);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
         return s.getVal(DetailedBagStatsItems.Count);
     }
@@ -149,5 +156,8 @@ class VerifyBag extends DefaultFileTest {
     
     public void validateBagMetadata(Bag bag, String fname, Stats stats) {
     }
+    public void cleanupPreparedFile(File f) throws IOException {
+    }
+    
 
 }

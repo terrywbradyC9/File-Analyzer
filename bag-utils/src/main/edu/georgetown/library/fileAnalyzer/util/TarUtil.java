@@ -59,7 +59,6 @@ public class TarUtil {
 	
 	public static File untar(File f) throws IOException {
 		Path temp = Files.createTempDirectory(f.getName());
-		temp.toFile().deleteOnExit();
 		TarArchiveInputStream taris = new TarArchiveInputStream(new FileInputStream(f));
 		
 		for(TarArchiveEntry entry = taris.getNextTarEntry(); entry != null; entry =  taris.getNextTarEntry()){
@@ -76,7 +75,6 @@ public class TarUtil {
                     System.err.println("WARNING: "+e.getMessage()+" "+e.getMessage());
                 }
 			}
-			fentry.toFile().deleteOnExit();
 		}
 		return temp.toFile();
 	}

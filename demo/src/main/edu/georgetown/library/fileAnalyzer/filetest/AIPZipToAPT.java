@@ -2,10 +2,11 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 
 import gov.nara.nwts.ftapp.FTDriver;
 import gov.nara.nwts.ftapp.filter.ZipFilter;
-import gov.nara.nwts.ftapp.ftprop.InitializationStatus;
 
 import java.io.File;
 import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
 
 import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.AIPZipToAPTHelper;
@@ -52,26 +53,21 @@ class AIPZipToAPT extends AIPToAPT {
 		filters.add(new ZipFilter());
 	}
 
-	File outdir;
+	private File outdir;
 
-	@Override public InitializationStatus init() {
-		InitializationStatus istat = super.init();
-		try {
-		    outdir = AIPZipToAPTHelper.createTempDir();
-		} catch (IOException e) {
-			istat.addFailMessage(e.getMessage());
-		}
-		return istat;
-	}
-	
 	@Override public void cleanup(int count) {
 		if (outdir != null) {
-			outdir.delete();
+			try {
+                FileUtils.deleteDirectory(outdir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 		}
 	}
 	
     @Override
-    public AIPToAPTHelper getAIPToAPTHelper() {
+    public AIPToAPTHelper getAIPToAPTHelper() throws IOException {
+        outdir = AIPZipToAPTHelper.createTempDir();
         return new AIPZipToAPTHelper(outdir);
     }
 	

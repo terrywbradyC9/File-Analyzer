@@ -73,7 +73,7 @@ abstract class AIPToAPT extends DefaultFileTest {
 	}
 
 	
-	abstract public AIPToAPTHelper getAIPToAPTHelper();
+	abstract public AIPToAPTHelper getAIPToAPTHelper() throws IOException;
 	
 	@Override
 	public Object fileTest(File f) {

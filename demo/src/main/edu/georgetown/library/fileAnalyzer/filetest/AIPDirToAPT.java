@@ -3,6 +3,8 @@ package edu.georgetown.library.fileAnalyzer.filetest;
 import gov.nara.nwts.ftapp.FTDriver;
 
 import java.io.File;
+import java.io.IOException;
+
 import edu.georgetown.library.fileAnalyzer.util.AIPDirToAPTHelper;
 import edu.georgetown.library.fileAnalyzer.util.AIPToAPTHelper;
 
@@ -43,7 +45,7 @@ class AIPDirToAPT extends AIPToAPT {
     }
 
     @Override
-    public AIPToAPTHelper getAIPToAPTHelper() {
+    public AIPToAPTHelper getAIPToAPTHelper() throws IOException {
         return new AIPDirToAPTHelper();
     }
 
