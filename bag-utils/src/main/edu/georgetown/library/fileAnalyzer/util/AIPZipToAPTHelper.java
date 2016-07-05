@@ -5,19 +5,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.apache.commons.io.FileUtils;
 
 import gov.loc.repository.bagit.Bag;
 
 public class AIPZipToAPTHelper extends AIPToAPTHelper {
 
-    File outdir;
+    private File outdir;
     public AIPZipToAPTHelper(File outdir) {
         this.outdir = outdir;
     }
@@ -25,7 +24,6 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
     public static File createTempDir() throws IOException {
         Path outpath = Files.createTempDirectory(AIPToAPTHelper.AIPEXTRACT);
         File outdir = outpath.toFile();
-        outdir.deleteOnExit();
         return outdir;        
     }
 
@@ -66,33 +64,11 @@ public class AIPZipToAPTHelper extends AIPToAPTHelper {
     }
 
     @Override public void cleanup()  {
-        SimpleFileVisitor<Path> fv = new SimpleFileVisitor<Path>(){
-            @Override
-            public FileVisitResult visitFile(Path file,
-                    BasicFileAttributes attrs) throws IOException {
-
-                System.out.println("Deleting file: " + file);
-                Files.delete(file);
-                return super.visitFile(file, attrs);
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir,
-                    IOException exc) throws IOException {
-
-                System.out.println("Deleting dir: " + dir);
-                if (exc == null) {
-                    Files.delete(dir);
-                    return super.postVisitDirectory(dir, exc);
-                } else {
-                    throw exc;
-                }
-            }
-        };
         try {
-            Files.walkFileTree(outdir.toPath(), fv);
-        } catch (IOException e) {
-            e.printStackTrace();
+            FileUtils.deleteDirectory(outdir);
+            System.out.println("**DEL: " + outdir.delete());
+        } catch (IOException e1) {
+            e1.printStackTrace();
         }
     }
 }
