@@ -2,6 +2,7 @@ package edu.georgetown.library.fileAnalyzer.cmd;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -109,6 +110,22 @@ public class AIPToAPTCmd {
             fail(String.format("Bag file (%s) must have at least (%d) files", aptHelper.getFinalBagName(), minCount));
         }
         System.out.println(String.format("Bag Complete: %d item(s) written to bag (%s)", count, aptHelper.getFinalBagName()));
+        
+        if (cmdLine.hasOption("compareFile")) {
+            File compareFile = new File(cmdLine.getOptionValue("compareFile"));
+            Map<String, String> errors = aptHelper.compareChecksums(compareFile);
+            if (!errors.isEmpty()) {
+                StringBuilder buf = new StringBuilder();
+                buf.append("Checksum comparison failure.\n");
+                for(String s: errors.values()) {
+                    buf.append(s);
+                    buf.append(".\n");
+                }
+                fail(buf.toString());
+            } else {
+                System.out.println(String.format("Checksum Compare File Successful using file %s", compareFile.getAbsolutePath())); 
+            }
+        }
         return count;
     }
     
@@ -146,6 +163,7 @@ public class AIPToAPTCmd {
         opts.getOption("srcorg").setRequired(true);
         opts.addOption("min", true, "Min number of files requried");
         opts.addOption("rename", false, "Allow source files to be renamed");
+        opts.addOption("compareFile", true, "Optional Checksum Compare File.  Comma Separated: MD5,path");
         opts.addOption("h", false, "Help Info");
         
         HelpFormatter formatter = new HelpFormatter();

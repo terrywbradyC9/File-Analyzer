@@ -22,6 +22,7 @@ public abstract class AIPToAPTHelper {
         int count = fillBag(f, aptHelper);
         aptHelper.createBagFile();
         aptHelper.generateBagInfoFiles();
+        aptHelper.saveChecksums();
         aptHelper.writeBagFile();
         cleanup();
         return count;

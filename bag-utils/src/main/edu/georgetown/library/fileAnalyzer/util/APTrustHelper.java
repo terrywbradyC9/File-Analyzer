@@ -1,10 +1,15 @@
 package edu.georgetown.library.fileAnalyzer.util;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -13,7 +18,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import gov.loc.repository.bagit.Bag;
+import gov.loc.repository.bagit.BagFile;
 import gov.loc.repository.bagit.BagInfoTxt;
+import gov.loc.repository.bagit.Manifest.Algorithm;
 import edu.georgetown.library.fileAnalyzer.util.XMLUtil;
 import edu.georgetown.library.fileAnalyzer.util.XMLUtil.SimpleNamespaceContext;
 
@@ -37,6 +44,7 @@ public class APTrustHelper extends TarBagHelper {
     public enum Access {Consortia, Restricted, Institution;}
 
     File aptinfo;
+    private Map<String,String> checksums = new HashMap<>();
     boolean allowSourceRename;
     
     public APTrustHelper(File parent, boolean allowSourceRename) {
@@ -185,4 +193,38 @@ public class APTrustHelper extends TarBagHelper {
             throw new InvalidMetadataException(e.getMessage());
         }
     }
+    
+    public void saveChecksums() {
+        for(BagFile bf: data.bag.getPayload()){
+            checksums.put(bf.getFilepath(), data.bag.getChecksums(bf.getFilepath()).get(Algorithm.MD5));
+        }
+    }
+    
+    public Map<String, String> compareChecksums(File checksumFile) throws FileNotFoundException, IOException {
+        Map<String, String> errors = new HashMap<>();
+        try(BufferedReader br = new BufferedReader(new FileReader(checksumFile))){
+            for(String line = br.readLine(); line != null; line = br.readLine()) {
+                String[] parts = line.split(",");
+                if (parts.length < 2) continue;
+                String csum = parts[0];
+                String name = parts[1];
+                
+                String bagCsum = checksums.get(name);
+                if (bagCsum == null) {
+                    String s = String.format("No checksum found for path: %s", name);
+                    for(String tkey: checksums.keySet()) {
+                        if (checksums.get(tkey).equals(csum)) {
+                            s = String.format("No checksum found for path: %s; A match found in the bag with path: %s", name, tkey);
+                        }
+                    }
+                    errors.put(name, s);
+                } else if (!bagCsum.equals(csum)) {
+                    errors.put(name, String.format("Checksum Mismatch for %s [Compare File:%s; Bag:%s]", name, csum, bagCsum));                    
+                }
+            }
+        }
+        
+        return errors;
+    }
+
 }
