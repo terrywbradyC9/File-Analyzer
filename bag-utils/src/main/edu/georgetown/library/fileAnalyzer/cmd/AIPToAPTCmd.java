@@ -141,8 +141,8 @@ public class AIPToAPTCmd {
     }
 
     public static void usage() {
-        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] <AIP_Dir>", CMD));
-        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] <AIP_Zip>", CMD));
+        System.out.println(String.format("%s -dir (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] [-compareFile <file>] <AIP_Dir>", CMD));
+        System.out.println(String.format("%s -zip (-consortia|-institution|-restricted) -srcorg SrcOrg [-min 1] [-rename] [-compareFile <file>] <AIP_Zip>", CMD));
     }
     
     public static CommandLine parseAipCommandLine(String main, String[] args) {
