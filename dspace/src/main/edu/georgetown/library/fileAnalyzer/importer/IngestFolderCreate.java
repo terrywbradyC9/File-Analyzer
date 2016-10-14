@@ -169,7 +169,7 @@ public class IngestFolderCreate extends DefaultImporter {
 	public String getDescription() {
 		return "This will create DSpace Ingest Folders.  Note: this action will MOVE files into the ingest folder structure.  Please save a backup of your initial directory before running this action the first time.\n"+
 				"The File Test 'Ingest Inventory' can be used to create an initial spreadsheet if one does not exist.\n"+
-				"File Structure\n"+
+				"File Structure (tab-separated file)\n"+
 				"\t1) Folder Name - A unique folder will be created for each item to be ingested.  Names must be unique\n"+
 				"\t2) Item file name - required, a file with that name must exist relative to the imported spreadsheet\n"+
 				"\t3) Thumbnail file name - optional, file must exist if present\n"+
