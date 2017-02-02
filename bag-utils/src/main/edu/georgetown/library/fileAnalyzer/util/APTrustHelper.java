@@ -184,6 +184,7 @@ public class APTrustHelper extends TarBagHelper {
             SimpleNamespaceContext nsContext = new XMLUtil().new SimpleNamespaceContext();
             nsContext.add("mods", "http://www.loc.gov/mods/v3");
             nsContext.add("mets", "http://www.loc.gov/METS/");
+            nsContext.add("xlink", "http://www.w3.org/1999/xlink");
             xp.setNamespaceContext(nsContext);
             
             String title = xp.evaluate("/mets:mets/mets:dmdSec/mets:mdWrap/mets:xmlData/mods:mods/mods:titleInfo/mods:title", doc);
