@@ -191,7 +191,7 @@ public class APTrustHelper extends TarBagHelper {
                 title = "No title found";
             }
             setTitle(title.replaceAll("\\s+", " "));                
-            String parent = xp.evaluate("/mets:mets/mets:strucMap[@LABEL='Parent']/mets:div[@TYPE='AIP Parent Link']/mets:mptr/@hlink:href", doc);
+            String parent = xp.evaluate("/mets:mets/mets:strucMap[@LABEL='Parent']/mets:div[@TYPE='AIP Parent Link']/mets:mptr/@xlink:href", doc);
             if (parent == null || parent.isEmpty()) {
                 parent = "N/A";
             }
