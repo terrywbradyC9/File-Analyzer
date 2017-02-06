@@ -61,6 +61,7 @@ public class APTrustHelper extends TarBagHelper {
     private String intSendDesc = null;
     private String intSendId = null;
     private String title = null;
+    private String parent = null;
     
 	public void setInstitutionId(String instId) {
 		this.instId = instId;
@@ -98,6 +99,9 @@ public class APTrustHelper extends TarBagHelper {
 	public void setTitle(String title) {
 		this.title = title;
 	}    
+    public void setParent(String parent) {
+        this.parent = parent;
+    }    
    
     @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsException {
     	if (instId == null) sb.append("Institution Id cannot be null. \n");
@@ -156,6 +160,7 @@ public class APTrustHelper extends TarBagHelper {
         bit.addSourceOrganization(srcOrg);
 	    bit.addInternalSenderDescription(intSendDesc);
 	    bit.addInternalSenderIdentifier(intSendId);
+	    bit.addBagGroupIdentifier(parent);
 	    bit.setBagCount(String.format("%d of %d", ibagCount, ibagTotal));
     }
     
@@ -179,13 +184,19 @@ public class APTrustHelper extends TarBagHelper {
             SimpleNamespaceContext nsContext = new XMLUtil().new SimpleNamespaceContext();
             nsContext.add("mods", "http://www.loc.gov/mods/v3");
             nsContext.add("mets", "http://www.loc.gov/METS/");
+            nsContext.add("xlink", "http://www.w3.org/1999/xlink");
             xp.setNamespaceContext(nsContext);
             
             String title = xp.evaluate("/mets:mets/mets:dmdSec/mets:mdWrap/mets:xmlData/mods:mods/mods:titleInfo/mods:title", doc);
             if (title == null || title.isEmpty()) {
                 title = "No title found";
             }
-            setTitle(title);                
+            setTitle(title.replaceAll("\\s+", " "));                
+            String parent = xp.evaluate("/mets:mets/mets:structMap[@LABEL='Parent']/mets:div[@TYPE='AIP Parent Link']/mets:mptr/@xlink:href", doc);
+            if (parent == null || parent.isEmpty()) {
+                parent = "N/A";
+            }
+            setParent(parent);
             setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
         } catch (SAXException e) {
             throw new InvalidMetadataException(e.getMessage());
