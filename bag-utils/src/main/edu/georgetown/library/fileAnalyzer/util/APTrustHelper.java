@@ -240,7 +240,10 @@ public class APTrustHelper extends TarBagHelper {
             XPath xp = XMLUtil.xf.newXPath();
 	    System.out.println(xp.evaluate("name(/*)", doc));
 		
-            String id = xp.evaluate("/ead/archdesc/did/unitid", doc);
+           System.out.println("xx:"+xp.evaluate("/ead/archdesc/did/unitid/text()", doc));
+           System.out.println("xx:"+xp.evaluate(concat('a',count("/ead/*))", doc));
+ 		
+            String id = xp.evaluate("/ead/archdesc/did/unitid/text()", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
             if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
             setInstitutionalSenderId(id);
