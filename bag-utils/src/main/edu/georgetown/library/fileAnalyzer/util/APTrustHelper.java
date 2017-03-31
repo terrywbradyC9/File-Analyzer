@@ -237,6 +237,8 @@ public class APTrustHelper extends TarBagHelper {
 	    //namespace is opaque when coming out of AS
             Document doc = XMLUtil.db.parse(zeout);
 		
+	    System.out.println(xp.evaluate("node-name(/*)", doc));
+		
             String id = xp.evaluate("/ead/archdesc/did/unitid", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
             if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
