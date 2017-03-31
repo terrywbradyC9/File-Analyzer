@@ -32,7 +32,10 @@ public class AIPDirToAPTHelper extends AIPToAPTHelper {
         } else {
             if (f.getName().equals(METSXML)) {
                 aptHelper.parseMetsFile(f);
+            } else if (f.getName().startsWith("ead.")) {
+                aptHelper.parseEadFile(f);
             }
+
         }
     }
 

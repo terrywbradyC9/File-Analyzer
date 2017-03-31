@@ -231,7 +231,36 @@ public class APTrustHelper extends TarBagHelper {
             throw new InvalidMetadataException(e.getMessage());
         }
     }
-    
+
+    public void parseEadFile(File zeout) throws IOException, InvalidMetadataException {
+        try {
+            Document doc = XMLUtil.db_ns.parse(zeout);
+            
+            XPath xp = XMLUtil.xf.newXPath();
+            SimpleNamespaceContext nsContext = new XMLUtil().new SimpleNamespaceContext();
+            nsContext.add("ead", "http://www.loc.gov/ead/ead.xsd");
+            xp.setNamespaceContext(nsContext);
+            
+            String id = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unitid/text()", doc);
+            if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
+            if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
+            setInstitutionalSenderId(id);
+            
+            String title = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unittitle/text()", doc);
+            if (title == null || title.isEmpty()) {
+                title = "No title found";
+            }
+            setTitle(title.replaceAll("\\s+", " "));                
+            String parent = "N/A";
+            setParent(parent);
+            setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
+        } catch (SAXException e) {
+           throw new InvalidMetadataException(e.getMessage());
+        } catch (XPathExpressionException e) {
+            throw new InvalidMetadataException(e.getMessage());
+        }
+    }
+
     public void saveChecksums() {
         for(BagFile bf: data.bag.getPayload()){
             checksums.put(bf.getFilepath(), data.bag.getChecksums(bf.getFilepath()).get(Algorithm.MD5));
