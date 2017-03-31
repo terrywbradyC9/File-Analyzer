@@ -234,22 +234,15 @@ public class APTrustHelper extends TarBagHelper {
 
     public void parseEadFile(File zeout) throws IOException, InvalidMetadataException {
         try {
-            Document doc = XMLUtil.db_ns.parse(zeout);
-            
-            XPath xp = XMLUtil.xf.newXPath();
-            SimpleNamespaceContext nsContext = new XMLUtil().new SimpleNamespaceContext();
-            nsContext.add("ead", "http://www.loc.gov/ead/ead.xsd");
-            xp.setNamespaceContext(nsContext);
-            
-            System.out.println(xp.evaluate("namespace-uri(/*)", doc));
-	
+	    //namespace is opaque when coming out of AS
+            Document doc = XMLUtil.db.parse(zeout);
 		
-            String id = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unitid", doc);
+            String id = xp.evaluate("/ead/archdesc/did/unitid", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
             if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
             setInstitutionalSenderId(id);
             
-            String title = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unittitle", doc);
+            String title = xp.evaluate("/ead/archdesc/did/unittitle", doc);
             if (title == null || title.isEmpty()) {
                 title = "No title found";
             }
