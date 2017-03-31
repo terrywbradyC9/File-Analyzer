@@ -237,6 +237,7 @@ public class APTrustHelper extends TarBagHelper {
 	    //namespace is opaque when coming out of AS
             Document doc = XMLUtil.db.parse(zeout);
 		
+            XPath xp = XMLUtil.xf.newXPath();
 	    System.out.println(xp.evaluate("node-name(/*)", doc));
 		
             String id = xp.evaluate("/ead/archdesc/did/unitid", doc);
