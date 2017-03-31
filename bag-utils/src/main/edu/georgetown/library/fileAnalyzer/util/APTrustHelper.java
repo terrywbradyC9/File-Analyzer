@@ -241,6 +241,9 @@ public class APTrustHelper extends TarBagHelper {
             nsContext.add("ead", "http://www.loc.gov/ead/ead.xsd");
             xp.setNamespaceContext(nsContext);
             
+            System.out.println(xp.evaluate("namespace-uri(/*)", doc));
+	
+		
             String id = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unitid", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
             if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
