@@ -241,12 +241,12 @@ public class APTrustHelper extends TarBagHelper {
             nsContext.add("ead", "http://www.loc.gov/ead/ead.xsd");
             xp.setNamespaceContext(nsContext);
             
-            String id = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unitid/text()", doc);
+            String id = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unitid", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
             if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
             setInstitutionalSenderId(id);
             
-            String title = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unittitle/text()", doc);
+            String title = xp.evaluate("/ead:ead/ead:archdesc/ead:did/ead:unittitle", doc);
             if (title == null || title.isEmpty()) {
                 title = "No title found";
             }
