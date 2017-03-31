@@ -238,7 +238,7 @@ public class APTrustHelper extends TarBagHelper {
             Document doc = XMLUtil.db.parse(zeout);
 		
             XPath xp = XMLUtil.xf.newXPath();
-	    System.out.println(xp.evaluate("node-name(/*)", doc));
+	    System.out.println(xp.evaluate("name(/*)", doc));
 		
             String id = xp.evaluate("/ead/archdesc/did/unitid", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
