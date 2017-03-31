@@ -241,7 +241,7 @@ public class APTrustHelper extends TarBagHelper {
 	    System.out.println(xp.evaluate("name(/*)", doc));
 		
            System.out.println("xx:"+xp.evaluate("/ead/archdesc/did/unitid/text()", doc));
-           System.out.println("xx:"+xp.evaluate(concat('a',count("/ead/*))", doc));
+           System.out.println("xx:"+xp.evaluate("concat('a',count(/ead/*))", doc));
  		
             String id = xp.evaluate("/ead/archdesc/did/unitid/text()", doc);
             if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
