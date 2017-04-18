@@ -104,21 +104,48 @@ public class APTrustHelper extends TarBagHelper {
     }    
    
     @Override public void validateImpl(StringBuilder sb) throws IncompleteSettingsException {
-    	if (instId == null) sb.append("Institution Id cannot be null. \n");
-    	if (instId.isEmpty()) sb.append("Institution Id cannot be empty. \n");
-    	if (itemUid == null) sb.append("Item Identifier cannot be null. \n");
-    	if (itemUid.isEmpty()) sb.append("Item Identifier cannot be empty. \n");
-    	if (ibagCount == null) sb.append("Bag count must be set. \n");
-    	if (ibagTotal == null) sb.append("Bag total must be set. \n");
-    	if (access == null) sb.append("Access type must be set. \n");
-    	if (srcOrg == null) sb.append("Source Organization cannot be null. \n");
-    	if (srcOrg.isEmpty()) sb.append("Source Organization cannot be empty. \n");
-    	if (intSendDesc == null) sb.append("Institution Sender Description cannot be null. \n");
+    	if (instId == null) {
+    		sb.append("Institution Id cannot be null. \n");
+    	} else if (instId.isEmpty()) {
+    		sb.append("Institution Id cannot be empty. \n");
+    	}
+    	
+    	if (itemUid == null) {
+    		sb.append("Item Identifier cannot be null. \n");
+    	} else if (itemUid.isEmpty()) {
+    		sb.append("Item Identifier cannot be empty. \n");
+    	}
+    	
+    	if (ibagCount == null) {
+    		sb.append("Bag count must be set. \n");
+    	}
+    	if (ibagTotal == null) {
+    		sb.append("Bag total must be set. \n");
+    	}
+    	if (access == null) {
+    		sb.append("Access type must be set. \n");
+    	}
+    	
+    	if (srcOrg == null) {
+    		sb.append("Source Organization cannot be null. \n");
+    	} else if (srcOrg.isEmpty()) {
+    		sb.append("Source Organization cannot be empty. \n");
+    	}
+    	if (intSendDesc == null) {
+    		sb.append("Institution Sender Description cannot be null. \n");
+    	}
     	//if (intSendDesc.isEmpty()) sb.append("Institution Sender Description cannot be empty. \n");
-    	if (intSendId == null) sb.append("Institution Sender Id cannot be null. \n");
-    	if (intSendId.isEmpty()) sb.append("Institution Sender Id cannot be empty. \n");
-    	if (title == null) sb.append("Title cannot be null. \n");
-    	if (title.isEmpty()) sb.append("Title cannot be empty. \n");
+    	if (intSendId == null) {
+    		sb.append("Institution Sender Id cannot be null. \n");
+    	} else if (intSendId.isEmpty()) {
+    		sb.append("Institution Sender Id cannot be empty. \n");
+    	}
+    	
+    	if (title == null) {
+    		sb.append("Title cannot be null. \n");
+    	} else if (title.isEmpty()) {
+    		sb.append("Title cannot be empty. \n");
+    	}
     }
         
     @Override public void createBagFile() throws IncompleteSettingsException {
@@ -204,7 +231,34 @@ public class APTrustHelper extends TarBagHelper {
             throw new InvalidMetadataException(e.getMessage());
         }
     }
-    
+
+    public void parseEadFile(File zeout) throws IOException, InvalidMetadataException {
+        try {
+	    //namespace is opaque when coming out of AS
+            Document doc = XMLUtil.db.parse(zeout);
+		
+            XPath xp = XMLUtil.xf.newXPath();
+            String id = xp.evaluate("/ead/archdesc/did/unitid/text()", doc);
+            if (id == null) throw new InvalidMetadataException("The ead must have a unitid");
+            if (id.isEmpty()) throw new InvalidMetadataException("The ead must not have an empty unitid");
+            setInstitutionalSenderId(id);
+	    setItemIdentifer(id);
+            
+            String title = xp.evaluate("/ead/archdesc/did/unittitle", doc);
+            if (title == null || title.isEmpty()) {
+                title = "No title found";
+            }
+            setTitle(title.replaceAll("\\s+", " "));                
+            String parent = "N/A";
+            setParent(parent);
+            setInstitutionalSenderDesc("See the bag manifest for the contents of the bag");
+        } catch (SAXException e) {
+           throw new InvalidMetadataException(e.getMessage());
+        } catch (XPathExpressionException e) {
+            throw new InvalidMetadataException(e.getMessage());
+        }
+    }
+
     public void saveChecksums() {
         for(BagFile bf: data.bag.getPayload()){
             checksums.put(bf.getFilepath(), data.bag.getChecksums(bf.getFilepath()).get(Algorithm.MD5));
